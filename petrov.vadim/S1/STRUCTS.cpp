@@ -229,12 +229,7 @@ namespace petrov
   template< class T >
   LIter< T > List< T >::getLast()
   {
-    LIter< T > it = begin();
-    while (it.hasNext())
-    {
-      it = it.next();
-    }
-    return it;
+    return List< T >::getLast() const;
   }
 
   template< class T >
