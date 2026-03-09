@@ -6,4 +6,4 @@ namespace petrov
 {
   void mkData(std::istream& input, List< std::pair< std::string, size_t > >& data);
 }
-#endif // !FOO_HPP
+#endif
