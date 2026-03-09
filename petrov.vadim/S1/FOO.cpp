@@ -1,5 +1,6 @@
 #include "FOO.hpp"
 #include <istream>
+#include <iostream>
 
 namespace petrov
 {
@@ -26,5 +27,26 @@ namespace petrov
         input.clear();
       }
     }
+  }
+
+  void printAllList(List< std::pair< std::string, List< size_t > > >& data)
+  {
+    LIter< std::pair< std::string, List< size_t > > > outIt = data.begin();
+    while (outIt.hasNext())
+    {
+      std::cout << (*outIt).first << " ";
+      outIt = outIt.next();
+    }
+    std::cout << "\n";
+
+    LIter< size_t > last = (*data.end()).second.end();
+    LIter< size_t > now = (*data.begin()).second.begin();
+    
+    while (now != last)
+    {
+      outIt = data.begin();
+
+    }
+    
   }
 }

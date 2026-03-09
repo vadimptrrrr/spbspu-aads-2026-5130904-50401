@@ -4,7 +4,7 @@
 #include <string>
 namespace petrov
 {
-  void mkData(std::istream& input, List< std::pair< std::string, size_t > >& data);
+  void mkData(std::istream& input, List< std::pair< std::string, List< size_t > > >& data);
   void printAllList(List< std::pair< std::string, size_t > >& data);
 }
 #endif
