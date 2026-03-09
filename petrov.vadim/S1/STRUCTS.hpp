@@ -20,13 +20,13 @@ namespace petrov
     Node< T >* nd;
 
     public:
-      LIter();
-      LIter(Node< T >* p);
-      bool hasNext() const;
+      LIter() noexcept;
+      LIter(Node< T >* p) noexcept;
+      bool hasNext() const noexcept;
       LIter< T > next() const;
       T& operator*() const;
-      bool operator==(const LIter< T >& it) const;
-      bool operator!=(const LIter< T >& it) const;
+      bool operator==(const LIter< T >& it) const noexcept;
+      bool operator!=(const LIter< T >& it) const noexcept;
   };
 
   template< class T >
@@ -36,13 +36,13 @@ namespace petrov
     const Node< T >* nd;
 
     public:
-      LCIter();
-      LCIter(const Node< T >* p);
-      bool hasNext() const;
+      LCIter() noexcept;
+      LCIter(const Node< T >* p) noexcept;
+      bool hasNext() const noexcept;
       LCIter< T > next() const;
       const T& operator*() const;
-      bool operator==(const LCIter< T >& it) const;
-      bool operator!=(const LCIter< T >& it) const;
+      bool operator==(const LCIter< T >& it) const noexcept;
+      bool operator!=(const LCIter< T >& it) const noexcept;
   };
 
   template< class T >
@@ -50,7 +50,7 @@ namespace petrov
   {
     Node< T >* fake;
     Node< T >* mkFake();
-    void delFake();
+    void delFake() noexcept;
 
     public:
       List();
@@ -59,18 +59,18 @@ namespace petrov
       List< T >& operator=(const List< T >& l);
       List< T >& operator=(List< T >&& l);
       ~List();
-      void clear();
+      void clear() noexcept;
 
-      LIter< T > begin();
-      LCIter< T > begin() const;
-      LIter< T > end();
-      LCIter< T > end() const;
+      LIter< T > begin() noexcept;
+      LCIter< T > begin() const noexcept;
+      LIter< T > end() noexcept;
+      LCIter< T > end() const noexcept;
 
-      LIter< T > getLast();
-      LCIter< T > getLast() const;
+      LIter< T > getLast() noexcept;
+      LCIter< T > getLast() const noexcept;
 
       LIter< T > addStart(const T& a);
-      void popStart();
+      void popStart() noexcept;
 
       LIter< T > insert(LIter< T > id, const T& a);
       LIter< T > insert(LIter< T > id, const T&& a);

@@ -3,17 +3,17 @@
 namespace petrov
 {
   template< class T >
-  LIter< T >::LIter():
+  LIter< T >::LIter() noexcept:
     nd{nullptr}
   {}
 
   template< class T >
-  LIter< T >::LIter(Node< T >* n):
+  LIter< T >::LIter(Node< T >* n) noexcept:
     nd{n}
   {}
 
   template< class T >
-  bool LIter< T >::hasNext() const
+  bool LIter< T >::hasNext() const noexcept
   {
     return nd != nullptr;
   }
@@ -27,7 +27,7 @@ namespace petrov
     }
     else
     {
-      throw;
+      throw std::runtime_error("Go to nullptr");
     }
   }
 
@@ -40,34 +40,35 @@ namespace petrov
     }
     else
     {
-      throw;
+      throw std::runtime_error("Go to nullptr");
     }
   }
 
   template< class T >
-  bool LIter< T >::operator==(const LIter< T >& it) const
+  bool LIter< T >::operator==(const LIter< T >& it) const noexcept
   {
     return nd == it.nd;
   }
 
   template< class T >
-  bool LIter< T >::operator!=(const LIter< T >& it) const
+  bool LIter< T >::operator!=(const LIter< T >& it) const noexcept
   {
     return !(this == it);
   }
 
   template< class T >
-  LCIter< T >::LCIter():
+  LCIter< T >::LCIter() noexcept:
     nd{nullptr}
   {}
 
   template< class T >
-  LCIter< T >::LCIter(const Node< T >* n):
+  LCIter< T >::LCIter(const Node< T >* n) noexcept:
     nd{n}
   {}
 
   template< class T >
-  bool LCIter< T >::hasNext() const{
+  bool LCIter< T >::hasNext() const noexcept
+  {
     return nd != nullptr;
   }
 
@@ -80,7 +81,7 @@ namespace petrov
     }
     else
     {
-      throw;
+      throw std::runtime_error("Go to nullptr");
     }
   }
 
@@ -93,18 +94,18 @@ namespace petrov
     }
     else
     {
-      throw;
+      throw std::runtime_error("Go to nullptr");
     }
   }
 
   template< class T >
-  bool LCIter< T >::operator==(const LCIter< T >& it) const
+  bool LCIter< T >::operator==(const LCIter< T >& it) const noexcept
   {
     return nd == it.nd;
   }
 
   template< class T >
-  bool LCIter< T >::operator!=(const LCIter< T >& it) const
+  bool LCIter< T >::operator!=(const LCIter< T >& it) const noexcept
   {
     return !(this == it);
   }
@@ -117,7 +118,7 @@ namespace petrov
   }
 
   template< class T >
-  void List< T >::delFake()
+  void List< T >::delFake() noexcept
   {
     delete fake;
   }
@@ -192,7 +193,7 @@ namespace petrov
   }
 
   template< class T >
-  void List< T >::clear()
+  void List< T >::clear() noexcept
   {
     while(fake->next)
     {
@@ -203,37 +204,37 @@ namespace petrov
   }
 
   template< class T >
-  LIter< T > List< T >::begin()
+  LIter< T > List< T >::begin() noexcept
   {
     return fake->next;
   }
 
   template< class T >
-  LCIter< T > List< T >::begin() const
+  LCIter< T > List< T >::begin() const noexcept
   {
     return fake->next;
   }
 
   template< class T >
-  LIter< T > List< T >::end()
+  LIter< T > List< T >::end() noexcept
   {
-    return nullptr;
+    return LIter< T > (nullptr);
   }
 
   template< class T >
-  LCIter< T > List< T >::end() const
+  LCIter< T > List< T >::end() const noexcept
   {
-    return nullptr;
+    return LCIter< T > (nullptr);
   }
 
   template< class T >
-  LIter< T > List< T >::getLast()
+  LIter< T > List< T >::getLast() noexcept
   {
     return List< T >::getLast() const;
   }
 
   template< class T >
-  LCIter< T > List< T >::getLast() const
+  LCIter< T > List< T >::getLast() const noexcept
   {
     LCIter< T > it = begin();
     while (it.hasNext())
@@ -252,7 +253,7 @@ namespace petrov
   }
 
   template< class T >
-  void List< T >::popStart()
+  void List< T >::popStart() noexcept
   {
     if (fake->next)
     {
