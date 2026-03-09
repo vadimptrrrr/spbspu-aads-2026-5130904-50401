@@ -101,7 +101,7 @@ namespace petrov
   {
     if(nd)
     {
-      return nd->next;
+      return LIter< T >(nd->next);
     }
     else
     {
@@ -155,7 +155,7 @@ namespace petrov
   {
     if(nd)
     {
-      return nd->next;
+      return LCIter< T >(nd->next);
     }
     else
     {
@@ -192,6 +192,7 @@ namespace petrov
   Node< T >* List< T >::mkFake()
   {
     Node< T >* f = new Node< T >;
+    f->next = nullptr;
     return f;
   }
 
@@ -224,8 +225,7 @@ namespace petrov
   List< T >::List(List< T >&& l):
     fake{l.fake}
   {
-    fake->next = l.fake->next;
-    l.fake->next = nullptr;
+    l.fake = nullptr;
   }
 
   template< class T >
@@ -257,8 +257,8 @@ namespace petrov
     {
       clear();
       delFake();
-      fake = l.fake->next;
-      l.fake->next = nullptr;
+      fake = l.fake;
+      l.fake = nullptr;
     }
     return *this;
   }
@@ -266,8 +266,11 @@ namespace petrov
   template< class T >
   List< T >::~List()
   {
-    clear();
-    delFake();
+    if(fake)
+    {
+      clear();
+      delFake();
+    }
   }
 
   template< class T >
@@ -359,10 +362,9 @@ namespace petrov
   {
     if(id.hasNext())
     {
-      Node< T >* n = new Node< T > {a, id.next().nd};
+      Node< T >* n = new Node< T > {a, id.nd->next};
       id.nd->next = n;
-      id = id.nd->next;
-      return LIter< T >(id);
+      return LIter<T>(n);
     }
     else
     {
@@ -375,10 +377,9 @@ namespace petrov
   {
     if(id.hasNext())
     {
-      Node< T >* n = new Node< T > {a, id.next().nd};
+      Node< T >* n = new Node< T > {a, id.nd->next};
       id.nd->next = n;
-      id = id.nd->next;
-      return LIter< T >(id);
+      return LIter<T>(n);
     }
     else
     {
