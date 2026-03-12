@@ -49,9 +49,9 @@ namespace petrov
   template< class T >
   class List
   {
-    Node< T >* fake;
-    Node< T >* mkFake();
-    void delFake() noexcept;
+    Node< T >* head;
+    Node< T >* tail;
+    size_t size_;
 
     public:
       List();
@@ -131,7 +131,7 @@ namespace petrov
   template< class T >
   bool LIter< T >::operator!=(const LIter< T >& it) const noexcept
   {
-    return !(this == it);
+    return nd != it.nd;
   }
 
   template< class T >
@@ -189,43 +189,42 @@ namespace petrov
   }
 
   template< class T >
-  Node< T >* List< T >::mkFake()
-  {
-    Node< T >* f = new Node< T >;
-    f->next = nullptr;
-    return f;
-  }
-
-  template< class T >
-  void List< T >::delFake() noexcept
-  {
-    delete fake;
-  }
-
-  template< class T >
   List< T >::List():
-    fake{mkFake()}
+    head{nullptr}, tail{nullptr}, size_{0}
   {}
 
   template< class T >
   List< T >::List(const List< T >& l):
-    fake{mkFake()}
+    head{nullptr}, tail{nullptr}, size_{0}
   {
-    Node< T >* nl = l.fake->next;
-    Node< T >* n = fake;
-    while(nl)
+    Node< T >* nl = l.head;
+    Node< T >* n = head;
+    if(l.head)
     {
-      n->next = new Node< T >{nl->val, nullptr};
-      n = n->next;
-      nl = nl->next;
+      while (nl)
+      {
+        if(nl->next)
+        {
+          n->next = new Node< T >{nl->val, nl->next};
+          n = n->next;
+          nl = nl->next;
+          size_++;
+        }
+        else
+        {
+          tail = n;
+        }
+      } 
     }
   }
 
   template< class T >
   List< T >::List(List< T >&& l):
-    fake{l.fake}
+    head{l.head}, tail{l.tail}, size_{l.size_}
   {
-    l.fake = nullptr;
+    l.head = nullptr;
+    l.tail = nullptr;
+    l.size_ = 0;
   }
 
   template< class T >
@@ -234,17 +233,12 @@ namespace petrov
     if (this != &l)
     {
       clear();
-      fake->next = nullptr;
-      if (l.fake->next)
+      Node< T >* nl = l.head;
+      while(nl)
       {
-        Node< T >* nl = l.fake->next;
-        Node< T >* n = fake;
-        while(nl)
-        {
-          n->next = new Node< T >{nl->val, nullptr};
-          n = n->next;
-          nl = nl->next;
-        }
+        LIter< T > pos = getLast();
+        insert(pos, nl->val);
+        nl = nl->next;
       }
     }
     return *this;
@@ -256,9 +250,12 @@ namespace petrov
     if (this != &l)
     {
       clear();
-      delFake();
-      fake = l.fake;
-      l.fake = nullptr;
+      head = l.head;
+      tail = l.tail;
+      size_ = l.size_;
+      l.head = nullptr;
+      l.tail = nullptr;
+      l.size_ = 0;
     }
     return *this;
   }
@@ -266,34 +263,32 @@ namespace petrov
   template< class T >
   List< T >::~List()
   {
-    if(fake)
-    {
-      clear();
-      delFake();
-    }
+    clear();
   }
 
   template< class T >
   void List< T >::clear() noexcept
   {
-    while(fake->next)
+    while(head)
     {
-      Node< T >* tmp = fake->next;
-      fake->next = tmp->next;
+      Node< T >* tmp = head;
+      head = head->next;
       delete tmp;
     }
+    tail = nullptr;
+    size_ = 0;
   }
 
   template< class T >
   LIter< T > List< T >::begin() noexcept
   {
-    return fake->next;
+    return LIter< T >(head);
   }
 
   template< class T >
   LCIter< T > List< T >::begin() const noexcept
   {
-    return fake->next;
+    return LIter< T >(head);
   }
 
   template< class T >
@@ -311,49 +306,33 @@ namespace petrov
   template< class T >
   LIter< T > List< T >::getLast() noexcept
   {
-    if (fake->next == nullptr)
-    {
-      return end();
-    }
-    LIter< T > it = begin();
-    while (it.next().nd != nullptr)
-    {
-      it = it.next();
-    }
-    return it;
+    return LIter< T >(tail);
   }
 
   template< class T >
   LCIter< T > List< T >::getLast() const noexcept
   {
-    if (fake->next == nullptr)
-    {
-      return end();
-    }
-    LCIter< T > it = begin();
-    while (it.next().nd != nullptr)
-    {
-      it = it.next();
-    }
-    return it;
+    return LCIter< T >(tail);
   }
 
   template< class T >
   LIter< T > List< T >::addStart(const T& a)
   {
-    Node< T >* n = new Node< T >{a, fake->next};
-    fake->next = n;
-    return n;
+    Node< T >* n = new Node< T >{a, head};
+    head = n;
+    size_++;
+    return LIter< T >(n);
   }
 
   template< class T >
   void List< T >::popStart() noexcept
   {
-    if (fake->next)
+    if (head)
     {
-      Node< T >* tmp = fake->next->next;
-      delete fake->next;
-      fake->next = tmp;
+      Node< T >* tmp = head;
+      head = head->next;
+      delete tmp;
+      size_--;
     }
   }
 
@@ -362,9 +341,14 @@ namespace petrov
   {
     if(id.hasNext())
     {
-      Node< T >* n = new Node< T > {a, id.nd->next};
+      Node< T >* n = new Node< T >{a, id.nd->next};
       id.nd->next = n;
-      return LIter<T>(n);
+      if (id.nd == tail)
+      {
+        tail = n;
+      }
+      size_++;
+      return LIter< T >(n);
     }
     else
     {
@@ -377,9 +361,14 @@ namespace petrov
   {
     if(id.hasNext())
     {
-      Node< T >* n = new Node< T > {a, id.nd->next};
+      Node< T >* n = new Node< T >{a, id.nd->next};
       id.nd->next = n;
-      return LIter<T>(n);
+      if (id.nd == tail)
+      {
+        tail = n;
+      }
+      size_++;
+      return LIter< T >(n);
     }
     else
     {
