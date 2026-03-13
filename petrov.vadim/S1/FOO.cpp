@@ -29,6 +29,18 @@ namespace petrov
     }
   }
 
+  size_t maxLen(const List< std::pair< std::string, List< size_t > > >& data)
+  {
+    size_t max = 0;
+    LCIter< std::pair< std::string, List< size_t > > > it = data.begin();
+    while (it.hasNext())
+    {
+      max = std::max(max, (*it).second.size());
+      it = it.next();
+    }
+    return max;
+  }
+
   void printAllList(List< std::pair< std::string, List< size_t > > >& data)
   {
     LIter< std::pair< std::string, List< size_t > > > outIt = data.begin();
