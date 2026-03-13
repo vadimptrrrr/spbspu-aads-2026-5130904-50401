@@ -61,6 +61,7 @@ namespace petrov
       List< T >& operator=(List< T >&& l);
       ~List();
       void clear() noexcept;
+      size_t size() const noexcept;
 
       LIter< T > begin() noexcept;
       LCIter< T > begin() const noexcept;
@@ -277,6 +278,12 @@ namespace petrov
     }
     tail = nullptr;
     size_ = 0;
+  }
+
+  template< class T >
+  size_t List< T >::size() const noexcept
+  {
+    return size_;
   }
 
   template< class T >
