@@ -56,13 +56,15 @@ namespace petrov
     else
     {
       LIter< std::pair< std::string, List< size_t > > > outIt = data.begin();
+      bool first = true;
       for(; outIt != data.end(); outIt = outIt.next())
       {
         out << (*outIt).first;
-        if(outIt.hasNext())
+        if(!first)
         {
           out << " ";
         }
+        first = false;
       }
       out << "\n";
 
@@ -88,7 +90,12 @@ namespace petrov
               out << " ";
             }
             out << *n;
-            sum += *n;
+            size_t newSum = sum + *n;
+            if (newSum < sum)
+            {
+              throw std::overflow_error("Overflow in sum calculation");
+            }
+            sum = newSum;
             firstInRow = false;
           }
           outIt = outIt.next();
@@ -115,6 +122,10 @@ namespace petrov
         it = it.next();
       }
       out << "\n";
+    }
+    else
+    {
+      out << "0\n";
     }
   }
 }
