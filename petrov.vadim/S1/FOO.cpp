@@ -65,10 +65,13 @@ namespace petrov
       }
       out << "\n";
 
-      outIt = data.begin();
       size_t maxListLen = maxLen(data);
+      List< size_t > sums;
+      LIter< size_t > s = sums.begin();
       for(size_t i = 0; i < maxListLen; i++)
       {
+        outIt = data.begin();
+        size_t sum = 0;
         while (outIt.hasNext())
         {
           if(canShowItem((*outIt).second, i + 1))
@@ -79,15 +82,26 @@ namespace petrov
               n = n.next();
             }
             out << *n;
+            sum += *n;
+
+            if(outIt.hasNext())
+            {
+              out << " ";
+            }
+            else
+            {
+              out << "\n";
+            }
           }
           outIt = outIt.next();
-          if(outIt.hasNext())
-          {
-            out << " ";
-          }
         }
-        out << "\n";
+        s = sums.insert(s, sum);
       }
     }
+  }
+
+  LIter< size_t > showSums(List< size_t >& sums, std::istream& out)
+  {
+    
   }
 }
