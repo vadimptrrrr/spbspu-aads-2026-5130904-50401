@@ -186,7 +186,7 @@ namespace petrov
   template< class T >
   bool LCIter< T >::operator!=(const LCIter< T >& it) const noexcept
   {
-    return !(this == it);
+    return nd != it.nd;
   }
 
   template< class T >
@@ -198,25 +198,18 @@ namespace petrov
   List< T >::List(const List< T >& l):
     head{nullptr}, tail{nullptr}, size_{0}
   {
-    Node< T >* nl = l.head;
+    head = new Node< T >{l.head->val, nullptr};
     Node< T >* n = head;
-    if(l.head)
+    size_ = 1;
+    Node< T >* nl = l.head->next;
+    while(nl)
     {
-      while (nl)
-      {
-        if(nl->next)
-        {
-          n->next = new Node< T >{nl->val, nl->next};
-          n = n->next;
-          nl = nl->next;
-          size_++;
-        }
-        else
-        {
-          tail = n;
-        }
-      }
+      n->next = new Node< T >{nl->val, nullptr};
+      n = n->next;
+      size_++;
+      nl = nl->next;
     }
+    tail = n;
   }
 
   template< class T >
@@ -327,6 +320,10 @@ namespace petrov
   {
     Node< T >* n = new Node< T >{a, head};
     head = n;
+    if (tail == nullptr)
+    {
+      tail = n;
+    }
     size_++;
     return LIter< T >(n);
   }
@@ -338,6 +335,10 @@ namespace petrov
     {
       Node< T >* tmp = head;
       head = head->next;
+      if (head == nullptr)
+      {
+        tail = nullptr;
+      }
       delete tmp;
       size_--;
     }

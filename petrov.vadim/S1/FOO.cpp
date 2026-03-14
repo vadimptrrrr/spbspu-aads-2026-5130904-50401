@@ -98,7 +98,9 @@ namespace petrov
         s = sums.insert(s, sum);
       }
       showSums(sums, out);
+      sums.clear();
     }
+    data.clear();
   }
 
   void showSums(List< size_t >& sums, std::ostream& out)
