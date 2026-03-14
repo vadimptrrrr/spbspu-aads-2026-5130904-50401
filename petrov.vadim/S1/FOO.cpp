@@ -56,7 +56,7 @@ namespace petrov
     else
     {
       LIter< std::pair< std::string, List< size_t > > > outIt = data.begin();
-      for(; outIt != data.end(); outIt.next())
+      for(; outIt != data.end(); outIt = outIt.next())
       {
         out << (*outIt).first;
         if(outIt.hasNext())
