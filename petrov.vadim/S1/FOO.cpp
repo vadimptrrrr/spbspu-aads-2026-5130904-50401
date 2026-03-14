@@ -1,6 +1,7 @@
 #include "FOO.hpp"
 #include <istream>
 #include <iostream>
+#include <algorithm>
 
 namespace petrov
 {
@@ -72,29 +73,27 @@ namespace petrov
       {
         outIt = data.begin();
         size_t sum = 0;
+        bool firstInRow = true;
         while (outIt.hasNext())
         {
           if(canShowItem((*outIt).second, i + 1))
           {
             LIter< size_t > n = (*outIt).second.begin();
-            for(size_t j = 0; j < i; ++i)
+            for(size_t j = 0; j < i; ++j)
             {
               n = n.next();
             }
-            out << *n;
-            sum += *n;
-
-            if(outIt.hasNext())
+            if (!firstInRow)
             {
               out << " ";
             }
-            else
-            {
-              out << "\n";
-            }
+            out << *n;
+            sum += *n;
+            firstInRow = false;
           }
           outIt = outIt.next();
         }
+        out << "\n";
         s = sums.insert(s, sum);
       }
       showSums(sums, out);
@@ -105,14 +104,17 @@ namespace petrov
 
   void showSums(List< size_t >& sums, std::ostream& out)
   {
-    LIter< size_t > it = sums.begin();
-    out << *it;
-    it = it.next();
-    while (it.hasNext())
+    if (sums.begin() != sums.end())
     {
-      out << " " << *it;
+      LIter< size_t > it = sums.begin();
+      out << *it;
       it = it.next();
+      while (it != sums.end())
+      {
+        out << " " << *it;
+        it = it.next();
+      }
+      out << "\n";
     }
-    out << "\n";
   }
 }

@@ -198,18 +198,22 @@ namespace petrov
   List< T >::List(const List< T >& l):
     head{nullptr}, tail{nullptr}, size_{0}
   {
-    head = new Node< T >{l.head->val, nullptr};
-    Node< T >* n = head;
-    size_ = 1;
-    Node< T >* nl = l.head->next;
-    while(nl)
+    if (l.head != nullptr)
     {
-      n->next = new Node< T >{nl->val, nullptr};
-      n = n->next;
-      size_++;
-      nl = nl->next;
+      head = new Node< T >{l.head->val, nullptr};
+      Node< T >* n = head;
+      size_ = 1;
+      Node< T >* nl = l.head->next;
+      while(nl)
+      {
+        n->next = new Node< T >{nl->val, nullptr};
+        n = n->next;
+        size_++;
+        nl = nl->next;
+      }
+      tail = n;
     }
-    tail = n;
+    
   }
 
   template< class T >
