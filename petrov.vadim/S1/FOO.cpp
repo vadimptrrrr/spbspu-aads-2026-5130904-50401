@@ -93,6 +93,7 @@ namespace petrov
             size_t newSum = sum + *n;
             if (newSum < sum)
             {
+              out << "\n";
               throw std::overflow_error("Overflow in sum calculation");
             }
             sum = newSum;
