@@ -6,6 +6,12 @@
 
 namespace petrov
 {
+  struct Finder
+  {
+    size_t idx;
+    bool found;
+  };
+
   template< class T >
   struct Equal
   {
@@ -25,9 +31,10 @@ namespace petrov
 
     void add(const Key& k, const Value& v);
     Value drop(const Key& k);
-    bool has(const Key& k);
+    bool has(const Key& k) const;
     Value& get(const Key& k);
     const Value& get(const Key& k) const;
+    void swap(HashTable& other) noexcept;
 
     void rehash(size_t slots);
     void clear();
@@ -42,6 +49,10 @@ namespace petrov
       size_t capacity_;
       Hash hash_;
       Equal equal_;
+
+      size_t home(const Key& k) const;
+      size_t probe(size_t home, size_t i) const;
+      Finder find(const Key& k);
   };
 
   template< class T >
@@ -134,7 +145,7 @@ namespace petrov
   {}
 
   template< class Key, class Value, class Hash, class Equal >
-  bool HashTable< Key, Value, Hash, Equal >::has(const Key& k)
+  bool HashTable< Key, Value, Hash, Equal >::has(const Key& k) const
   {}
 
   template< class Key, class Value, class Hash, class Equal >
