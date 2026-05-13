@@ -2,6 +2,8 @@
 #define HASH_TABLE_HPP
 
 #include <cstddef>
+#include <memory>
+#include <iostream>
 #include "HashNode.hpp"
 
 namespace petrov
@@ -117,7 +119,7 @@ namespace petrov
   {
     if (this == std::addressof(other))
     {
-      returnq *this;
+      return *this;
     }
     HashTable< Key, Value, Hash, Equal> cpy = other;
     swap(cpy);
@@ -129,7 +131,7 @@ namespace petrov
   {
     if (this == std::addressof(other))
     {
-      returnq *this;
+      return *this;
     }
     HashTable< Key, Value, Hash, Equal> cpy(std::move(other));
     swap(cpy);
@@ -141,14 +143,16 @@ namespace petrov
   {
     if (data_[home(k)].state_ != OCCUPIED)
     {
-      data_[home(k)] {k, v, OCCUPIED};
+      data_[home(k)] = {k, v, OCCUPIED};
+      ++size_;
     }
     else
     {
       Finder check = find(k);
       if (check.found)
       {
-        data_[check.idx] {k, v, OCCUPIED};
+        data_[check.idx] = {k, v, OCCUPIED};
+        ++size_;
       }
       else
       {
@@ -161,7 +165,7 @@ namespace petrov
   Value HashTable< Key, Value, Hash, Equal >::drop(const Key& k)
   {
     Finder check = find(k);
-    if (!check.key_)
+    if (!check.found)
     {
       return nullptr;
     }
@@ -183,16 +187,50 @@ namespace petrov
   template< class Key, class Value, class Hash, class Equal >
   Value& HashTable< Key, Value, Hash, Equal >::get(const Key& k)
   {
-    
+    Finder f = find(k);
+
+    if (f.found && data_[f.idx].state_ == OCCUPIED)
+    {
+      return data_[f.idx].value_;
+    }
+    return nullptr;
   }
 
   template< class Key, class Value, class Hash, class Equal >
   const Value& HashTable< Key, Value, Hash, Equal >::get(const Key& k) const
-  {}
+  {
+    Finder f = find(k);
+
+    if (f.found && data_[f.idx].state_ == OCCUPIED)
+    {
+      return data_[f.idx].value_;
+    }
+    return nullptr;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  void HashTable< Key, Value, Hash, Equal >::swap(HashTable& other) noexcept
+  {
+    std::swap(data_, other.data_);
+    std::swap(size_, other.size_);
+    std::swap(capacity_, other.capacity_);
+    std::swap(hash_, other.equal_);
+    std::swap(equal_, other.equal_);
+  }
 
   template< class Key, class Value, class Hash, class Equal >
   void HashTable< Key, Value, Hash, Equal >::rehash(size_t slots)
-  {}
+  {
+    HashNode< Key, Value >* newData = new HashNode< Key, Value >[capacity_ + 16];
+    for (size_t i = 0; i < capacity_; ++i)
+    {
+      newData[i] = data_[i];
+    }
+
+    delete[] data_;
+    data_ = newData;
+    capacity_ += 16;
+  }
 
   template< class Key, class Value, class Hash, class Equal >
   void HashTable< Key, Value, Hash, Equal >::clear()
@@ -223,36 +261,39 @@ namespace petrov
   }
 
   template< class Key, class Value, class Hash, class Equal >
-  size_t HashTable< class Key, class Value, class Hash, class Equal >::home(const Key& k) const
+  size_t HashTable< Key, Value, Hash, Equal >::home(const Key& k) const
   {
     return hash_(k) % capacity_;
   }
 
   template< class Key, class Value, class Hash, class Equal >
-  size_t HashTable< class Key, class Value, class Hash, class Equal >::probe(size_t home, size_t i) const
+  size_t HashTable< Key, Value, Hash, Equal >::probe(size_t home, size_t i) const
   {
     return home + i * i;
   }
 
   template< class Key, class Value, class Hash, class Equal >
-  Finder HashTable< class Key, class Value, class Hash, class Equal >::find(const Key& k) const
+  Finder HashTable< Key, Value, Hash, Equal >::find(const Key& k) const
   {
-    size_t hidx = home(k);
-    size_t idx = hidx;
-    
-    for (size_t i = 0; (data_[idx].key_ != k) && (idx < capacity_ - 1); i++)
+    size_t h = home(k);
+    size_t first_tmbs = capacity_;
+    for (size_t i = 0; i < capacity_ - 1; ++i)
     {
-      idx = probe(hidx, i);
+      size_t idx = probe(home, i);
+      if (data_[idx].state == OCCUPIED && (equal_(data_[idx].key_, k)))
+      {
+        return {idx, true};
+      }
+      else if (data_[idx].state == TOMBSTONE && (first_tmbs == capacity_))
+      {
+        first_tmbs = idx;
+      }
+      else if (data_[idx].state_ == EMPTY)
+      {
+        return {first_tmbs == capacity_ ? idx : first_tmbs, false}
+      }
     }
-
-    if (data_[idx].key_ == k)
-    {
-      return {idx, True};
-    }
-    else
-    {
-      return {idx, False};
-    }
+    return {first_tmbs == capacity_ ? h : first_tmbs, false}
   }
 
 }
