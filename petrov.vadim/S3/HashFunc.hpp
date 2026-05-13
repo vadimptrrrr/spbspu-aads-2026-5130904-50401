@@ -8,7 +8,7 @@
 #include <boost/hash2/sha1.hpp>
 #include <boost/hash2/get_integral_result.hpp>
 
-namespace kondrat
+namespace petrov
 {
   using EdgeKey = std::pair< std::string, std::string >;
 
