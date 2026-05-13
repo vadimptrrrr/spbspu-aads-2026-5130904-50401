@@ -7,7 +7,7 @@ namespace petrov
   {
     EMPTY,
     OCCUPIED,
-    DELETED
+    TOMBSTONE
   };
 
   template < class Key, class Value >

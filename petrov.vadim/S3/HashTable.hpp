@@ -32,6 +32,10 @@ namespace petrov
     void rehash(size_t slots);
     void clear();
 
+    size_t size() const noexcept;
+    size_t capacity() const noexcept;
+    bool empty() const noexcept;
+
     private:
       HashNode< Key, Value >* data_;
       size_t size_;
@@ -153,6 +157,24 @@ namespace petrov
       data_[i].state_ = EMPTY;
     }
     size_ = 0;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  size_t HashTable< Key, Value, Hash, Equal >::size() const noexcept
+  {
+    return size_;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  size_t HashTable< Key, Value, Hash, Equal >::capacity() const noexcept
+  {
+    return capacity_;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  bool HashTable< Key, Value, Hash, Equal >::empty() const noexcept
+  {
+    return size_ == 0;
   }
 
 }
