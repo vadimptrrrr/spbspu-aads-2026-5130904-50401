@@ -52,7 +52,7 @@ namespace petrov
 
       size_t home(const Key& k) const;
       size_t probe(size_t home, size_t i) const;
-      Finder find(const Key& k);
+      Finder find(const Key& k) const;
   };
 
   template< class T >
@@ -138,19 +138,53 @@ namespace petrov
 
   template< class Key, class Value, class Hash, class Equal >
   void HashTable< Key, Value, Hash, Equal >::add(const Key& k, const Value& v)
-  {}
+  {
+    if (data_[home(k)].state_ != OCCUPIED)
+    {
+      data_[home(k)] {k, v, OCCUPIED};
+    }
+    else
+    {
+      Finder check = find(k);
+      if (check.found)
+      {
+        data_[check.idx] {k, v, OCCUPIED};
+      }
+      else
+      {
+        std::cerr << "No slot for add element\n";
+      }
+    }
+  }
 
   template< class Key, class Value, class Hash, class Equal >
   Value HashTable< Key, Value, Hash, Equal >::drop(const Key& k)
-  {}
+  {
+    Finder check = find(k);
+    if (!check.key_)
+    {
+      return nullptr;
+    }
+
+    Value res = data_[check.idx].value_;
+    data_[check.idx].key_ = nullptr;
+    data_[check.idx].value_ = nullptr;
+    data_[check.idx].state_ = TOMBSTONE;
+
+    return res;
+  }
 
   template< class Key, class Value, class Hash, class Equal >
   bool HashTable< Key, Value, Hash, Equal >::has(const Key& k) const
-  {}
+  {
+    return find(k).found;
+  }
 
   template< class Key, class Value, class Hash, class Equal >
   Value& HashTable< Key, Value, Hash, Equal >::get(const Key& k)
-  {}
+  {
+    
+  }
 
   template< class Key, class Value, class Hash, class Equal >
   const Value& HashTable< Key, Value, Hash, Equal >::get(const Key& k) const
@@ -186,6 +220,39 @@ namespace petrov
   bool HashTable< Key, Value, Hash, Equal >::empty() const noexcept
   {
     return size_ == 0;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  size_t HashTable< class Key, class Value, class Hash, class Equal >::home(const Key& k) const
+  {
+    return hash_(k) % capacity_;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  size_t HashTable< class Key, class Value, class Hash, class Equal >::probe(size_t home, size_t i) const
+  {
+    return home + i * i;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  Finder HashTable< class Key, class Value, class Hash, class Equal >::find(const Key& k) const
+  {
+    size_t hidx = home(k);
+    size_t idx = hidx;
+    
+    for (size_t i = 0; (data_[idx].key_ != k) && (idx < capacity_ - 1); i++)
+    {
+      idx = probe(hidx, i);
+    }
+
+    if (data_[idx].key_ == k)
+    {
+      return {idx, True};
+    }
+    else
+    {
+      return {idx, False};
+    }
   }
 
 }
