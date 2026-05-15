@@ -34,7 +34,76 @@ namespace petrov
       void skipInvalid();
   };
 
-  
-}
+  template< class Key, class Value >
+  HIter< Key, Value >::HIter():
+    node_{nullptr},
+    end_{nullptr}
+  {}
 
+  template< class Key, class Value >
+  HIter< Key, Value >& HIter< Key, Value >::operator++()
+  {
+    assert(node_ != nullptr);
+
+    if (node_ != end_)
+    {
+      ++node_;
+      skipInvalid();
+    }
+    return *this;
+  }
+
+  template< class Key, class Value >
+  HIter< Key, Value >& HIter< Key, Value >::operator++(int)
+  {
+    HIter< Key, Value > cpy = *this;
+    ++(*this);
+    return cpy;
+  }
+
+  template< class Key, class Value >
+  bool HIter< Key, Value >::operator==(const HIter< Key, Value >& rhs) const
+  {
+    return node_ == rhs.node_ && end_ == rhs.end_;
+  }
+
+  template< class Key, class Value >
+  bool HIter< Key, Value >::operator!=(const HIter< Key, Value >& rhs) const
+  {
+    return node_ != rhs.node_;
+  }
+
+  template< class Key, class Value >
+  HashNode< Key, Value >& HIter< Key, Value >::operator*() const
+  {
+    assert(node_ != nullptr);
+    assert(node_ != end_);
+    return *node_;
+  }
+
+  template< class Key, class Value >
+  HashNode< Key, Value >* HIter< Key, Value >::operator->() const
+  {
+    assert(node_ != nullptr);
+    assert(node_ != end_);
+    return addressof(*node_);
+  }
+
+  template< class Key, class Value >
+  HIter< Key, Value >::HIter(const HashNode< Key, Value > * node, const HashNode< Key, Value > * end):
+    node_(node),
+    end_(end)
+  {
+    skipInvalid();
+  }
+
+  template< class Key, class Value >
+  void HIter< Key, Value >::skipInvalid()
+  {
+    while (node_ != end_ && node_->state_ != OCCUPIED)
+    {
+      ++node_;
+    }
+  }
+}
 #endif

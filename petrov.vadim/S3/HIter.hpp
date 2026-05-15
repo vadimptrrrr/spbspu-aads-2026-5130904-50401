@@ -36,7 +36,8 @@ namespace petrov
 
   template< class Key, class Value >
   HIter< Key, Value >::HIter():
-    node_{nullptr}
+    node_{nullptr},
+    end_{nullptr}
   {}
 
   template< class Key, class Value >
