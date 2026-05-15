@@ -4,6 +4,22 @@
 
 namespace petrov
 {
+  template<class T, class Comp>
+  void sort(topit::Vector<T>& vec, Comp comp)
+  {
+    for (size_t i = 1; i < vec.getSize(); ++i)
+    {
+      T key = vec[i];
+      size_t j = i;
+      while (j > 0 && comp(vec[j-1], key))
+      {
+        vec[j] = vec[j-1];
+        --j;
+      }
+      vec[j] = key;
+    }
+  }
+
   Grath::Grath():
     name_(""),
     edges_(),
@@ -24,18 +40,27 @@ namespace petrov
 
   void Grath::addVertex(const std::string& name)
   {
-    vertices_.add(name, true);
+    if (!vertices_.has(name))
+    {
+      vertices_.add(name, true);
+    }
   }
 
   void Grath::addEdge(const std::string& from, const std::string& to, size_t w)
   {
-    if (hasVertex(from) && hasVertex(to))
+    addVertex(from);
+    addVertex(to);
+
+    EdgeKey key{from, to};
+    if (edges_.has(key))
     {
-      edges_.add({from, to}, Weight{w});
+      edges_.get(key).pushBack(w);
     }
     else
     {
-      throw std::runtime_error("Vertex not found\n");
+      Weight weights;
+      weights.pushBack(w);
+      edges_.add(key, weights);
     }
   }
 
@@ -58,6 +83,9 @@ namespace petrov
         if (wght[i] == w)
         {
           wght.erase(i);
+          if (wght.getSize() == 0) {
+            edges_.drop({from, to});
+          }
           return;
         }
       }
@@ -87,6 +115,7 @@ namespace petrov
     {
       res.pushBack(it->key_);
     }
+    sort(res, std::greater<std::string>());
     return res;
   }
 
@@ -94,13 +123,14 @@ namespace petrov
   {
     topit::Vector< EdgeVec > res;
     CHIter< EdgeKey, Weight > it = edges_.begin();
-    for (; it != edges_.end(); ++it)
-    {
-      if (it->key_.second == name)
-      {
-        res.pushBack({it->key_.first, it->value_});
+    for (; it != edges_.end(); ++it) {
+      if (it->key_.second == name) {
+        Weight sortedWeights = it->value_;
+        sort(sortedWeights, std::greater<size_t>());
+        res.pushBack({it->key_.first, sortedWeights});
       }
     }
+    sort(res, [](const EdgeVec& a, const EdgeVec& b) { return a.first > b.first; });
     return res;
   }
 
@@ -108,13 +138,14 @@ namespace petrov
   {
     topit::Vector< EdgeVec > res;
     CHIter< EdgeKey, Weight > it = edges_.begin();
-    for (; it != edges_.end(); ++it)
-    {
-      if (it->key_.first == name)
-      {
-        res.pushBack({it->key_.second, it->value_});
+    for (; it != edges_.end(); ++it) {
+      if (it->key_.first == name) {
+        Weight sortedWeights = it->value_;
+        sort(sortedWeights, std::greater<size_t>());
+        res.pushBack({it->key_.second, sortedWeights});
       }
     }
+    sort(res, [](const EdgeVec& a, const EdgeVec& b) { return a.first > b.first; });
     return res;
   }
 }
