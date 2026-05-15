@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <cstdint>
 #include "HashNode.hpp"
+#include "HIter.hpp"
+#include "CHIter.hpp"
 
 namespace petrov
 {
@@ -46,6 +48,11 @@ namespace petrov
     size_t size() const noexcept;
     size_t capacity() const noexcept;
     bool empty() const noexcept;
+
+    HIter< Key, Value > begin();
+    HIter< Key, Value > end();
+    CHIter< Key, Value > begin() const;
+    CHIter< Key, Value > end() const;
 
     private:
       HashNode< Key, Value >* data_;
@@ -253,6 +260,30 @@ namespace petrov
   {
     return size_ == 0;
   }
+
+  template< class Key, class Value, class Hash, class Equal >
+   HIter< Key, Value > HashTable< Key, Value, Hash, Equal >::begin()
+   {
+     return HIter< Key, Value >(data_, data_ + capacity_);
+   }
+
+   template< class Key, class Value, class Hash, class Equal >
+   HIter< Key, Value > HashTable< Key, Value, Hash, Equal >::end()
+   {
+     return HIter< Key, Value >(data_ + capacity_, data_ + capacity_);
+   }
+
+   template< class Key, class Value, class Hash, class Equal >
+   CHIter< Key, Value > HashTable< Key, Value, Hash, Equal >::begin() const
+   {
+     return CHIter< Key, Value >(data_, data_ + capacity_);
+   }
+
+   template< class Key, class Value, class Hash, class Equal >
+   CHIter< Key, Value > HashTable< Key, Value, Hash, Equal >::end() const
+   {
+     return CHIter< Key, Value >(data_ + capacity_, data_ + capacity_);
+   }
 
   template< class Key, class Value, class Hash, class Equal >
   size_t HashTable< Key, Value, Hash, Equal >::home(const Key& k) const

@@ -11,17 +11,17 @@ namespace petrov
   struct HashTable;
 
   template< class Key, class Value >
-  struct HIter
+  struct CHIter
   {
     template< class K, class V, class Hash, class Equal >
     friend struct HashTable;
 
-    HIter();
+    CHIter();
 
-    HIter< Key, Value >& operator++();
-    HIter< Key, Value > operator++(int);
-    bool operator==(const HIter< Key, Value >& rhs) const;
-    bool operator!=(const HIter< Key, Value >& rhs) const;
+    CHIter< Key, Value >& operator++();
+    CHIter< Key, Value > operator++(int);
+    bool operator==(const CHIter< Key, Value >& rhs) const;
+    bool operator!=(const CHIter< Key, Value >& rhs) const;
 
     Value& operator*() const;
     HashNode< Key, Value >* operator->() const;
@@ -30,18 +30,18 @@ namespace petrov
       const HashNode< Key, Value >* node_;
       const HashNode< Key, Value >* end_;
 
-      HIter(const HashNode< Key, Value > * node, const HashNode< Key, Value > * end);
+      CHIter(const HashNode< Key, Value > * node, const HashNode< Key, Value > * end);
       void skipInvalid();
   };
 
   template< class Key, class Value >
-  HIter< Key, Value >::HIter():
+  CHIter< Key, Value >::CHIter():
     node_{nullptr},
     end_{nullptr}
   {}
 
   template< class Key, class Value >
-  HIter< Key, Value >& HIter< Key, Value >::operator++()
+  CHIter< Key, Value >& CHIter< Key, Value >::operator++()
   {
     assert(node_ != nullptr);
 
@@ -54,27 +54,27 @@ namespace petrov
   }
 
   template< class Key, class Value >
-  HIter< Key, Value > HIter< Key, Value >::operator++(int)
+  CHIter< Key, Value > CHIter< Key, Value >::operator++(int)
   {
-    HIter< Key, Value > cpy = *this;
+    CHIter< Key, Value > cpy = *this;
     ++(*this);
     return cpy;
   }
 
   template< class Key, class Value >
-  bool HIter< Key, Value >::operator==(const HIter< Key, Value >& rhs) const
+  bool CHIter< Key, Value >::operator==(const CHIter< Key, Value >& rhs) const
   {
     return node_ == rhs.node_ && end_ == rhs.end_;
   }
 
   template< class Key, class Value >
-  bool HIter< Key, Value >::operator!=(const HIter< Key, Value >& rhs) const
+  bool CHIter< Key, Value >::operator!=(const CHIter< Key, Value >& rhs) const
   {
     return node_ != rhs.node_;
   }
 
   template< class Key, class Value >
-  Value& HIter< Key, Value >::operator*() const
+  Value& CHIter< Key, Value >::operator*() const
   {
     assert(node_ != nullptr);
     assert(node_ != end_);
@@ -82,7 +82,7 @@ namespace petrov
   }
 
   template< class Key, class Value >
-  HashNode< Key, Value >* HIter< Key, Value >::operator->() const
+  HashNode< Key, Value >* CHIter< Key, Value >::operator->() const
   {
     assert(node_ != nullptr);
     assert(node_ != end_);
@@ -90,7 +90,7 @@ namespace petrov
   }
 
   template< class Key, class Value >
-  HIter< Key, Value >::HIter(const HashNode< Key, Value > * node, const HashNode< Key, Value > * end):
+  CHIter< Key, Value >::CHIter(const HashNode< Key, Value > * node, const HashNode< Key, Value > * end):
     node_(node),
     end_(end)
   {
@@ -98,7 +98,7 @@ namespace petrov
   }
 
   template< class Key, class Value >
-  void HIter< Key, Value >::skipInvalid()
+  void CHIter< Key, Value >::skipInvalid()
   {
     while (node_ != end_ && node_->state_ != OCCUPIED)
     {

@@ -30,7 +30,7 @@ namespace petrov
       HashNode< Key, Value >* node_;
       HashNode< Key, Value >* end_;
 
-      HIter(HashNode< Key, Value > * node, HashNode< Key, Value > * end);
+      HIter(HashNode< Key, Value >* node, HashNode< Key, Value > * end);
       void skipInvalid();
   };
 
