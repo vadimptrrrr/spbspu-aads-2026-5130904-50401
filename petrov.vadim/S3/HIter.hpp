@@ -86,7 +86,7 @@ namespace petrov
   {
     assert(node_ != nullptr);
     assert(node_ != end_);
-    return node_;
+    return addressof(*node_);
   }
 
   template< class Key, class Value >

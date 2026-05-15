@@ -24,7 +24,7 @@ namespace petrov
     bool operator!=(const CHIter< Key, Value >& rhs) const;
 
     Value& operator*() const;
-    HashNode< Key, Value >* operator->() const;
+    const HashNode< Key, Value >* operator->() const;
 
     private:
       const HashNode< Key, Value >* node_;
@@ -82,11 +82,11 @@ namespace petrov
   }
 
   template< class Key, class Value >
-  HashNode< Key, Value >* CHIter< Key, Value >::operator->() const
+  const HashNode< Key, Value >* CHIter< Key, Value >::operator->() const
   {
     assert(node_ != nullptr);
     assert(node_ != end_);
-    return addressof(*node_);
+    return std::addressof(*node_);
   }
 
   template< class Key, class Value >
