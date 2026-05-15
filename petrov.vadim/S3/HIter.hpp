@@ -1,7 +1,8 @@
 #ifndef HITER_HPP
 #define HITER_HPP
 
-#include "HashTable.hpp"
+#include "HashNode.hpp"
+#include <memory>
 #include <cassert>
 
 namespace petrov
