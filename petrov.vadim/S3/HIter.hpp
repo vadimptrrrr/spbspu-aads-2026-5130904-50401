@@ -19,11 +19,11 @@ namespace petrov
     HIter();
 
     HIter< Key, Value >& operator++();
-    HIter< Key, Value >& operator++(int);
+    HIter< Key, Value > operator++(int);
     bool operator==(const HIter< Key, Value >& rhs) const;
     bool operator!=(const HIter< Key, Value >& rhs) const;
 
-    HashNode< Key, Value >& operator*() const;
+    Value& operator*() const;
     HashNode< Key, Value >* operator->() const;
 
     private:
@@ -54,7 +54,7 @@ namespace petrov
   }
 
   template< class Key, class Value >
-  HIter< Key, Value >& HIter< Key, Value >::operator++(int)
+  HIter< Key, Value > HIter< Key, Value >::operator++(int)
   {
     HIter< Key, Value > cpy = *this;
     ++(*this);
@@ -74,11 +74,11 @@ namespace petrov
   }
 
   template< class Key, class Value >
-  HashNode< Key, Value >& HIter< Key, Value >::operator*() const
+  Value& HIter< Key, Value >::operator*() const
   {
     assert(node_ != nullptr);
     assert(node_ != end_);
-    return *node_;
+    return node_->value_;
   }
 
   template< class Key, class Value >
