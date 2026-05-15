@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <memory>
 #include <iostream>
+#include <stdexcept>
+#include <cstdint>
 #include "HashNode.hpp"
 
 namespace petrov
@@ -141,40 +143,34 @@ namespace petrov
   template< class Key, class Value, class Hash, class Equal >
   void HashTable< Key, Value, Hash, Equal >::add(const Key& k, const Value& v)
   {
-    if (data_[home(k)].state_ != OCCUPIED)
+    if (size_ == capacity_)
     {
-      data_[home(k)] = {k, v, OCCUPIED};
-      ++size_;
+      throw std::runtime_error("No slot for add");
     }
-    else
+    Finder f = find(k);
+    if (f.found)
     {
-      Finder check = find(k);
-      if (check.found)
-      {
-        data_[check.idx] = {k, v, OCCUPIED};
-        ++size_;
-      }
-      else
-      {
-        std::cerr << "No slot for add element\n";
-      }
+      data_[f.idx].value_ = v;
+      return;
     }
+    data_[f.idx].key_ = k;
+    data_[f.idx].value_ = v;
+    data_[f.idx].state_ = OCCUPIED;
+    ++size_;
   }
 
   template< class Key, class Value, class Hash, class Equal >
   Value HashTable< Key, Value, Hash, Equal >::drop(const Key& k)
   {
-    Finder check = find(k);
-    if (!check.found)
+    Finder f = find(k);
+    if (!f.found)
     {
-      return nullptr;
+      throw std::runtime_error("Key not found\n");
     }
 
-    Value res = data_[check.idx].value_;
-    data_[check.idx].key_ = nullptr;
-    data_[check.idx].value_ = nullptr;
-    data_[check.idx].state_ = TOMBSTONE;
-
+    Value res = std::move(data_[f.idx].value_);
+    data_[f.idx].state_ = TOMBSTONE;
+    --size_;
     return res;
   }
 
@@ -187,25 +183,18 @@ namespace petrov
   template< class Key, class Value, class Hash, class Equal >
   Value& HashTable< Key, Value, Hash, Equal >::get(const Key& k)
   {
-    Finder f = find(k);
-
-    if (f.found && data_[f.idx].state_ == OCCUPIED)
-    {
-      return data_[f.idx].value_;
-    }
-    return nullptr;
+    return const_cast<Value&>(static_cast<const HashTable*>(this)->get(k));
   }
 
   template< class Key, class Value, class Hash, class Equal >
   const Value& HashTable< Key, Value, Hash, Equal >::get(const Key& k) const
   {
     Finder f = find(k);
-
-    if (f.found && data_[f.idx].state_ == OCCUPIED)
+    if (!f.found)
     {
-      return data_[f.idx].value_;
+      throw std::runtime_error("Key not found\n");
     }
-    return nullptr;
+    return data_[f.idx].value_;
   }
 
   template< class Key, class Value, class Hash, class Equal >
@@ -214,22 +203,27 @@ namespace petrov
     std::swap(data_, other.data_);
     std::swap(size_, other.size_);
     std::swap(capacity_, other.capacity_);
-    std::swap(hash_, other.equal_);
+    std::swap(hash_, other.hash_);
     std::swap(equal_, other.equal_);
   }
 
   template< class Key, class Value, class Hash, class Equal >
   void HashTable< Key, Value, Hash, Equal >::rehash(size_t slots)
   {
-    HashNode< Key, Value >* newData = new HashNode< Key, Value >[capacity_ + 16];
-    for (size_t i = 0; i < capacity_; ++i)
+    if (slots <= capacity_ || slots == 0)
     {
-      newData[i] = data_[i];
+      return;
     }
 
-    delete[] data_;
-    data_ = newData;
-    capacity_ += 16;
+    HashTable newTable(slots);
+    for (size_t i = 0; i < capacity_; ++i)
+    {
+      if (data_[i].state_ == OCCUPIED)
+      {
+        newTable.add(data_[i].key_, data_[i].value_);
+      }
+    }
+    swap(newTable);
   }
 
   template< class Key, class Value, class Hash, class Equal >
@@ -269,7 +263,11 @@ namespace petrov
   template< class Key, class Value, class Hash, class Equal >
   size_t HashTable< Key, Value, Hash, Equal >::probe(size_t home, size_t i) const
   {
-    return home + i * i;
+    if ((SIZE_MAX / i > i) && i != 0)
+    {
+      return home + (i * i) % capacity_;
+    }
+    return home;
   }
 
   template< class Key, class Value, class Hash, class Equal >
@@ -277,23 +275,23 @@ namespace petrov
   {
     size_t h = home(k);
     size_t first_tmbs = capacity_;
-    for (size_t i = 0; i < capacity_ - 1; ++i)
+    for (size_t i = 0; i < capacity_; ++i)
     {
-      size_t idx = probe(home, i);
-      if (data_[idx].state == OCCUPIED && (equal_(data_[idx].key_, k)))
+      size_t idx = probe(h, i);
+      if (data_[idx].state_ == OCCUPIED && (equal_(data_[idx].key_, k)))
       {
         return {idx, true};
       }
-      else if (data_[idx].state == TOMBSTONE && (first_tmbs == capacity_))
+      else if (data_[idx].state_ == TOMBSTONE && (first_tmbs == capacity_))
       {
         first_tmbs = idx;
       }
       else if (data_[idx].state_ == EMPTY)
       {
-        return {first_tmbs == capacity_ ? idx : first_tmbs, false}
+        return {first_tmbs == capacity_ ? idx : first_tmbs, false};
       }
     }
-    return {first_tmbs == capacity_ ? h : first_tmbs, false}
+    return {first_tmbs == capacity_ ? h : first_tmbs, false};
   }
 
 }
