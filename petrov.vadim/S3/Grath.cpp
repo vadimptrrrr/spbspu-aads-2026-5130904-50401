@@ -4,7 +4,7 @@
 
 namespace petrov
 {
-  template<class T, class Comp>
+  template< class T, class Comp >
   void sort(topit::Vector<T>& vec, Comp comp)
   {
     for (size_t i = 1; i < vec.getSize(); ++i)
@@ -75,7 +75,7 @@ namespace petrov
     if (hasEdge(from, to))
     {
       Weight& wght = edges_.get({from, to});
-      for (size_t i = 0; i < wght.getSize(); ++i)
+      for (size_t i = 0; i < wght.getCapacity(); ++i)
       {
         if (wght[i] == w)
         {
@@ -112,7 +112,7 @@ namespace petrov
     {
       res.pushBack(it->key_);
     }
-    sort(res, std::greater<std::string>());
+    sort(res, Less< std::string >());
     return res;
   }
 
@@ -123,11 +123,11 @@ namespace petrov
     for (; it != edges_.end(); ++it) {
       if (it->key_.second == name) {
         Weight sortedWeights = it->value_;
-        sort(sortedWeights, std::greater<size_t>());
+        sort(sortedWeights, Less< size_t >());
         res.pushBack({it->key_.first, sortedWeights});
       }
     }
-    sort(res, [](const EdgeVec& a, const EdgeVec& b) { return a.first > b.first; });
+    sort(res, [](const EdgeVec& a, const EdgeVec& b) { return a.first < b.first; });
     return res;
   }
 
@@ -138,11 +138,17 @@ namespace petrov
     for (; it != edges_.end(); ++it) {
       if (it->key_.first == name) {
         Weight sortedWeights = it->value_;
-        sort(sortedWeights, std::greater<size_t>());
+        sort(sortedWeights, Less< size_t >());
         res.pushBack({it->key_.second, sortedWeights});
       }
     }
-    sort(res, [](const EdgeVec& a, const EdgeVec& b) { return a.first > b.first; });
+    sort(res, [](const EdgeVec& a, const EdgeVec& b) { return a.first < b.first; });
     return res;
+  }
+
+  void Grath::swap(Grath& other) noexcept
+  {
+    edges_.swap(other.edges_);
+    vertices_.swap(other.vertices_);
   }
 }

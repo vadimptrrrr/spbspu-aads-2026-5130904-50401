@@ -30,10 +30,20 @@ namespace petrov
     topit::Vector< EdgeVec > getOutputEdges(const std::string& name) const;
     
     void swap(Grath& other) noexcept;
+    Grath& operator=(const Grath&) = default;
 
     private:
       HashTable< EdgeKey, Weight, edgeSha1, Equal< EdgeKey > > edges_;
       HashTable< std::string, bool, sha1, Equal< std::string > > vertices_;
+
+      template< class T >
+      struct Less
+      {
+        bool operator()(const T& lhs, const T& rhs) const noexcept
+        {
+          return lhs < rhs;
+        }
+      };
   };
 }
 
