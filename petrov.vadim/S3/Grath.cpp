@@ -21,19 +21,16 @@ namespace petrov
   }
 
   Grath::Grath():
-    name_(""),
     edges_(),
     vertices_()
   {}
 
   Grath::Grath(const Grath& other):
-    name_(other.name_),
     edges_(other.edges_),
     vertices_(other.vertices_)
   {}
 
   Grath::Grath(Grath&& other) noexcept:
-    name_(std::move(other.name_)),
     edges_(std::move(other.edges_)),
     vertices_(std::move(other.vertices_))
   {}

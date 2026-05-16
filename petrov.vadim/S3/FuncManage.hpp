@@ -21,7 +21,7 @@ namespace petrov
     void extract(std::ostream& out, std::istream& in, std::string str);
   
   private:
-    HashTable< std::string, Grath, sha1, Equal< std::string > > functions_;
+    HashTable< std::string, Grath, sha1, Equal< std::string > > graphs_;
   };
 }
 

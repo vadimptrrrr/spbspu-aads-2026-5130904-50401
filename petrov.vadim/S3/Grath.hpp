@@ -31,8 +31,6 @@ namespace petrov
     
     void swap(Grath& other) noexcept;
 
-    std::string name_;
-
     private:
       HashTable< EdgeKey, Weight, edgeSha1, Equal< EdgeKey > > edges_;
       HashTable< std::string, bool, sha1, Equal< std::string > > vertices_;
