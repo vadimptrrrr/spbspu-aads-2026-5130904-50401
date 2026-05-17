@@ -9,7 +9,7 @@ namespace petrov
     {
       std::string key = vec[i];
       size_t j = i;
-      while (j > 0 && vec[j-1] > key)
+      while (j > 0 && vec[j-1] < key)
       {
         vec[j] = vec[j-1];
         --j;
@@ -67,9 +67,14 @@ namespace petrov
   void FuncManage::outbound(std::ostream& out, std::istream& in, std::string str)
   {
     std::string vert;
-    if (!(in >> vert) || !graphs_.has(str) || !graphs_.get(str).hasVertex(vert))
+    if (!(in >> vert) || !graphs_.has(str))
     {
       throw std::runtime_error("command invalid");
+    }
+
+    if (!graphs_.get(str).hasVertex(vert))
+    {
+      out << "\n";
     }
 
     topit::Vector< EdgeVec > edges = graphs_.get(str).getOutputEdges(vert);
@@ -82,10 +87,10 @@ namespace petrov
 
     for (size_t i = 0; i < edges.getSize(); ++i)
     {
-      out << edges[i].first << " ";
+      out << edges[i].first;
       for (size_t j = 0; j < edges[i].second.getSize(); ++j)
       {
-        out << edges[i].second[j];
+        out  << " " << edges[i].second[j];
       }
       out << "\n";
     }
@@ -109,10 +114,10 @@ namespace petrov
 
     for (size_t i = 0; i < edges.getSize(); ++i)
     {
-      out << edges[i].first << " ";
+      out << edges[i].first;
       for (size_t j = 0; j < edges[i].second.getSize(); ++j)
       {
-        out << edges[i].second[j];
+        out  << " " << edges[i].second[j];
       }
       out << "\n";
     }
@@ -171,14 +176,34 @@ namespace petrov
     graphs_.get(str).removeEdge(from, to, w);
   }
 
-  void FuncManage::create(std::ostream&, std::istream&, std::string str)
+  void FuncManage::create(std::ostream&, std::istream& in, std::string str)
   {
     if (graphs_.has(str))
     {
-      throw std::runtime_error("command invalid");
+      throw std::runtime_error("Graph already exists");
     }
 
-    graphs_.add(str, Grath());
+    Grath g;
+    size_t count = 0;
+
+    if (in >> count)
+    {
+      for (size_t i = 0; i < count; ++i)
+      {
+        std::string v;
+        if (!(in >> v))
+        {
+          throw std::runtime_error("Missing vertex name");
+        }
+        g.addVertex(v);
+      }
+    }
+    else
+    {
+      in.clear();
+    }
+
+    graphs_.add(str, std::move(g));
   }
 
   void FuncManage::merge(std::ostream&, std::istream& in, std::string str)
