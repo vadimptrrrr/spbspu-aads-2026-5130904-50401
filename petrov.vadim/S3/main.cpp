@@ -31,7 +31,7 @@ int main(int argc, char const *argv[])
   }
 
   using cmd_t = void (FuncManage::*)(std::ostream &, std::istream &, std::string);
-  HashTable< std::string, cmd_t, sha1, Equal< std::string > > commands;
+  HashTable< std::string, cmd_t, sha1, Equal< std::string > > commands(16);
 
   commands.add("graphs", &FuncManage::graphs);
   commands.add("vertexes", &FuncManage::vertexes);
