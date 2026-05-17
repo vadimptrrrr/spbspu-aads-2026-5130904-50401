@@ -9,7 +9,7 @@ namespace petrov
     {
       std::string key = vec[i];
       size_t j = i;
-      while (j > 0 && vec[j-1] > key)
+      while (j > 0 && vec[j-1] < key)
       {
         vec[j] = vec[j-1];
         --j;
