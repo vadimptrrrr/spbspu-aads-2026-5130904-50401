@@ -67,7 +67,7 @@ namespace petrov
   void FuncManage::outbound(std::ostream& out, std::istream& in, std::string str)
   {
     std::string vert;
-    if (!(in >> vert) || !graphs_.has(str) || graphs_.get(str).hasVertex(vert))
+    if (!(in >> vert) || !graphs_.has(str) || !graphs_.get(str).hasVertex(vert))
     {
       throw std::runtime_error("command invalid");
     }
