@@ -11,7 +11,7 @@ namespace petrov
     {
       T key = vec[i];
       size_t j = i;
-      while (j > 0 && comp(vec[j-1], key))
+      while (j > 0 && comp(key, vec[j-1]))
       {
         vec[j] = vec[j-1];
         --j;
@@ -75,7 +75,7 @@ namespace petrov
     if (hasEdge(from, to))
     {
       Weight& wght = edges_.get({from, to});
-      for (size_t i = 0; i < wght.getCapacity(); ++i)
+      for (size_t i = 0; i < wght.getSize(); ++i)
       {
         if (wght[i] == w)
         {
