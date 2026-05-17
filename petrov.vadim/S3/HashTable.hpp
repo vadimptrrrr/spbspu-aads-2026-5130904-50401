@@ -294,7 +294,7 @@ namespace petrov
   template< class Key, class Value, class Hash, class Equal >
   size_t HashTable< Key, Value, Hash, Equal >::probe(size_t home, size_t i) const
   {
-    if ((SIZE_MAX / i > i) && i != 0)
+    if (i != 0 && (SIZE_MAX / i > i))
     {
       return home + (i * i) % capacity_;
     }
