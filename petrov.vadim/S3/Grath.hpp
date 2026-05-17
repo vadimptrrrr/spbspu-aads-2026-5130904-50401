@@ -41,7 +41,7 @@ namespace petrov
       {
         bool operator()(const T& lhs, const T& rhs) const noexcept
         {
-          return lhs < rhs;
+          return lhs > rhs;
         }
       };
   };

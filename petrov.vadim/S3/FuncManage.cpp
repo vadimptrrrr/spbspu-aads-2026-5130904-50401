@@ -9,7 +9,7 @@ namespace petrov
     {
       std::string key = vec[i];
       size_t j = i;
-      while (j > 0 && vec[j-1] < key)
+      while (j > 0 && vec[j-1] > key)
       {
         vec[j] = vec[j-1];
         --j;
@@ -85,7 +85,7 @@ namespace petrov
       out << edges[i].first << " ";
       for (size_t j = 0; j < edges[i].second.getSize(); ++j)
       {
-        out << edges[i].second[j] << " ";
+        out << edges[i].second[j];
       }
       out << "\n";
     }
@@ -112,7 +112,7 @@ namespace petrov
       out << edges[i].first << " ";
       for (size_t j = 0; j < edges[i].second.getSize(); ++j)
       {
-        out << edges[i].second[j] << " ";
+        out << edges[i].second[j];
       }
       out << "\n";
     }
