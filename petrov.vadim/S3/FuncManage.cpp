@@ -67,14 +67,9 @@ namespace petrov
   void FuncManage::outbound(std::ostream& out, std::istream& in, std::string str)
   {
     std::string vert;
-    if (!(in >> vert) || !graphs_.has(str))
+    if (!(in >> vert) || !graphs_.has(str) || graphs_.get(str).hasVertex(vert))
     {
       throw std::runtime_error("command invalid");
-    }
-
-    if (!graphs_.get(str).hasVertex(vert))
-    {
-      out << "\n";
     }
 
     topit::Vector< EdgeVec > edges = graphs_.get(str).getOutputEdges(vert);
@@ -135,19 +130,19 @@ namespace petrov
     graphs_.get(str).addEdge(from, to, w);
   }
 
-  bool findEdgeW(const Grath& g, std::string from, std::string to, size_t w)
+  bool findEdgeW(const Grath& g, const std::string& from, const std::string& to, size_t w)
   {
     if (!g.hasEdge(from, to))
     {
       return false;
     }
 
-    topit::Vector< EdgeVec > v = g.getInputEdges(from);
+    topit::Vector< EdgeVec > v = g.getOutputEdges(from);
     for (size_t i = 0; i < v.getSize(); ++i)
     {
       if (v[i].first == to)
       {
-        Weight ww = v[i].second;
+        const Weight& ww = v[i].second;
         for (size_t j = 0; j < ww.getSize(); ++j)
         {
           if (ww[j] == w)
