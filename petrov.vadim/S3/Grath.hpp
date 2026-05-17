@@ -28,7 +28,7 @@ namespace petrov
     topit::Vector< std::string > getVertices() const;
     topit::Vector< EdgeVec > getInputEdges(const std::string& name) const;
     topit::Vector< EdgeVec > getOutputEdges(const std::string& name) const;
-    
+
     void swap(Grath& other) noexcept;
     Grath& operator=(const Grath&) = default;
 
