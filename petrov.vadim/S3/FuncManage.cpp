@@ -267,4 +267,31 @@ namespace petrov
 
     graphs_.add(str, std::move(result));
   }
+
+  void FuncManage::readFile(std::istream & in)
+  {
+    std::string graphName;
+    size_t edgesCount = 0;
+
+    while (in >> graphName >> edgesCount)
+    {
+      Grath graph;
+
+      for (size_t i = 0; i < edgesCount; ++i)
+      {
+        std::string from;
+        std::string to;
+        size_t weight = 0;
+
+        if (!(in >> from >> to >> weight))
+        {
+          throw std::logic_error("invalid file");
+        }
+
+        graph.addEdge(from, to, weight);
+      }
+
+      graphs_.add(graphName, graph);
+    }
+  }
 }

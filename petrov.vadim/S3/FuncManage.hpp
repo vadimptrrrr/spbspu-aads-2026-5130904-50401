@@ -20,6 +20,7 @@ namespace petrov
     void merge(std::ostream& out, std::istream& in, std::string str);
     void extract(std::ostream& out, std::istream& in, std::string str);
   
+    void readFile(std::istream & in);
   private:
     HashTable< std::string, Grath, sha1, Equal< std::string > > graphs_;
   };
