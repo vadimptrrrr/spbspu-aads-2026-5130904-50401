@@ -2,7 +2,8 @@
 #define LIST_STRUCT_HPP
 #include <cstddef>
 #include <stdexcept>
-namespace petrov
+
+namespace detail
 {
   template< class T >
   struct Node
@@ -10,7 +11,11 @@ namespace petrov
     T val;
     Node< T >* next;
   };
+}
 
+namespace petrov
+{
+  using namespace detail;
   template< class T >
   class List;
 
@@ -81,6 +86,8 @@ namespace petrov
 
 namespace petrov
 {
+  using namespace detail;
+
   template< class T >
   LIter< T >::LIter() noexcept:
     nd{nullptr}
@@ -387,4 +394,5 @@ namespace petrov
     }
   }
 }
+
 #endif
