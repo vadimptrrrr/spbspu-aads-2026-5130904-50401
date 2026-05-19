@@ -254,7 +254,7 @@ namespace petrov
       clear();
       throw;
     }
-    
+
   }
 
   template< class T >
