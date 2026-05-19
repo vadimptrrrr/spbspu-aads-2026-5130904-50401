@@ -4,8 +4,6 @@
 #include <stdexcept>
 #include <utility>
 
-
-
 namespace petrov
 {
   namespace detail
@@ -287,7 +285,7 @@ namespace petrov
       tail = std::exchange(l.tail, nullptr);
       size_ = std::exchange(l.size_, 0);
     }
-    return *this;     
+    return *this;
   }
 
   template< class T >
