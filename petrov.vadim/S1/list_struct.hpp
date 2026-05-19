@@ -22,9 +22,6 @@ namespace petrov
   template< class T >
   class LIter
   {
-    friend class List< T >;
-    Node< T >* nd;
-
     public:
       LIter() noexcept;
       LIter(Node< T >* p) noexcept;
@@ -33,14 +30,15 @@ namespace petrov
       T& operator*() const;
       bool operator==(const LIter< T >& it) const noexcept;
       bool operator!=(const LIter< T >& it) const noexcept;
+
+    private:
+      friend class List< T >;
+      Node< T >* nd;
   };
 
   template< class T >
   class LCIter
   {
-    friend class List< T >;
-    const Node< T >* nd;
-
     public:
       LCIter() noexcept;
       LCIter(const Node< T >* p) noexcept;
@@ -49,15 +47,15 @@ namespace petrov
       const T& operator*() const;
       bool operator==(const LCIter< T >& it) const noexcept;
       bool operator!=(const LCIter< T >& it) const noexcept;
+
+    private:
+      friend class List< T >;
+      const Node< T >* nd;
   };
 
   template< class T >
   class List
   {
-    Node< T >* head;
-    Node< T >* tail;
-    size_t size_;
-
     public:
       List();
       List(const List< T >& l);
@@ -81,6 +79,11 @@ namespace petrov
 
       LIter< T > insert(LIter< T > id, const T& a);
       LIter< T > insert(LIter< T > id, const T&& a);
+
+    private:
+      Node< T >* head;
+      Node< T >* tail;
+      size_t size_;
   };
 }
 
