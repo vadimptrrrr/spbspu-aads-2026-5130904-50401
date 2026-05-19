@@ -50,76 +50,115 @@ void petrov::printAllList(List< std::pair< std::string, List< size_t > > >& data
 {
   if(data.size() < 1)
   {
-    out << "0" << "\n";
+    out << "0\n";
+    return;
   }
-  else
+
+  LIter< std::pair< std::string, List< size_t > > > it = data.begin();
+  out << it->first;
+  ++it;
+
+  for (size_t i = 1; i < data.size(); ++i, ++it)
   {
-    LIter< std::pair< std::string, List< size_t > > > outIt = data.begin();
-    out << outIt->first;
-    ++outIt;
-    for(; outIt != data.end(); ++outIt)
+    out << " " << it->first;
+  }
+  out << "\n";
+
+  size_t maxListLen = 0;
+  it = data.begin();
+  for (size_t i = 0; i < data.size(); ++i, ++it)
+  {
+    maxListLen = std::max(maxListLen, it->second.size());
+  }
+
+  if (maxListLen == 0)
+  {
+    out << "0\n";
+    return;
+  }
+
+  List< size_t > sums;
+  for (size_t i = 0; i < maxListLen; ++i)
+  {
+    sums.push_front(0);
+  }
+
+  const size_t maxValue = std::numeric_limits< size_t >::max();
+
+  LIter< size_t > sumIt = sums.begin();
+  for (size_t row = 0; row < maxListLen; ++row, ++sumIt)
+  {
+    it = data.begin();
+    bool found = false;
+    size_t pos = 0;
+
+    for (; pos < data.size(); ++pos, ++it)
     {
-      out << " " << outIt->first;
+      List< size_t >& seq = it->second;
+
+      if (row < seq.size())
+      {
+        LIter< size_t > sit = seq.begin();
+        for (size_t j = 0; j < row; ++j)
+        {
+          ++sit;
+        }
+
+        out << *sit;
+
+        if (maxValue - *sit < *sumIt)
+        {
+          out << "\n";
+          throw std::overflow_error("Overflow");
+        }
+
+        *sumIt += *sit;
+        found = true;
+
+        ++it;
+        ++pos;
+        break;
+      }
+    }
+
+    if (found)
+    {
+      for (; pos < data.size(); ++pos, ++it)
+      {
+        List< size_t >& seq = it->second;
+
+        if (row < seq.size())
+        {
+          LIter< size_t > sit = seq.begin();
+          for (size_t j = 0; j < row; ++j)
+          {
+            ++sit;
+          }
+
+          out << " " << *sit;
+
+          if (maxValue - *sit < *sumIt)
+          {
+            out << "\n";
+            throw std::overflow_error("Overflow");
+          }
+
+          *sumIt += *sit;
+        }
+      }
     }
     out << "\n";
-
-    size_t maxListLen = maxLen(data);
-    List< size_t > sums;
-    LIter< size_t > s = sums.back();
-
-    for(size_t i = 0; i < maxListLen; ++i)
-    {
-      outIt = data.begin();
-      size_t sum = 0;
-
-      while (outIt != data.end() && !canShowItem(outIt->second, i + 1))
-      {
-        ++outIt;
-      }
-
-      if (outIt != data.end())
-      {
-        LIter< size_t > n = outIt->second.begin();
-        for(size_t j = 0; j < i; ++j)
-        {
-          ++n;
-        }
-        if (*n > std::numeric_limits< size_t >::max() - sum)
-        {
-          throw std::overflow_error("Overflow in sum calculation");
-        }
-
-        out << *n;
-        sum += *n;
-        ++outIt;
-
-        while (outIt != data.end())
-        {
-          if(canShowItem(outIt->second, i + 1))
-          {
-            n = outIt->second.begin();
-            for(size_t j = 0; j < i; ++j)
-            {
-              ++n;
-            }
-            out << " " << *n;
-            if (*n > std::numeric_limits< size_t >::max() - sum)
-            {
-              throw std::overflow_error("Overflow in sum calculation");
-            }
-
-            sum += *n;
-          }
-          ++outIt;
-        }
-      }
-      out << '\n';
-      s = sums.insert_after(s, sum);
-    }
-    showSums(sums, out);
-    sums.clear();
   }
-  data.clear();
+
+  sumIt = sums.begin();
+  out << *sumIt;
+  ++sumIt;
+
+  for (size_t i = 1; i < sums.size(); ++i, ++sumIt)
+  {
+    out << " " << *sumIt;
+  }
+  out << "\n";
 }
 
 void petrov::showSums(List< size_t >& sums, std::ostream& out)
