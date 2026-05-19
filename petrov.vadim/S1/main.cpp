@@ -16,11 +16,7 @@ int main()
     {
       petrov::printAllList(data, std::cout);
     }
-    catch (const std::overflow_error& e)
-    {
-      std::cerr << e.what() << '\n';
-    }
-    catch(const std::exception& e)
+    catch (const std::exception& e)
     {
       std::cerr << e.what() << '\n';
     }
@@ -30,11 +26,6 @@ int main()
   try
   {
     petrov::printAllList(data, std::cout);
-  }
-  catch (const std::overflow_error& e)
-  {
-    std::cerr << e.what() << '\n';
-    return 1;
   }
   catch(const std::exception& e)
   {
