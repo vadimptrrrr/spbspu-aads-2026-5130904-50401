@@ -1,4 +1,4 @@
-#include "FOO.hpp"
+#include "foo.hpp"
 #include <istream>
 #include <iostream>
 #include <algorithm>

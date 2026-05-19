@@ -1,5 +1,5 @@
-#ifndef STRUCTS_HPP
-#define STRUCTS_HPP
+#ifndef LIST_STRUCT_HPP
+#define LIST_STRUCT_HPP
 #include <cstddef>
 #include <stdexcept>
 namespace petrov

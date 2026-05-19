@@ -1,6 +1,6 @@
 #ifndef FOO_HPP
 #define FOO_HPP
-#include "STRUCTS.hpp"
+#include "list_struct.hpp"
 #include <string>
 namespace petrov
 {

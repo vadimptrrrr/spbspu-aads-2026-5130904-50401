@@ -1,6 +1,6 @@
 #include <iostream>
-#include "STRUCTS.hpp"
-#include "FOO.hpp"
+#include "list_struct.hpp"
+#include "foo.hpp"
 
 int main()
 {
