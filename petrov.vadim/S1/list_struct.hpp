@@ -25,11 +25,13 @@ namespace petrov
     public:
       LIter() noexcept;
       LIter(Node< T >* p) noexcept;
-      bool hasNext() const noexcept;
-      LIter< T > next() const;
+      T* operator->() const;
       T& operator*() const;
       bool operator==(const LIter< T >& it) const noexcept;
       bool operator!=(const LIter< T >& it) const noexcept;
+
+      LIter< T >& operator++();
+      LIter< T > operator++(int);
 
     private:
       friend class List< T >;
@@ -42,11 +44,13 @@ namespace petrov
     public:
       LCIter() noexcept;
       LCIter(const Node< T >* p) noexcept;
-      bool hasNext() const noexcept;
-      LCIter< T > next() const;
+      const T* operator->() const;
       const T& operator*() const;
       bool operator==(const LCIter< T >& it) const noexcept;
       bool operator!=(const LCIter< T >& it) const noexcept;
+
+      LCIter< T >& operator++();
+      LCIter< T > operator++(int);
 
     private:
       friend class List< T >;
@@ -78,7 +82,7 @@ namespace petrov
       void popStart() noexcept;
 
       LIter< T > insert(LIter< T > id, const T& a);
-      LIter< T > insert(LIter< T > id, const T&& a);
+      LIter< T > insert_after(LIter< T > id, const T&& a);
 
     private:
       Node< T >* head;
@@ -102,17 +106,11 @@ namespace petrov
   {}
 
   template< class T >
-  bool LIter< T >::hasNext() const noexcept
-  {
-    return nd != nullptr;
-  }
-
-  template< class T >
-  LIter< T > LIter< T >::next() const
+  T* LIter< T >::operator->() const
   {
     if (nd)
     {
-      return LIter< T >(nd->next);
+      return &(nd->val);
     }
     else
     {
@@ -146,6 +144,25 @@ namespace petrov
   }
 
   template< class T >
+  LIter< T >& LIter< T >::operator++()
+  {
+    if (!nd)
+    {
+      throw std::runtime_error("Go to nullptr");
+    }
+    nd = nd->next;
+    return *this;
+  }
+
+  template< class T >
+  LIter< T > LIter< T >::operator++(int)
+  {
+    LIter< T > tmp = *this;
+    ++(*this);
+    return tmp;
+  }
+
+  template< class T >
   LCIter< T >::LCIter() noexcept:
     nd{nullptr}
   {}
@@ -156,22 +173,13 @@ namespace petrov
   {}
 
   template< class T >
-  bool LCIter< T >::hasNext() const noexcept
+  const T* LCIter< T >::operator->() const
   {
-    return nd != nullptr;
-  }
-
-  template< class T >
-  LCIter< T > LCIter< T >::next() const
-  {
-    if (nd)
-    {
-      return LCIter< T >(nd->next);
-    }
-    else
+    if (!nd)
     {
       throw std::runtime_error("Go to nullptr");
     }
+    return &(nd->val);
   }
 
   template< class T >
@@ -197,6 +205,25 @@ namespace petrov
   bool LCIter< T >::operator!=(const LCIter< T >& it) const noexcept
   {
     return nd != it.nd;
+  }
+
+  template< class T >
+  LCIter< T >& LCIter< T >::operator++()
+  {
+    if (!nd)
+    {
+      throw std::runtime_error("Go to nullptr");
+    }
+    nd = nd->next;
+    return *this;
+  }
+
+  template< class T >
+  LCIter< T > LCIter< T >::operator++(int)
+  {
+    LCIter< T > tmp = *this;
+    ++(*this);
+    return tmp;
   }
 
   template< class T >
@@ -377,14 +404,11 @@ namespace petrov
       size_++;
       return LIter< T >(n);
     }
-    else
-    {
-      return addStart(a);
-    }
+    return addStart(a);
   }
 
   template< class T >
-  LIter< T > List< T >::insert(LIter< T > id, const T&& a)
+  LIter< T > List< T >::insert_after(LIter< T > id, const T&& a)
   {
     if(id.hasNext())
     {
@@ -397,10 +421,7 @@ namespace petrov
       size_++;
       return LIter< T >(n);
     }
-    else
-    {
-      return addStart(a);
-    }
+    return addStart(a);
   }
 }
 
