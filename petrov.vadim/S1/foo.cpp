@@ -102,13 +102,12 @@ void petrov::printAllList(List< std::pair< std::string, List< size_t > > >& data
             {
               ++n;
             }
-
+            out << " " << *n;
             if (*n > std::numeric_limits< size_t >::max() - sum)
             {
               throw std::overflow_error("Overflow in sum calculation");
             }
 
-            out << " " << *n;
             sum += *n;
           }
           ++outIt;
