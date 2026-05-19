@@ -110,7 +110,7 @@ namespace petrov
   template< class T >
   LIter< T > LIter< T >::next() const
   {
-    if(nd)
+    if (nd)
     {
       return LIter< T >(nd->next);
     }
@@ -164,7 +164,7 @@ namespace petrov
   template< class T >
   LCIter< T > LCIter< T >::next() const
   {
-    if(nd)
+    if (nd)
     {
       return LCIter< T >(nd->next);
     }
@@ -177,7 +177,7 @@ namespace petrov
   template< class T >
   const T& LCIter< T >::operator*() const
   {
-    if(nd)
+    if (nd)
     {
       return nd->val;
     }
@@ -201,12 +201,16 @@ namespace petrov
 
   template< class T >
   List< T >::List():
-    head{nullptr}, tail{nullptr}, size_{0}
+    head{nullptr},
+    tail{nullptr},
+    size_{0}
   {}
 
   template< class T >
   List< T >::List(const List< T >& l):
-    head{nullptr}, tail{nullptr}, size_{0}
+    head{nullptr},
+    tail{nullptr},
+    size_{0}
   {
     if (l.head != nullptr)
     {
@@ -227,7 +231,9 @@ namespace petrov
 
   template< class T >
   List< T >::List(List< T >&& l):
-    head{l.head}, tail{l.tail}, size_{l.size_}
+    head{l.head},
+    tail{l.tail},
+    size_{l.size_}
   {
     l.head = nullptr;
     l.tail = nullptr;
@@ -360,7 +366,7 @@ namespace petrov
   template< class T >
   LIter< T > List< T >::insert(LIter< T > id, const T& a)
   {
-    if(id.hasNext())
+    if (id.hasNext())
     {
       Node< T >* n = new Node< T >{a, id.nd->next};
       id.nd->next = n;
