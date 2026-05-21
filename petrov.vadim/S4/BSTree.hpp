@@ -2,10 +2,10 @@
 #define BSTREE_HPP
 
 #include <stdexcept>
-#include <utility>
 #include "TNode.hpp"
+#include "BSTIters.hpp"
 
-namespace poetrov
+namespace petrov
 {
   template < class Key, class Value, class Compare >
   struct BSTree
@@ -207,13 +207,13 @@ namespace poetrov
   template< class Key, class Value, class Compare >
   Value& BSTree< Key, Value, Compare >::get(const Key& k)
   {
-    return const_cast< TNode* >(findNode(k))->value_;
+    return const_cast< Value& >(static_cast< const BSTree& >(*this).get(k));
   }
 
   template< class Key, class Value, class Compare >
   const Value& BSTree< Key, Value, Compare >::get(const Key& k) const
   {
-    return const_cast< TNode* >(findNode(k))->value_;
+    return findNode(k)->value_;
   }
 
   template< class Key, class Value, class Compare >
@@ -381,6 +381,185 @@ namespace poetrov
     }
   }
 
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::Iterator
+  BSTree< Key, Value, Compare >::begin()
+  {
+    if (empty())
+    {
+      return end();
+    }
+    return Iterator(minNode(root_), fake_leaf_);
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::Iterator
+  BSTree< Key, Value, Compare >::end()
+  {
+    return Iterator(fake_leaf_, fake_leaf_);
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::CIterator
+  BSTree< Key, Value, Compare >::begin() const
+  {
+    if (empty())
+    {
+      return end();
+    }
+    return CIterator(minNode(root_), fake_leaf_);
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::CIterator
+  BSTree< Key, Value, Compare >::end() const
+  {
+    return CIterator(fake_leaf_, fake_leaf_);
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::CIterator
+  BSTree< Key, Value, Compare >::cbegin() const
+  {
+    if (empty())
+    {
+      return end();
+    }
+    return CIterator(minNode(root_), fake_leaf_);
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::CIterator
+  BSTree< Key, Value, Compare >::cend() const
+  {
+    return CIterator(fake_leaf_, fake_leaf_);
+  }
+
+  template< class Key, class Value, class Compare >
+  size_t BSTree< Key, Value, Compare >::height(CIterator it)
+  {
+    if (it == end())
+    {
+      return 0;
+    }
+    size_t left_h = height(CIterator(it.node_->left_, fake_leaf_));
+    size_t right_h = height(CIterator(it.node_->right_, fake_leaf_));
+    return 1 + std::max(left_h, right_h);
+  }
+
+  template< class Key, class Value, class Compare >
+  size_t BSTree< Key, Value, Compare >::height()
+  {
+    return height(CIterator(root_, fake_leaf_));
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::CIterator
+  BSTree< Key, Value, Compare >::rotateLeft(CIterator it)
+  {
+    TNode* n = const_cast< TNode* >(it.node_);
+
+    if (n == fake_leaf_ || n->parent_ == nullptr || n->parent_->left_ == n)
+    {
+      throw std::invalid_argument("rotateLeft: invalid node");
+    }
+
+    TNode* p = n->parent_;
+
+    p->right_ = n->left_;
+    if (n->left_ != fake_leaf_)
+    {
+      n->left_->parent_ = p;
+    }
+
+    n->parent_ = p->parent_;
+    if (p->parent_ == nullptr)
+    {
+      root_ = n;
+    }
+    else if (p->parent_->left_ == p)
+    {
+      p->parent_->left_ = n;
+    }
+    else
+    {
+      p->parent_->right_ = n;
+    }
+
+    n->left_ = p;
+    p->parent_ = n;
+
+    return CIterator(n, fake_leaf_);  
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::CIterator
+  BSTree< Key, Value, Compare >::rotateRight(CIterator it)
+  {
+    TNode* n = const_cast< TNode* >(it.node_);
+
+    if (n == fake_leaf_ || n->parent_ == nullptr || n->parent_->right_ == n)
+    {
+      throw std::invalid_argument("rotateRight: invalid node or no parent");
+    }
+
+    TNode* p = n->parent_;
+
+    p->left_ = n->right_;
+    if (n->right_ != fake_leaf_)
+    {
+      n->right_->parent_ = p;
+    }
+
+    n->parent_ = p->parent_;
+    if (p->parent_ == nullptr)
+    {
+      root_ = n;
+    }
+    else if (p->parent_->right_ == p)
+    {
+      p->parent_->right_ = n;
+    }
+    else
+    {
+      p->parent_->left_ = n;
+    }
+
+    n->right_ = p;
+    p->parent_ = n;
+
+    return CIterator(n, fake_leaf_);
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::CIterator
+  BSTree< Key, Value, Compare >::rotateLargeLeft(CIterator it)
+  {
+    TNode* node = const_cast< TNode* >(it.node_);
+    if (node == fake_leaf_ || node->parent_ == nullptr || node->parent_->parent_ == nullptr)
+    {
+      throw std::invalid_argument("No parent");
+    }
+
+    TNode* p = node->parent_;
+    rotateRight(it);
+    return rotateLeft(CIterator(p, fake_leaf_));
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::CIterator
+  BSTree< Key, Value, Compare >::rotateLargeRight(CIterator it)
+  {
+    TNode* node = const_cast< TNode* >(it.node_);
+    if (node == fake_leaf_ || node->parent_ == nullptr || node->parent_->parent_ == nullptr)
+    {
+      throw std::invalid_argument("No parent");
+    }
+
+    TNode* p = node->parent_;
+    rotateLeft(it);
+    return rotateRight(CIterator(p, fake_leaf_));
+  }
 }
 
 #endif

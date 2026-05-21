@@ -4,7 +4,7 @@
 #include <utility>
 #include "TNode.hpp"
 
-namespace petyrov
+namespace petrov
 {
   template< class Key, class Value >
   struct BSTIterator
@@ -152,7 +152,7 @@ namespace petyrov
   template< class Key, class Value >
   bool BSTIterator< Key, Value >::operator!=(const BSTIterator& other) const
   {
-    return *this != other;
+    return !(*this == other);
   }
 
   template< class Key, class Value >
@@ -259,7 +259,7 @@ namespace petyrov
   template< class Key, class Value >
   bool BSTCIterator< Key, Value >::operator!=(const BSTCIterator& other) const
   {
-    return *this != other;
+    return !(*this == other);
   }
 
   template< class Key, class Value >
