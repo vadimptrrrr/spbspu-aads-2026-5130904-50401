@@ -1,6 +1,8 @@
 #ifndef BSTREE_HPP
 #define BSTREE_HPP
 
+#include <stdexcept>
+#include <utility>
 #include "TNode.hpp"
 
 namespace poetrov
@@ -41,11 +43,344 @@ namespace poetrov
 
     bool empty() const;
 
+    using TNode = detail::TNode< Key, Value >;
     private:
-      TNode< Key, Value >* root_;
-      TNode< Key, Value >* fake_leaf_;
+      TNode* root_;
+      TNode* fake_leaf_;
       Compare comp_;
+
+      TNode* NodeCopy(const TNode* src, TNode* parent, const TNode* src_fake_leaf);
+      void swap(BSTree& other) noexcept;
+      void clear(TNode* node);
+      TNode* findNode(const Key& k);
+      const TNode* findNode(const Key& k) const;
+      TNode* minNode(const TNode* root);
+      TNode* maxNode(const TNode* root);
   };
+
+  template< class Key, class Value, class Compare >
+  BSTree< Key, Value, Compare >::BSTree():
+    root_(nullptr),
+    fake_leaf_(new TNode()),
+    comp_()
+  {
+    fake_leaf_->left_ = fake_leaf_;
+    fake_leaf_->right_ = fake_leaf_;
+    fake_leaf_->parent_ = nullptr;
+  }
+
+  template< class Key, class Value, class Compare >
+  BSTree< Key, Value, Compare >::BSTree(const BSTree& other):
+    root_(nullptr),
+    comp_(other.comp_)
+  {
+    fake_leaf_ = new TNode();
+    fake_leaf_->left_ = fake_leaf_;
+    fake_leaf_->right_ = fake_leaf_;
+    fake_leaf_->parent_ = nullptr;
+    root_ = NodeCopy(other.root_, nullptr, other.fake_leaf_);
+  }
+
+  template< class Key, class Value, class Compare  >
+  BSTree< Key, Value, Compare >::BSTree(BSTree&& other) noexcept:
+    root_(std::move(other.root_)),
+    fake_leaf_(std::move(other.fake_leaf_)),
+    comp_(std::move(other.comp_))
+  {
+    other.root_ = nullptr;
+    other.fake_leaf_ = nullptr;
+  }
+
+  template< class Key, class Value, class Compare >
+  BSTree< Key, Value, Compare >& BSTree< Key, Value, Compare >::operator=(const BSTree& other)
+  {
+    if (this != std::addressof(other))
+    {
+      BSTree< Key, Value, Compare > cpy = other;
+      swap(cpy);
+    }
+    return *this;
+  }
+
+  template< class Key, class Value, class Compare >
+  BSTree< Key, Value, Compare >& BSTree< Key, Value, Compare >::operator=(BSTree&& other) noexcept
+  {
+    if (this != std::addressof(other))
+    {
+      BSTree< Key, Value, Compare > cpy(std::move(other));
+      swap(cpy);
+    }
+    return *this;
+  }
+
+  template< class Key, class Value, class Compare >
+  BSTree< Key, Value, Compare >::~BSTree()
+  {
+    clear(root_);
+    delete fake_leaf_;
+  }
+
+  template< class Key, class Value, class Compare >
+  void BSTree< Key, Value, Compare >::swap(BSTree& other) noexcept
+  {
+    std::swap(root_, other.root_);
+    std::swap(fake_leaf_, other.fake_leaf_);
+    std::swap(comp_, other.comp_);
+  }
+
+  template< class Key, class Value, class Compare >
+  void BSTree< Key, Value, Compare >::clear(TNode* node)
+  {
+    if (node != fake_leaf_)
+    {
+      clear(node->left_);
+      clear(node->right_);
+      delete node;
+    }
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::TNode*
+  BSTree< Key, Value, Compare >::NodeCopy(const TNode* src, TNode* parent, const TNode* src_fake_leaf)
+  {
+    if (src == src_fake_leaf)
+    {
+      return fake_leaf_;
+    }
+    TNode* node = new TNode(src->key_, src->value_);
+    node->parent_ = parent;
+    node->left_ = NodeCopy(src->left_, node, src_fake_leaf);
+    node->right_ = NodeCopy(src->right_, node, src_fake_leaf);
+    return node;
+  }
+
+  template< class Key, class Value, class Compare >
+  bool BSTree< Key, Value, Compare >::empty() const
+  {
+    return root_ == nullptr;
+  }
+
+  template< class Key, class Value, class Compare >
+  void BSTree< Key, Value, Compare >::push(const Key& k, const Value& v)
+  {
+    TNode* curr = root_;
+    TNode* parent = nullptr;
+
+    while (curr != fake_leaf_)
+    {
+      if (!comp_(k, curr->key_) && !(comp_(curr->key_, k)))
+      {
+        curr->value_ = v;
+        return;
+      }
+
+      if (comp_(k, curr->key_))
+      {
+        parent = curr;
+        curr = curr->left_;
+      }
+      else
+      {
+        parent = curr;
+        curr = curr->right_;
+      }
+    }
+
+    TNode* nnode= new TNode(k, v);
+    nnode->left_ = fake_leaf_;
+    nnode->right_ = fake_leaf_;
+    nnode->parent_ = parent;
+    if (parent == nullptr)
+    {
+      root_ = nnode;
+    }
+    else if (comp_(k, parent->key_))
+    {
+      parent->left_ = nnode;
+    }
+    else
+    {
+      parent->right_ = nnode;
+    }
+  }
+
+  template< class Key, class Value, class Compare >
+  Value& BSTree< Key, Value, Compare >::get(const Key& k)
+  {
+    return const_cast< TNode* >(findNode(k))->value_;
+  }
+
+  template< class Key, class Value, class Compare >
+  const Value& BSTree< Key, Value, Compare >::get(const Key& k) const
+  {
+    return const_cast< TNode* >(findNode(k))->value_;
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::TNode*
+  BSTree< Key, Value, Compare >::findNode(const Key& k)
+  {
+    TNode* curr = root_;
+
+    while (curr != fake_leaf_)
+    {
+      if (!comp_(k, curr->key_) && !comp_(curr->key_, k))
+      {
+        return curr;
+      }
+
+      if (comp_(k, curr->key_))
+      {
+        curr = curr->left_;
+      }
+      else
+      {
+        curr = curr->right_;
+      }
+    }
+
+    throw std::out_of_range("Tree has not this key");
+  }
+
+  template< class Key, class Value, class Compare >
+  const typename BSTree< Key, Value, Compare >::TNode*
+  BSTree< Key, Value, Compare >::findNode(const Key& k) const
+  {
+    const TNode* curr = root_;
+
+    while (curr != fake_leaf_)
+    {
+      if (!comp_(k, curr->key_) && !comp_(curr->key_, k))
+      {
+        return curr;
+      }
+
+      if (comp_(k, curr->key_))
+      {
+        curr = curr->left_;
+      }
+      else
+      {
+        curr = curr->right_;
+      }
+    }
+
+    throw std::out_of_range("Tree has not this key");
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::TNode*
+  BSTree< Key, Value, Compare >::minNode(const TNode* root)
+  {
+    TNode* curr = root;
+
+    while (curr->left_ != fake_leaf_)
+    {
+      curr = curr->left_;
+    }
+    return curr;
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::TNode*
+  BSTree< Key, Value, Compare >::maxNode(const TNode* root)
+  {
+    TNode* curr = root;
+
+    while (curr->right_ != fake_leaf_)
+    {
+      curr = curr->right_;
+    }
+    return curr;
+  }
+
+  template< class Key, class Value, class Compare >
+  Value BSTree< Key, Value, Compare >::drop(Key k)
+  {
+    TNode* curr = findNode(k);
+    Value res = curr->value_;
+    
+    if (curr->left_ == fake_leaf_ && curr->right_ == fake_leaf_)
+    {
+      if (!curr->parent_)
+      {
+        root_ = nullptr;
+      }
+      else if (curr->parent_->left_ == curr)
+      {
+        curr->parent_->left_ = fake_leaf_;
+      }
+      else if (curr->parent_->right_ == curr)
+      {
+        curr->parent_->right_ = fake_leaf_;
+      }
+      delete curr;
+      return res;
+    }
+    else if (curr->left_ == fake_leaf_)
+    {
+      curr->right_->parent_ = curr->parent_;
+
+      if (!curr->parent_)
+      {
+        root_ = curr->right_;
+      }
+      else if (curr->parent_->left_ == curr)
+      {
+        curr->parent_->left_ = curr->right_;
+      }
+      else if (curr->parent_->right_ == curr)
+      {
+        curr->parent_->right_ = curr->right_;
+      }
+      delete curr;
+      return res;
+    }
+    else if (curr->right_ == fake_leaf_)
+    {
+      curr->left_->parent_ = curr->parent_;
+
+      if (!curr->parent_)
+      {
+        root_ = curr->left_;
+      }
+      else if (curr->parent_->left_ == curr)
+      {
+        curr->parent_->left_ = curr->left_;
+      }
+      else if (curr->parent_->right_ == curr)
+      {
+        curr->parent_->right_ = curr->left_;
+      }
+      delete curr;
+      return res;
+    }
+    else
+    {
+      TNode* min_in_right = minNode(curr->right_);
+
+      curr->key_ = min_in_right->key_;
+      curr->value_ = min_in_right->value_;
+
+      if (min_in_right->right_ != fake_leaf_)
+      {
+        min_in_right->right_->parent_ = min_in_right->parent_;
+      }
+
+      if (min_in_right->parent_->left_ == min_in_right)
+      {
+        min_in_right->parent_->left_ = min_in_right->right_;
+      }
+      else
+      {
+        min_in_right->parent_->right_ = min_in_right->right_;
+      }
+
+      delete min_in_right;
+      return res;
+    }
+  }
+
 }
 
 #endif
