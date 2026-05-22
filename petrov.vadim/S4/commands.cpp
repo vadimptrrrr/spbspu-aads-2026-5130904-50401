@@ -1,5 +1,7 @@
 #include "commands.hpp"
 
+using Citerator = petrov::BSTCIterator< size_t, std::string >;
+
 void petrov::print(std::istream& in, std::ostream& out, collection& coll)
 {
   std::string map_name;
@@ -16,7 +18,7 @@ void petrov::print(std::istream& in, std::ostream& out, collection& coll)
   }
 
   out << map_name;
-  petrov::BSTCIterator it = map.begin();
+  Citerator it = map.begin();
   for (; it != map.end(); ++it)
   {
     out << " " << (*it).first << " " << (*it).second; 
@@ -37,7 +39,7 @@ void petrov::complement(std::istream& in, std::ostream&, collection& coll)
   const dataset& map2 = coll.get(data2);
   dataset new_map;
 
-  for (BSTCIterator it = map1.begin(); it != map1.end(); ++it)
+  for (Citerator it = map1.begin(); it != map1.end(); ++it)
   {
     try
     {
@@ -64,7 +66,7 @@ void petrov::intersect(std::istream& in, std::ostream&, collection& coll)
   const dataset& map2 = coll.get(data2);
   dataset new_map;
 
-  for (BSTCIterator it = map1.begin(); it != map1.end(); ++it)
+  for (Citerator it = map1.begin(); it != map1.end(); ++it)
   {
     try
     {
@@ -89,7 +91,7 @@ void petrov::unionn(std::istream& in, std::ostream&, collection& coll)
   const dataset& map2 = coll.get(data2);
   dataset new_map = map1;
 
-  for (BSTCIterator it = map2.begin(); it != map2.end(); ++it)
+  for (Citerator it = map2.begin(); it != map2.end(); ++it)
   {
     try
     {

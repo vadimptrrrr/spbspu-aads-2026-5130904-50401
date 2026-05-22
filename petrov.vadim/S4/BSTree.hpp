@@ -2,6 +2,7 @@
 #define BSTREE_HPP
 
 #include <stdexcept>
+#include <algorithm>
 #include "TNode.hpp"
 #include "BSTIters.hpp"
 
@@ -54,8 +55,8 @@ namespace petrov
       void clear(TNode* node);
       TNode* findNode(const Key& k);
       const TNode* findNode(const Key& k) const;
-      TNode* minNode(const TNode* root);
-      TNode* maxNode(const TNode* root);
+      const TNode* minNode(const TNode* root) const;
+      const TNode* maxNode(const TNode* root) const;
   };
 
   template< class Key, class Value, class Compare >
@@ -269,10 +270,10 @@ namespace petrov
   }
 
   template< class Key, class Value, class Compare >
-  typename BSTree< Key, Value, Compare >::TNode*
-  BSTree< Key, Value, Compare >::minNode(const TNode* root)
+  const typename BSTree< Key, Value, Compare >::TNode*
+  BSTree< Key, Value, Compare >::minNode(const TNode* root) const
   {
-    TNode* curr = root;
+    const TNode* curr = root;
 
     while (curr->left_ != fake_leaf_)
     {
@@ -282,10 +283,10 @@ namespace petrov
   }
 
   template< class Key, class Value, class Compare >
-  typename BSTree< Key, Value, Compare >::TNode*
-  BSTree< Key, Value, Compare >::maxNode(const TNode* root)
+  const typename BSTree< Key, Value, Compare >::TNode*
+  BSTree< Key, Value, Compare >::maxNode(const TNode* root) const
   {
-    TNode* curr = root;
+    const TNode* curr = root;
 
     while (curr->right_ != fake_leaf_)
     {
@@ -357,7 +358,7 @@ namespace petrov
     }
     else
     {
-      TNode* min_in_right = minNode(curr->right_);
+      TNode* min_in_right = const_cast< TNode* >(minNode(curr->right_));
 
       curr->key_ = min_in_right->key_;
       curr->value_ = min_in_right->value_;
@@ -389,7 +390,7 @@ namespace petrov
     {
       return end();
     }
-    return Iterator(minNode(root_), fake_leaf_);
+    return Iterator(const_cast< TNode* >(minNode(root_)), fake_leaf_);
   }
 
   template< class Key, class Value, class Compare >
