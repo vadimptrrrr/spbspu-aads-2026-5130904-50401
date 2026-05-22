@@ -7,7 +7,7 @@
 
 namespace petrov
 {
-  template < class Key, class Value, class Compare >
+  template < class Key, class Value, class Compare = std::less< Key > >
   struct BSTree
   {
     BSTree();

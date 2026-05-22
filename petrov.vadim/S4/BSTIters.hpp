@@ -23,7 +23,7 @@ namespace petrov
     bool operator==(const BSTIterator& other) const;
     bool operator!=(const BSTIterator& other) const;
 
-    std::pair< Key, Value >& operator*() const;
+    std::pair< Key, Value > operator*() const;
     
   private:
     TNode* node_;
@@ -47,7 +47,7 @@ namespace petrov
     bool operator==(const BSTCIterator& other) const;
     bool operator!=(const BSTCIterator& other) const;
 
-    const std::pair< Key, Value >& operator*() const;
+    const std::pair< Key, Value > operator*() const;
   
     private:
       const TNode* node_;
@@ -156,7 +156,7 @@ namespace petrov
   }
 
   template< class Key, class Value >
-  std::pair< Key, Value >& BSTIterator< Key, Value >::operator*() const
+  std::pair< Key, Value > BSTIterator< Key, Value >::operator*() const
   {
     return {node_->key_, node_->value_};
   }
@@ -263,7 +263,7 @@ namespace petrov
   }
 
   template< class Key, class Value >
-  const std::pair< Key, Value >& BSTCIterator< Key, Value >::operator*() const
+  const std::pair< Key, Value > BSTCIterator< Key, Value >::operator*() const
   {
     return {node_->key_, node_->value_};
   }
