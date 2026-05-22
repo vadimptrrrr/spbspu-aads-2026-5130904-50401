@@ -96,7 +96,7 @@ int main(int argc, char const *argv[])
     }
     catch (const std::exception&)
     {
-      std::cout << "<IVALID COMMAND>\n";
+      std::cout << "<INVALID COMMAND>\n";
       std::cin.clear();
       std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }

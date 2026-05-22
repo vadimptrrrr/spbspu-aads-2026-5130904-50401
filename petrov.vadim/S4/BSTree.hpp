@@ -79,7 +79,11 @@ namespace petrov
     fake_leaf_->left_ = fake_leaf_;
     fake_leaf_->right_ = fake_leaf_;
     fake_leaf_->parent_ = nullptr;
-    root_ = NodeCopy(other.root_, nullptr, other.fake_leaf_);
+    
+    if (other.root_ != nullptr && other.root_ != other.fake_leaf_)
+    {
+      root_ = NodeCopy(other.root_, nullptr, other.fake_leaf_);
+    }
   }
 
   template< class Key, class Value, class Compare  >
