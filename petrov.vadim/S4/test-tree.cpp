@@ -183,9 +183,6 @@ BOOST_AUTO_TEST_CASE(test_const_iterators)
   BOOST_CHECK(cit != ct.cend());
 }
 
-// Убран test_iterator_conversion, так как в твоём коде нет неявного преобразования Iterator -> CIterator.
-// Если нужно, его можно реализовать через конструктор BSTCIterator(const BSTIterator&).
-
 BOOST_AUTO_TEST_CASE(test_height_full)
 {
   petrov::BSTree<int, std::string> tree;
@@ -196,7 +193,6 @@ BOOST_AUTO_TEST_CASE(test_height_full)
   tree.push(3, "3");
   BOOST_CHECK_EQUAL(tree.height(), 3);
 
-  // height(CIterator) требует const_iterator, используем cbegin()
   auto cit = tree.cbegin();
   BOOST_CHECK_EQUAL(tree.height(cit), 3);
   ++cit;
@@ -220,7 +216,6 @@ BOOST_AUTO_TEST_CASE(test_rotate_left)
 
   BOOST_CHECK_EQUAL(tree.height(), 4);
 
-  // In-order: 8, 10, 13, 15, 17, 20. Ищем 15 (индекс 3)
   auto it_15 = tree.begin();
   for (int i = 0; i < 3; ++i) ++it_15;
   BOOST_CHECK_EQUAL((*it_15).first, 15);
@@ -228,7 +223,6 @@ BOOST_AUTO_TEST_CASE(test_rotate_left)
   tree.rotateLeft(it_15);
   auto keys = petrov::collect_keys(tree);
   BOOST_REQUIRE_EQUAL(keys.size(), 6);
-  // Порядок ключей не меняется при поворотах
   BOOST_CHECK_EQUAL(keys[0], 8);
   BOOST_CHECK_EQUAL(keys[1], 10);
   BOOST_CHECK_EQUAL(keys[2], 13);
@@ -251,7 +245,6 @@ BOOST_AUTO_TEST_CASE(test_rotate_right)
 
   BOOST_CHECK_EQUAL(tree.height(), 4);
 
-  // In-order: 6, 7, 8, 9, 10, 15. Ищем 8 (индекс 2)
   auto it_8 = tree.begin();
   for (int i = 0; i < 2; ++i) ++it_8;
   BOOST_CHECK_EQUAL((*it_8).first, 8);
@@ -282,7 +275,6 @@ BOOST_AUTO_TEST_CASE(test_rotate_large_left)
 
   BOOST_CHECK_EQUAL(tree.height(), 4);
 
-  // In-order: 7, 10, 11, 12, 13, 15, 16. Ищем 12 (индекс 3)
   auto it_12 = tree.begin();
   for (int i = 0; i < 3; ++i) ++it_12;
   BOOST_CHECK_EQUAL((*it_12).first, 12);
@@ -314,7 +306,6 @@ BOOST_AUTO_TEST_CASE(test_rotate_large_right)
 
   BOOST_CHECK_EQUAL(tree.height(), 4);
 
-  // In-order: 5, 6, 7, 8, 9, 10, 15. Ищем 8 (индекс 3)
   auto it_8 = tree.begin();
   for (int i = 0; i < 3; ++i) ++it_8;
   BOOST_CHECK_EQUAL((*it_8).first, 8);
@@ -339,11 +330,8 @@ BOOST_AUTO_TEST_CASE(test_rotation_exceptions)
   tree.push(10, "10");
   tree.push(20, "20");
 
-  // rotateLeft на end() -> фейковый узел
   BOOST_CHECK_THROW(tree.rotateLeft(tree.end()), std::invalid_argument);
-  // rotateRight на begin() -> минимальный элемент (левый ребёнок или корень)
   BOOST_CHECK_THROW(tree.rotateRight(tree.begin()), std::invalid_argument);
-  // rotateLarge на begin() -> нет родителя или родителя родителя
   BOOST_CHECK_THROW(tree.rotateLargeLeft(tree.begin()), std::invalid_argument);
   BOOST_CHECK_THROW(tree.rotateLargeRight(tree.begin()), std::invalid_argument);
 }
@@ -359,7 +347,7 @@ BOOST_AUTO_TEST_CASE(test_copy_constructor)
   BOOST_CHECK_EQUAL(tree2.get(1), "one");
 
   tree2.drop(1);
-  BOOST_CHECK_EQUAL(tree1.get(1), "one"); // Исходное дерево не поменялось
+  BOOST_CHECK_EQUAL(tree1.get(1), "one");
   BOOST_CHECK_THROW(tree2.get(1), std::out_of_range);
 }
 
@@ -408,7 +396,7 @@ BOOST_AUTO_TEST_CASE(test_edge_duplicates)
   tree.push(5, "B");
   tree.push(5, "C");
 
-  BOOST_CHECK_EQUAL(tree.get(5), "C"); // Значение обновляется
+  BOOST_CHECK_EQUAL(tree.get(5), "C");
   BOOST_CHECK_EQUAL(petrov::collect_keys(tree).size(), 1);
 }
 
