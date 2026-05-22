@@ -145,7 +145,7 @@ namespace petrov
   typename BSTree< Key, Value, Compare >::TNode*
   BSTree< Key, Value, Compare >::NodeCopy(const TNode* src, TNode* parent, const TNode* src_fake_leaf)
   {
-    if (src == src_fake_leaf)
+    if (src == src_fake_leaf || src == nullptr)
     {
       return fake_leaf_;
     }

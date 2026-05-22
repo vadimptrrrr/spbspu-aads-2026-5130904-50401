@@ -18,7 +18,7 @@ namespace petrov
     using TNode = detail::TNode< Key, Value >;
     friend struct BSTCIterator<Key, Value>;
     template< class K, class V, class C >
-    friend class BSTree;
+    friend struct BSTree;
 
     BSTIterator();
     explicit BSTIterator(TNode* node, TNode* fake_leaf);
@@ -44,7 +44,7 @@ namespace petrov
   {
     using TNode = detail::TNode< Key, Value >;
     template< class K, class V, class C >
-    friend class BSTree;
+    friend struct BSTree;
 
     BSTCIterator();
     explicit BSTCIterator(const TNode* node, const TNode* fake_leaf);
