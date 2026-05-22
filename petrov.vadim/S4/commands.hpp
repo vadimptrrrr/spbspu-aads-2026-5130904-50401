@@ -3,11 +3,12 @@
 
 #include <iostream>
 #include <string>
+#include <cstddef>
 #include "BSTree.hpp"
 
 namespace petrov
 {
-  using dataset = BSTree< int, std::string >;
+  using dataset = BSTree< size_t, std::string >;
   using collection = BSTree< std::string, dataset >;
 
   void print(std::istream& in, std::ostream& out, collection& coll);
