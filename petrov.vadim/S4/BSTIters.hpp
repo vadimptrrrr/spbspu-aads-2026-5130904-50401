@@ -7,9 +7,18 @@
 namespace petrov
 {
   template< class Key, class Value >
+  struct BSTCIterator;
+
+  template <class, class, class>
+  struct BSTree;
+
+  template< class Key, class Value >
   struct BSTIterator
   {
     using TNode = detail::TNode< Key, Value >;
+    friend struct BSTCIterator<Key, Value>;
+    template< class K, class V, class C >
+    friend class BSTree;
 
     BSTIterator();
     explicit BSTIterator(TNode* node, TNode* fake_leaf);
@@ -34,9 +43,12 @@ namespace petrov
   struct BSTCIterator
   {
     using TNode = detail::TNode< Key, Value >;
+    template< class K, class V, class C >
+    friend class BSTree;
 
     BSTCIterator();
     explicit BSTCIterator(const TNode* node, const TNode* fake_leaf);
+    BSTCIterator(const BSTIterator<Key, Value>& other);
 
     BSTCIterator& operator++();
     BSTCIterator operator++(int);
@@ -47,7 +59,7 @@ namespace petrov
     bool operator==(const BSTCIterator& other) const;
     bool operator!=(const BSTCIterator& other) const;
 
-    const std::pair< Key, Value > operator*() const;
+    std::pair< Key, Value > operator*() const;
   
     private:
       const TNode* node_;
@@ -263,10 +275,16 @@ namespace petrov
   }
 
   template< class Key, class Value >
-  const std::pair< Key, Value > BSTCIterator< Key, Value >::operator*() const
+  std::pair< Key, Value > BSTCIterator< Key, Value >::operator*() const
   {
     return {node_->key_, node_->value_};
   }
+
+  template< class Key, class Value >
+  BSTCIterator< Key, Value >::BSTCIterator(const BSTIterator< Key, Value >& other) :
+    node_(other.node_),
+    fake_leaf_(other.fake_leaf_)
+  {}
 }
 
 #endif

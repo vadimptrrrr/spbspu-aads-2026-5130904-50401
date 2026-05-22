@@ -1,6 +1,6 @@
 #include "commands.hpp"
 
-using Citerator = petrov::BSTCIterator< size_t, std::string >;
+using Citerator = petrov::BSTCIterator< int, std::string >;
 
 void petrov::print(std::istream& in, std::ostream& out, collection& coll)
 {

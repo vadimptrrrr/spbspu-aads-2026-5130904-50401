@@ -1,6 +1,7 @@
 #include "commands.hpp"
 #include <fstream>
 #include <limits>
+#include <cstddef>
 
 bool isInteger(const std::string& s)
 {
@@ -55,7 +56,7 @@ int main(int argc, char const *argv[])
       {
         continue;
       }
-      size_t key = std::stoi(token);
+      int key = std::stoi(token);
       std::string value;
       if (file >> value)
       {

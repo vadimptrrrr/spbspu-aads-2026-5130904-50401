@@ -132,12 +132,13 @@ namespace petrov
   template< class Key, class Value, class Compare >
   void BSTree< Key, Value, Compare >::clear(TNode* node)
   {
-    if (node != fake_leaf_)
+    if (node == nullptr || node == fake_leaf_)
     {
-      clear(node->left_);
-      clear(node->right_);
-      delete node;
+      return;
     }
+    clear(node->left_);
+    clear(node->right_);
+    delete node;
   }
 
   template< class Key, class Value, class Compare >
@@ -164,12 +165,21 @@ namespace petrov
   template< class Key, class Value, class Compare >
   void BSTree< Key, Value, Compare >::push(const Key& k, const Value& v)
   {
+    if (root_ == nullptr)
+    {
+      root_ = new TNode(k, v);
+      root_->left_ = fake_leaf_;
+      root_->right_ = fake_leaf_;
+      root_->parent_ = nullptr;
+      return;
+    }
+
     TNode* curr = root_;
     TNode* parent = nullptr;
 
     while (curr != fake_leaf_)
     {
-      if (!comp_(k, curr->key_) && !(comp_(curr->key_, k)))
+      if (!comp_(k, curr->key_) && !comp_(curr->key_, k))
       {
         curr->value_ = v;
         return;
@@ -187,22 +197,15 @@ namespace petrov
       }
     }
 
-    TNode* nnode= new TNode(k, v);
+    TNode* nnode = new TNode(k, v);
     nnode->left_ = fake_leaf_;
     nnode->right_ = fake_leaf_;
     nnode->parent_ = parent;
-    if (parent == nullptr)
-    {
-      root_ = nnode;
-    }
-    else if (comp_(k, parent->key_))
-    {
+    
+    if (comp_(k, parent->key_))
       parent->left_ = nnode;
-    }
     else
-    {
       parent->right_ = nnode;
-    }
   }
 
   template< class Key, class Value, class Compare >
@@ -221,8 +224,12 @@ namespace petrov
   typename BSTree< Key, Value, Compare >::TNode*
   BSTree< Key, Value, Compare >::findNode(const Key& k)
   {
-    TNode* curr = root_;
+    if (root_ == nullptr)
+    {
+      throw std::out_of_range("Tree has not this key");
+    }
 
+    TNode* curr = root_;
     while (curr != fake_leaf_)
     {
       if (!comp_(k, curr->key_) && !comp_(curr->key_, k))
@@ -247,8 +254,12 @@ namespace petrov
   const typename BSTree< Key, Value, Compare >::TNode*
   BSTree< Key, Value, Compare >::findNode(const Key& k) const
   {
-    const TNode* curr = root_;
+    if (root_ == nullptr)
+    {
+      throw std::out_of_range("Tree has not this key");
+    }
 
+    const TNode* curr = root_;
     while (curr != fake_leaf_)
     {
       if (!comp_(k, curr->key_) && !comp_(curr->key_, k))
@@ -439,9 +450,9 @@ namespace petrov
   template< class Key, class Value, class Compare >
   size_t BSTree< Key, Value, Compare >::height(CIterator it)
   {
-    if (it == end())
+    if (it.node_ == fake_leaf_)
     {
-      return 0;
+      return 0; 
     }
     size_t left_h = height(CIterator(it.node_->left_, fake_leaf_));
     size_t right_h = height(CIterator(it.node_->right_, fake_leaf_));
@@ -451,6 +462,10 @@ namespace petrov
   template< class Key, class Value, class Compare >
   size_t BSTree< Key, Value, Compare >::height()
   {
+    if (empty())
+    {
+      return 0;
+    }
     return height(CIterator(root_, fake_leaf_));
   }
 
@@ -542,9 +557,8 @@ namespace petrov
       throw std::invalid_argument("No parent");
     }
 
-    TNode* p = node->parent_;
     rotateRight(it);
-    return rotateLeft(CIterator(p, fake_leaf_));
+    return rotateLeft(it);
   }
 
   template< class Key, class Value, class Compare >
@@ -557,9 +571,8 @@ namespace petrov
       throw std::invalid_argument("No parent");
     }
 
-    TNode* p = node->parent_;
     rotateLeft(it);
-    return rotateRight(CIterator(p, fake_leaf_));
+    return rotateRight(it);
   }
 }
 
