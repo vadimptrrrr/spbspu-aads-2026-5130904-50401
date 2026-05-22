@@ -21,7 +21,7 @@ void petrov::print(std::istream& in, std::ostream& out, collection& coll)
   Citerator it = map.begin();
   for (; it != map.end(); ++it)
   {
-    out << " " << (*it).first << " " << (*it).second; 
+    out << " " << (*it).first << " " << (*it).second;
   }
   out << "\n";
 }

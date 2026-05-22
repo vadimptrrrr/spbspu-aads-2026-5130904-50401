@@ -33,7 +33,7 @@ namespace petrov
     bool operator!=(const BSTIterator& other) const;
 
     std::pair< Key, Value > operator*() const;
-    
+
   private:
     TNode* node_;
     TNode* fake_leaf_;
@@ -60,7 +60,7 @@ namespace petrov
     bool operator!=(const BSTCIterator& other) const;
 
     std::pair< Key, Value > operator*() const;
-  
+
     private:
       const TNode* node_;
       const TNode* fake_leaf_;
@@ -187,7 +187,7 @@ namespace petrov
 
   template< class Key, class Value >
   BSTCIterator< Key, Value >& BSTCIterator< Key, Value >::operator++()
-  {    
+  {
     if (node_->right_ != fake_leaf_)
     {
       node_ = node_->right_;
@@ -215,7 +215,7 @@ namespace petrov
 
   template< class Key, class Value >
   BSTCIterator< Key, Value > BSTCIterator< Key, Value >::operator++(int)
-  {    
+  {
     BSTCIterator temp = *this;
     ++(*this);
     return temp;
@@ -223,7 +223,7 @@ namespace petrov
 
   template< class Key, class Value >
   BSTCIterator< Key, Value >& BSTCIterator< Key, Value >::operator--()
-  {    
+  {
     if (node_ == fake_leaf_)
     {
       return *this;
@@ -256,7 +256,7 @@ namespace petrov
 
   template< class Key, class Value >
   BSTCIterator< Key, Value > BSTCIterator< Key, Value >::operator--(int)
-  {    
+  {
     BSTCIterator temp = *this;
     --(*this);
     return temp;
@@ -264,7 +264,7 @@ namespace petrov
 
   template< class Key, class Value >
   bool BSTCIterator< Key, Value >::operator==(const BSTCIterator& other) const
-  {    
+  {
     return node_ == other.node_;
   }
 

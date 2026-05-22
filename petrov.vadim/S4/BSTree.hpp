@@ -201,7 +201,7 @@ namespace petrov
     nnode->left_ = fake_leaf_;
     nnode->right_ = fake_leaf_;
     nnode->parent_ = parent;
-    
+
     if (comp_(k, parent->key_))
       parent->left_ = nnode;
     else
@@ -311,7 +311,7 @@ namespace petrov
   {
     TNode* curr = findNode(k);
     Value res = curr->value_;
-    
+
     if (curr->left_ == fake_leaf_ && curr->right_ == fake_leaf_)
     {
       if (!curr->parent_)
@@ -452,7 +452,7 @@ namespace petrov
   {
     if (it.node_ == fake_leaf_)
     {
-      return 0; 
+      return 0;
     }
     size_t left_h = height(CIterator(it.node_->left_, fake_leaf_));
     size_t right_h = height(CIterator(it.node_->right_, fake_leaf_));
@@ -505,7 +505,7 @@ namespace petrov
     n->left_ = p;
     p->parent_ = n;
 
-    return CIterator(n, fake_leaf_);  
+    return CIterator(n, fake_leaf_);
   }
 
   template< class Key, class Value, class Compare >
