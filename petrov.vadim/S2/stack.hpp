@@ -1,9 +1,9 @@
 #ifndef STACK_HPP
 #define STACK_HPP
 
-#include "../common/STRUCTS.hpp"
 #include <stdexcept>
 #include <cstddef>
+#include "../common/STRUCTS.hpp"
 
 namespace petrov
 {
