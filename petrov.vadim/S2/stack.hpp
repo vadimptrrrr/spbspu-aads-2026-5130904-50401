@@ -3,89 +3,52 @@
 
 #include <stdexcept>
 #include <cstddef>
+#include <utility>
 #include "../common/STRUCTS.hpp"
 
 namespace petrov
 {
-  template<typename T>
+  template< typename T >
   class Stack {
   public:
-    Stack();
-    Stack(const Stack<T>& s);
-    Stack(Stack<T>&& s);
+    Stack() = default;
+    Stack(const Stack< T >& s) = default;
+    Stack(Stack< T >&& s) noexcept = default;
 
-    Stack<T>& operator=(const Stack<T>& s);
-    Stack<T>& operator=(Stack<T>&& s);
+    Stack< T >& operator=(const Stack< T >& s) = default;
+    Stack< T >& operator=(Stack< T >&& s) noexcept = default;
+    ~Stack() = default;
 
     void push(const T& rhs);
-    T drop();
+    void push(T&& rhs);
 
     const T& top() const;
+    T& top();
+    
     void pop();
-    bool empty() const;
-    size_t getSize() const;
-    void clear();
+    
+    bool empty() const noexcept;
+    size_t size() const noexcept;
+    void clear() noexcept;
 
-    ~Stack();
   private:
-    List<T> list_;
+    List< T > list_;
   };
 
-  template<typename T>
-  Stack<T>::Stack():
-    list_()
-  {}
-
-  template<typename T>
-  Stack<T>::Stack(const Stack<T>& s):
-    list_(s.list_)
-  {}
-
-  template<typename T>
-  Stack<T>::Stack(Stack<T>&& s):
-    list_(std::move(s.list_))
-  {}
-
-  template<typename T>
-  Stack<T>& Stack<T>::operator=(const Stack<T>& s)
-  {
-    if (this != &s)
-    {
-      list_ = s.list_;
-    }
-    return *this;
-  }
-
-  template<typename T>
-  Stack<T>& Stack<T>::operator=(Stack<T>&& s)
-  {
-    if (this != &s)
-    {
-      list_ = std::move(s.list_);
-    }
-    return *this;
-  }
-
-  template<typename T>
-  void Stack<T>::push(const T& rhs)
+  template< typename T >
+  void Stack< T >::push(const T& rhs)
   {
     list_.addStart(rhs);
   }
 
-  template<typename T>
-  T Stack<T>::drop()
+  template< typename T >
+  void Stack< T >::push(T&& rhs)
   {
-    if (empty())
-    {
-      throw std::runtime_error("Stack is empty");
-    }
-    T res = top();
-    pop();
-    return res;
+    list_.addStart(rhs);
   }
 
-  template<typename T>
-  const T& Stack<T>::top() const
+  template< typename T >
+  const T& Stack< T >::top() const
   {
     if (empty())
     {
@@ -94,8 +57,18 @@ namespace petrov
     return *list_.begin();
   }
 
-  template<typename T>
-  void Stack<T>::pop()
+  template< typename T >
+  T& Stack< T >::top()
+  {
+    if (empty())
+    {
+      throw std::runtime_error("Stack is empty");
+    }
+    return *list_.begin();
+  }
+
+  template< typename T >
+  void Stack< T >::pop()
   {
     if (empty())
     {
@@ -104,28 +77,22 @@ namespace petrov
     list_.popStart();
   }
 
-  template<typename T>
-  bool Stack<T>::empty() const
+  template< typename T >
+  bool Stack< T >::empty() const noexcept
   {
     return list_.size() == 0;
   }
 
-  template<typename T>
-  size_t Stack<T>::getSize() const
+  template< typename T >
+  size_t Stack< T >::size() const noexcept
   {
     return list_.size();
   }
 
-  template<typename T>
-  void Stack<T>::clear()
+  template< typename T >
+  void Stack< T >::clear() noexcept
   {
     list_.clear();
-  }
-
-  template<typename T>
-  Stack<T>::~Stack()
-  {
-    clear();
   }
 }
 
