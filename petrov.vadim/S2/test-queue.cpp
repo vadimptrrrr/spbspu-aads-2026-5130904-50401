@@ -53,50 +53,15 @@ BOOST_AUTO_TEST_CASE(push_pop_front)
   q.push(4);
   BOOST_CHECK(q.front() == 1);
 
-
+  BOOST_CHECK(q.front() == 1);
   q.pop();
   BOOST_CHECK(q.front() == 2);
-
   q.pop();
   BOOST_CHECK(q.front() == 3);
-
   q.pop();
   BOOST_CHECK(q.front() == 4);
-}
+  q.pop();
 
-BOOST_AUTO_TEST_CASE(drop)
-{
-  petrov::Queue< int > q;
-  q.push(1);
-  q.push(2);
-  q.push(3);
-
-  BOOST_CHECK(q.drop() == 1);
-  BOOST_CHECK(q.size() == 2);
-  BOOST_CHECK(q.front() == 2);
-
-  BOOST_CHECK(q.drop() == 2);
-  BOOST_CHECK(q.size() == 1);
-  BOOST_CHECK(q.front() == 3);
-
-  BOOST_CHECK(q.drop() == 3);
-  BOOST_CHECK(q.empty());
-}
-
-BOOST_AUTO_TEST_CASE(clear)
-{
-  petrov::Queue< int > q;
-  q.push(1);
-  q.push(2);
-  q.push(3);
-  q.push(4);
-  q.push(5);
-
-  BOOST_CHECK(q.size() == 5);
-
-  q.clear();
-
-  BOOST_CHECK(q.size() == 0);
   BOOST_CHECK(q.empty());
 }
 
