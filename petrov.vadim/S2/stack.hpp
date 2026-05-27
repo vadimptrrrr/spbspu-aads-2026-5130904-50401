@@ -24,9 +24,9 @@ namespace petrov
 
     const T& top() const;
     T& top();
-    
+
     void pop();
-    
+
     bool empty() const noexcept;
     size_t size() const noexcept;
     void clear() noexcept;
