@@ -1,5 +1,5 @@
-#ifndef FOO_HPP
-#define FOO_HPP
+#ifndef FUNCTIONS_HPP
+#define FUNCTIONS_HPP
 
 #include <string>
 #include <cstddef>

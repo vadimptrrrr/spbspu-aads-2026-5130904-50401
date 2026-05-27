@@ -4,8 +4,7 @@ namespace petrov
 {
   bool isOperator(const std::string& token)
   {
-    return token == "+" || token == "-" || token == "*" ||
-           token == "/" || token == "%" || token == "#";
+    return token == "+" || token == "-" || token == "*" || token == "/" || token == "%" || token == "#";
   }
 
   size_t getPriority(const std::string& op)
@@ -73,7 +72,8 @@ namespace petrov
     while (!data.empty())
     {
       Stack<std::string> operators;
-      Queue<std::string> current = data.drop();
+      Queue<std::string> current = data.top();
+      data.pop();
       Queue<std::string> output;
 
       while (!current.empty())
@@ -104,8 +104,8 @@ namespace petrov
             size_t topPriority = getPriority(operators.top());
             size_t currPriority = getPriority(token);
 
-            if ((token != "#" && topPriority >= currPriority) ||
-                (token == "#" && topPriority > currPriority))
+            if ((token != "#" && topPriority >= currPriority)
+                || (token == "#" && topPriority > currPriority))
             {
               output.push(operators.top());
               operators.pop();
@@ -163,10 +163,12 @@ namespace petrov
 
   ll pickOperation(ll a, ll b, const std::string& op)
   {
-    if (op == "+"){
+    if (op == "+")
+    {
       return plus(a, b);
     }
-    if (op == "-"){
+    if (op == "-")
+    {
       return minus(a, b);
     }
     if (op == "*")
@@ -201,7 +203,8 @@ namespace petrov
         {
           throw std::logic_error("Not enough operands");
         }
-        ll a = st.drop();
+        ll a = st.top();
+        st.pop();
         st.push(reverseNumber(a));
       }
       else if (isOperator(token))
@@ -210,13 +213,15 @@ namespace petrov
         {
           throw std::logic_error("Not enough operands");
         }
-        ll b = st.drop();
+        ll b = st.top();
+        st.pop();
 
         if (st.empty())
         {
           throw std::logic_error("Not enough operands");
         }
-        ll a = st.drop();
+        ll a = st.top();
+        st.pop();
         st.push(pickOperation(a, b, token));
       }
     }
@@ -224,7 +229,8 @@ namespace petrov
     {
       throw std::logic_error("Empty expression");
     }
-    ll result = st.drop();
+    ll result = st.top();
+    st.pop();
     if (!st.empty())
     {
       throw std::logic_error("Too many operands");
@@ -236,7 +242,8 @@ namespace petrov
   {
     while (!postfix.empty())
     {
-      Queue<std::string> expr = postfix.drop();
+      Queue<std::string> expr = postfix.top();
+      postfix.pop();
       ll value = calculatePostfix(expr);
       results.push(value);
     }
@@ -246,7 +253,8 @@ namespace petrov
   {
     while (!results.empty())
     {
-      out << results.drop();
+      out << results.top();
+      results.pop();
       if (!results.empty())
       {
         out << " ";
