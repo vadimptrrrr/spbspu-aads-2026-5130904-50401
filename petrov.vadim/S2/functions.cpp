@@ -1,266 +1,213 @@
 #include "functions.hpp"
 
-namespace petrov
+bool details::isOperator(const std::string& token)
 {
-  bool isOperator(const std::string& token)
-  {
-    return token == "+" || token == "-" || token == "*" || token == "/" || token == "%" || token == "#";
-  }
+  return token == "+" || token == "-" || token == "*" || token == "/" || token == "%" || token == "#";
+}
 
-  size_t getPriority(const std::string& op)
+size_t details::getPriority(const std::string& op)
+{
+  if (op == "#")
   {
-    if (op == "#")
-    {
-      return 3;
-    }
-    if (op == "*" || op == "/" || op == "%")
-    {
-      return 2;
-    }
-    if (op == "+" || op == "-")
-    {
-      return 1;
-    }
-    return 0;
+    return 3;
   }
-
-  void getInfix(std::istream& in, Stack< Queue < std::string > >& data)
+  if (op == "*" || op == "/" || op == "%")
   {
-    char c;
-    std::string token;
-    Queue<std::string> current;
-    while (in.get(c))
+    return 2;
+  }
+  if (op == "+" || op == "-")
+  {
+    return 1;
+  }
+  return 0;
+}
+
+petrov::Stack< petrov::Queue < std::string > > details::getInfix(std::istream& in)
+{
+  char c;
+  std::string token;
+  petrov::Queue<std::string> current;
+  petrov::Stack< petrov::Queue < std::string > > data;
+  while (in.get(c))
+  {
+    if (c == '\n')
     {
-      if (c == '\n')
+      if (!token.empty())
       {
-        if (!token.empty())
-        {
-          current.push(token);
-          token.clear();
-        }
-        if (!current.empty())
-        {
-          data.push(current);
-          current.clear();
-        }
+        current.push(token);
+        token.clear();
       }
-      else if (c == ' ' || c == '\t')
+      if (!current.empty())
       {
-        if (!token.empty())
-        {
-          current.push(token);
-          token.clear();
-        }
-      }
-      else
-      {
-        token += c;
+        data.push(current);
+        current.clear();
       }
     }
-    if (!token.empty())
+    else if (c == ' ' || c == '\t')
     {
-      current.push(token);
+      if (!token.empty())
+      {
+        current.push(token);
+        token.clear();
+      }
     }
-    if (!current.empty())
+    else
     {
-      data.push(current);
+      token += c;
     }
   }
-
-  void infixToPostfix(Stack< Queue < std::string > >& data, Stack< Queue < std::string > >& res)
+  if (!token.empty())
   {
-    while (!data.empty())
+    current.push(token);
+  }
+  if (!current.empty())
+  {
+    data.push(current);
+  }
+  return data;
+}
+
+petrov::Stack< petrov::Queue < std::string > > details::infixToPostfix(petrov::Stack< petrov::Queue < std::string > >& data)
+{
+  petrov::Stack< petrov::Queue < std::string > > res;
+  while (!data.empty())
+  {
+    petrov::Stack<std::string> operators;
+    petrov::Queue<std::string> current = data.top();
+    data.pop();
+    petrov::Queue<std::string> output;
+
+    while (!current.empty())
     {
-      Stack<std::string> operators;
-      Queue<std::string> current = data.top();
-      data.pop();
-      Queue<std::string> output;
+      std::string token = current.front();
+      current.pop();
 
-      while (!current.empty())
+      if (token == "(")
       {
-        std::string token = current.front();
-        current.pop();
-
-        if (token == "(")
+        operators.push(token);
+      }
+      else if (token == ")")
+      {
+        while (!operators.empty() && operators.top() != "(")
         {
-          operators.push(token);
+          output.push(operators.top());
+          operators.pop();
         }
-        else if (token == ")")
+        if (!operators.empty())
         {
-          while (!operators.empty() && operators.top() != "(")
+          operators.pop();
+        }
+      }
+      else if (details::isOperator(token))
+      {
+        while (!operators.empty() && operators.top() != "(")
+        {
+          size_t topPriority = details::getPriority(operators.top());
+          size_t currPriority = details::getPriority(token);
+
+          if ((token != "#" && topPriority >= currPriority)
+              || (token == "#" && topPriority > currPriority))
           {
             output.push(operators.top());
             operators.pop();
           }
-          if (!operators.empty())
+          else
           {
-            operators.pop();
+            break;
           }
         }
-        else if (isOperator(token))
-        {
-          while (!operators.empty() && operators.top() != "(")
-          {
-            size_t topPriority = getPriority(operators.top());
-            size_t currPriority = getPriority(token);
-
-            if ((token != "#" && topPriority >= currPriority)
-                || (token == "#" && topPriority > currPriority))
-            {
-              output.push(operators.top());
-              operators.pop();
-            }
-            else
-            {
-              break;
-            }
-          }
-          operators.push(token);
-        }
-        else
-        {
-          output.push(token);
-        }
+        operators.push(token);
       }
-
-      while (!operators.empty())
+      else
       {
-        output.push(operators.top());
-        operators.pop();
+        output.push(token);
       }
-      res.push(output);
     }
-  }
 
-  bool isNumber(const std::string& token)
-  {
-    if (token.empty())
+    while (!operators.empty())
     {
-      return false;
+      output.push(operators.top());
+      operators.pop();
     }
-    if (token[0] == '-' && token.size() > 1)
-    {
-      return true;
-    }
-    return std::isdigit(token[0]);
+    res.push(output);
   }
+  return res;
+}
 
-  ll strToNum(const std::string& str)
+petrov::ll petrov::pickOperation(ll a, ll b, const std::string& op)
+{
+  if (op == "+")
   {
-    try
-    {
-      return std::stoll(str);
-    }
-    catch (const std::invalid_argument&)
-    {
-      throw std::runtime_error("Not a number");
-    }
-    catch (const std::out_of_range&)
-    {
-      throw std::overflow_error("Number overflow");
-    }
+    return petrov::plus(a, b);
   }
-
-  ll pickOperation(ll a, ll b, const std::string& op)
+  if (op == "-")
   {
-    if (op == "+")
-    {
-      return plus(a, b);
-    }
-    if (op == "-")
-    {
-      return minus(a, b);
-    }
-    if (op == "*")
-    {
-      return mult(a, b);
-    }
-    if (op == "/")
-    {
-      return div(a, b);
-    }
-    if (op == "%")
-    {
-      return mod(a, b);
-    }
-    throw std::invalid_argument("Unknown operator");
+    return petrov::minus(a, b);
   }
-
-  ll calculatePostfix(Queue<std::string> postfix)
+  if (op == "*")
   {
-    Stack<ll> st;
-    while (!postfix.empty())
+    return petrov::mult(a, b);
+  }
+  if (op == "/")
+  {
+    return petrov::div(a, b);
+  }
+  if (op == "%")
+  {
+    return petrov::mod(a, b);
+  }
+  throw std::invalid_argument("Unknown operator");
+}
+
+petrov::ll petrov::calculatePostfix(Queue<std::string> postfix)
+{
+  Stack<ll> st;
+  while (!postfix.empty())
+  {
+    std::string token = postfix.front();
+    postfix.pop();
+
+    if (token == "#")
     {
-      std::string token = postfix.front();
-      postfix.pop();
-      if (isNumber(token))
+      if (st.empty())
       {
-        st.push(strToNum(token));
+        throw std::logic_error("Not enough operands");
       }
-      else if (token == "#")
-      {
-        if (st.empty())
-        {
-          throw std::logic_error("Not enough operands");
-        }
-        ll a = st.top();
-        st.pop();
-        st.push(reverseNumber(a));
-      }
-      else if (isOperator(token))
-      {
-        if (st.empty())
-        {
-          throw std::logic_error("Not enough operands");
-        }
-        ll b = st.top();
-        st.pop();
-
-        if (st.empty())
-        {
-          throw std::logic_error("Not enough operands");
-        }
-        ll a = st.top();
-        st.pop();
-        st.push(pickOperation(a, b, token));
-      }
+      ll a = st.top();
+      st.pop();
+      st.push(details::reverseNumber(a));
     }
-    if (st.empty())
+    else if (details::isOperator(token))
     {
-      throw std::logic_error("Empty expression");
+      if (st.size() < 2)
+      {
+        throw std::logic_error("Not enough operands");
+      }
+      ll b = st.top();
+      st.pop();
+      ll a = st.top();
+      st.pop();
+      st.push(pickOperation(a, b, token));
     }
-    ll result = st.top();
-    st.pop();
-    if (!st.empty())
+    else
     {
-      throw std::logic_error("Too many operands");
+      try
+      {
+        st.push(std::stoll(token));
+      }
+      catch (...)
+      {
+        throw std::runtime_error("Not a number");
+      }
     }
-    return result;
   }
 
-  void calculateAll(Stack< Queue<std::string> >& postfix, Stack<ll>& results)
+  if (st.size() != 1)
   {
-    while (!postfix.empty())
-    {
-      Queue<std::string> expr = postfix.top();
-      postfix.pop();
-      ll value = calculatePostfix(expr);
-      results.push(value);
-    }
+    throw std::logic_error("Too many or no operands");
   }
 
-  std::ostream& printResults(std::ostream& out, Stack<ll>& results)
-  {
-    while (!results.empty())
-    {
-      out << results.top();
-      results.pop();
-      if (!results.empty())
-      {
-        out << " ";
-      }
-    }
-    out << "\n";
-    return out;
-  }
+  ll result = st.top();
+  st.pop();
+  return result;
 }

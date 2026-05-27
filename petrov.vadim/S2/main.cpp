@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "stack.hpp"
-#include "foo.hpp"
+#include "functions.hpp"
 #include "math.hpp"
 
 int main(int argc, char* argv[])
@@ -12,37 +12,43 @@ int main(int argc, char* argv[])
   Stack< Queue<std::string> > postfix;
   Stack<ll> results;
 
+  std::ifstream file;
+  std::istream* in = &std::cin;
+
+  if (argc > 1)
+  {
+    file.open(argv[1]);
+    if (!file)
+    {
+      std::cerr << "Error: cannot open file\n";
+      return 1;
+    }
+    in = &file;
+  }
+
   try
   {
-    // Чтение входа
-    if (argc > 1)
-    {
-      std::ifstream file(argv[1]);
-      if (!file)
-      {
-        std::cerr << "Error: cannot open file\n";
-        return 1;
-      }
-      getInfix(file, infix);
-    }
-    else
-    {
-      getInfix(std::cin, infix);
-    }
+    infix = details::getInfix(*in);
+    postfix = details::infixToPostfix(infix);
 
-    // Перевод в постфикс
-    infixToPostfix(infix, postfix);
-
-    // Вычисление
     while (!postfix.empty())
     {
-      Queue<std::string> expr = postfix.drop();
+      Queue<std::string> expr = postfix.top();
+      postfix.pop();
       ll value = calculatePostfix(expr);
       results.push(value);
     }
 
-    // Вывод
-    printResults(std::cout, results);
+    while (!results.empty())
+    {
+      std::cout << results.top();
+      results.pop();
+      if (!results.empty())
+      {
+        std::cout << " ";
+      }
+    }
+    std::cout << "\n";
   }
   catch (const std::overflow_error& e)
   {
