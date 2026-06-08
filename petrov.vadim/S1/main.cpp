@@ -15,6 +15,7 @@ int main()
     try
     {
       petrov::printAllList(data, std::cout);
+      std::cout << '\n';
     }
     catch (const std::exception& e)
     {
@@ -26,7 +27,6 @@ int main()
   try
   {
     petrov::printAllList(data, std::cout);
-    std::cout << '\n';
   }
   catch(const std::exception& e)
   {
