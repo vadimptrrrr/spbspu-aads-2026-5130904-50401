@@ -62,7 +62,8 @@ BOOST_AUTO_TEST_CASE(copy_assignment_test)
   BOOST_CHECK(b.size() == 2);
   BOOST_CHECK(*b.begin() == 2);
 
-  a = a;
+  petrov::List< int >* pa = &a;
+  a = *pa;
   BOOST_CHECK(a.size() == 2);
 }
 
@@ -82,7 +83,8 @@ BOOST_AUTO_TEST_CASE(move_assignment_test)
   BOOST_CHECK(b.size() == 2);
   BOOST_CHECK(a.size() == 0);
 
-  b = std::move(b);
+  petrov::List< int >* pb = &b;
+  b = std::move(*pb);
   BOOST_CHECK(b.size() == 2);
 }
 

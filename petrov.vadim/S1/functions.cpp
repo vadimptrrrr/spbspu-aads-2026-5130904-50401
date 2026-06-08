@@ -50,7 +50,7 @@ void petrov::printAllList(List< std::pair< std::string, List< size_t > > >& data
 {
   if(data.size() < 1)
   {
-    out << "0\n";
+    out << "0";
     return;
   }
 
@@ -73,7 +73,7 @@ void petrov::printAllList(List< std::pair< std::string, List< size_t > > >& data
 
   if (maxListLen == 0)
   {
-    out << "0\n";
+    out << "0";
     return;
   }
 
