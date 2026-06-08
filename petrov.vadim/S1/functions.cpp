@@ -157,7 +157,6 @@ void petrov::printAllList(List< std::pair< std::string, List< size_t > > >& data
   {
     out << " " << *sumIt;
   }
-  out << "\n";
 }
 
 void petrov::showSums(List< size_t >& sums, std::ostream& out)
