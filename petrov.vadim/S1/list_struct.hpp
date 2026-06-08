@@ -280,7 +280,7 @@ namespace petrov
   template< class T >
   List< T >& List< T >::operator=(List< T >&& l) noexcept
   {
-    List<T> temp(std::move(l)); 
+    List<T> temp(std::move(l));
     swap(temp);
     return *this;
   }
