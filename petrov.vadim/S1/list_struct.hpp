@@ -44,7 +44,6 @@ namespace petrov
   {
     public:
       LCIter() noexcept;
-      LCIter(const Node< T >* p) noexcept;
       const T* operator->() const;
       const T& operator*() const;
       bool operator==(const LCIter< T >& it) const noexcept;
@@ -54,6 +53,7 @@ namespace petrov
       LCIter< T > operator++(int);
 
     private:
+      LCIter(const Node< T >* p) noexcept;
       friend class List< T >;
       const Node< T >* nd_;
   };
