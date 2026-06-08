@@ -147,7 +147,6 @@ void petrov::printAllList(List< std::pair< std::string, List< size_t > > >& data
         }
       }
     }
-    out << "\n";
   }
 
   sumIt = sums.begin();
