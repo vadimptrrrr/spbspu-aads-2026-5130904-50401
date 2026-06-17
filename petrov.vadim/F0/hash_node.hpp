@@ -7,7 +7,6 @@ namespace petrov::detail
   {
     EMPTY,
     OCCUPIED,
-    TOMBSTONE
   };
 
   template < class Key, class Value >
