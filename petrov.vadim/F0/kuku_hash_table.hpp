@@ -59,10 +59,6 @@ namespace petrov
       Equal equal_;
       double load_;
       size_t maxKicks_;
-
-      size_t h1(const Key& key) const;
-      size_t h2(const Key& key) const; 
-      Finder find(const Key& k, size_t data_id) const;
   };
 
   template< class T >
@@ -77,8 +73,8 @@ namespace petrov
     data2_(topit::Vector< detail::HashNode< K, V > >(16)),
     size_(0),
     capacity_(32),
-    hash1_(),
-    hash2_(),
+    hash1_(0),
+    hash2_(1234),
     equal_(),
     load_(),
     maxKicks_(50)
@@ -89,9 +85,9 @@ namespace petrov
     data1_(topit::Vector< detail::HashNode< K, V > >(cap / 2)),
     data2_(topit::Vector< detail::HashNode< K, V > >(cap - cap / 2)),
     size_(0),
-    capacity_(32),
-    hash1_(),
-    hash2_(),
+    capacity_(cap),
+    hash1_(0),
+    hash2_(1234),
     equal_(),
     load_(),
     maxKicks_(50)
@@ -108,24 +104,26 @@ namespace petrov
     data1_(other.data1_),
     data2_(other.data2_),
     size_(other.size_),
-    capacity_(other.size_),
+    capacity_(other.capacity_),
     hash1_(other.hash1_),
     hash2_(other.hash2_),
-    equal_(other.equal_)
+    equal_(other.equal_),
+    load_(other.load_),
+    maxKicks_(other.maxKicks_)
   {}
 
   template< class V, class K, class H, class E >
   KukuHashTable< V, K, H, E >::KukuHashTable(KukuHashTable&& other) noexcept:
-    data1_(other.data1_),
-    data2_(other.data2_),
+    data1_(std::move(other.data1_)),
+    data2_(std::move(other.data2_)),
     size_(other.size_),
-    capacity_(other.size_),
-    hash1_(other.hash1_),
-    hash2_(other.hash2_),
-    equal_(other.equal_)
+    capacity_(other.capacity_),
+    hash1_(std::move(other.hash1_)),
+    hash2_(std::move(other.hash2_)),
+    equal_(std::move(other.equal_)),
+    load_(other.load_),
+    maxKicks_(other.maxKicks_)
   {
-    other.data1_.~Vector();
-    other.data2_.~Vector();
     other.size_ = 0;
     other.capacity_ = 0;
   }
@@ -150,7 +148,7 @@ namespace petrov
     {
       return *this;
     }
-    KukuHashTable< K, V, H, E> cpy(std::move(other));
+    KukuHashTable< V, K, H, E> cpy(std::move(other));
     swap(cpy);
     return *this;
   }
@@ -160,7 +158,7 @@ namespace petrov
   {
     if (load_ > 0.5)
     {
-      rehash();
+      rehash(capacity_ * 2);
     }
 
     if (has(k))
@@ -173,35 +171,38 @@ namespace petrov
     V curr_v = v;
     for (size_t i = 0; i < maxKicks_; ++i)
     {
-      Finder f = find(curr_k, 1);
-      if (f.found_)
+      size_t idx1 = hash1_(curr_k) % data1_.getCapacity();
+      if (data1_[idx1].state_ == detail::EMPTY)
       {
-        data1_[f.idx_].value_ = curr_v;
-        data1_[f.idx_].key_ = curr_k;
-        data1_[f.idx_].state_ = OCCUPIED;
+        data1_[idx1].value_ = curr_v;
+        data1_[idx1].key_ = curr_k;
+        data1_[idx1].state_ = detail::OCCUPIED;
         ++size_;
+        load_ = static_cast< double >(size_) / capacity_;
         return;
       }
       std::swap(curr_k, data1_[idx1].key_);
       std::swap(curr_v, data1_[idx1].value_);
 
-      f = find(curr_k, 2);
-      if (f.found_)
+
+      size_t idx2 = hash2_(curr_k) % data2_.getCapacity();
+      
+      if (data2_[idx2].state_ == detail::EMPTY)
       {
-        data2_[f.idx_].value_ = curr_v;
-        data2_[f.idx_].key_ = curr_k;
-        data2_[f.idx_].state_ = OCCUPIED;
+        data2_[idx2].value_ = curr_v;
+        data2_[idx2].key_ = curr_k;
+        data2_[idx2].state_ = detail::OCCUPIED;
         ++size_;
+        load_ = static_cast< double >(size_) / capacity_;
         return;
       }
-      std::swap(curr_k, data1_[idx1].key_);
-      std::swap(curr_v, data1_[idx1].value_);
+      std::swap(curr_k, data2_[idx2].key_);
+      std::swap(curr_v, data2_[idx2].value_);
     }
 
     rehash(capacity_ * 2);
     add(curr_k, curr_v);
   }
 }
-
 
 #endif
