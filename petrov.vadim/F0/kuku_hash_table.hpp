@@ -2,17 +2,12 @@
 #define KUKU_HASH_TABLE
 
 #include <cstddef>
+#include <exception>
 #include "../common/vector/top-it-vector.hpp"
 #include "hash_node.hpp"
 
 namespace petrov
 {
-  struct Finder
-  {
-    size_t idx_;
-    bool found_;
-  };
-
   template< class T >
   struct Equal
   {
@@ -58,7 +53,8 @@ namespace petrov
       Hash hash2_;
       Equal equal_;
       double load_;
-      size_t maxKicks_;
+      
+      const size_t maxKicks_ = 150;
   };
 
   template< class T >
@@ -76,8 +72,7 @@ namespace petrov
     hash1_(0),
     hash2_(1234),
     equal_(),
-    load_(),
-    maxKicks_(50)
+    load_()
   {}
 
   template< class V, class K, class H, class E >
@@ -89,8 +84,7 @@ namespace petrov
     hash1_(0),
     hash2_(1234),
     equal_(),
-    load_(),
-    maxKicks_(50)
+    load_()
   {}
 
   template< class V, class K, class H, class E >
@@ -108,8 +102,7 @@ namespace petrov
     hash1_(other.hash1_),
     hash2_(other.hash2_),
     equal_(other.equal_),
-    load_(other.load_),
-    maxKicks_(other.maxKicks_)
+    load_(other.load_)
   {}
 
   template< class V, class K, class H, class E >
@@ -121,8 +114,7 @@ namespace petrov
     hash1_(std::move(other.hash1_)),
     hash2_(std::move(other.hash2_)),
     equal_(std::move(other.equal_)),
-    load_(other.load_),
-    maxKicks_(other.maxKicks_)
+    load_(other.load_)
   {
     other.size_ = 0;
     other.capacity_ = 0;
@@ -202,6 +194,83 @@ namespace petrov
 
     rehash(capacity_ * 2);
     add(curr_k, curr_v);
+  }
+
+  template< class V, class K, class H, class E >
+  V KukuHashTable< V, K, H, E >::drop(const K& k)
+  {
+    size_t posx = hash1_(k) % data1_.getCapacity();
+    if (data1_[posx].state_ == detail::OCCUPIED && equal_(data1_[posx].key_, k))
+    {
+      V res = data1_[posx].value_;
+      data1_[posx].state_ = detail::EMPTY;
+      --size_;
+      load_ = static_cast< double >(size_) / capacity_;
+      return res;
+    }
+
+    posx = hash2_(k) % data2_.getCapacity();
+    if (data2_[posx].state_ == detail::OCCUPIED && equal_(data2_[posx].key_, k))
+    {
+      V res = data2_[posx].value_;
+      data2_[posx].state_ = detail::EMPTY;
+      --size_;
+      load_ = static_cast< double >(size_) / capacity_;
+      return res;
+    }
+
+    throw std::runtime_error("Table hasn`t this key");
+  }
+
+  template< class V, class K, class H, class E >
+  bool KukuHashTable< V, K, H, E >::has(const K& k) const
+  {
+    size_t id1 = hash1_(k) % data1_.getCapacity();
+    size_t id2 = hash2_(k) % data2_.getCapacity();
+    if ((data1_[id1].state_ == detail::OCCUPIED && equal_(data1_[id1].key_, k))
+      || (data2_[id2].state_ == detail::OCCUPIED && equal_(data2_[id2].key_, k)))
+    {
+      return true;
+    }
+    return false;
+  }
+
+  template< class V, class K, class H, class E >
+  V& KukuHashTable< V, K, H, E >::get(const K& k)
+  {
+    return const_cast< V& >(const_cast< const KukuHashTable& >(*this).get(k));
+  }
+
+  template< class V, class K, class H, class E >
+  const V& KukuHashTable< V, K, H, E >::get(const K& k) const
+  {
+    size_t id1 = hash1_(k) % data1_.getCapacity();
+    size_t id2 = hash2_(k) % data2_.getCapacity();
+    if (data1_[id1].state_ == detail::OCCUPIED && equal_(data1_[id1].key_, k))
+    {
+      return data1_[id1].value_;
+    }
+    else if (data2_[id2].state_ == detail::OCCUPIED && equal_(data2_[id2].key_, k))
+    {
+      return data2_[id2].value_;
+    }
+    else
+    {
+      throw std::runtime_error("Table hasn`t this key");
+    }
+  }
+
+  template< class V, class K, class H, class E >
+  void KukuHashTable< V, K, H, E >::swap(KukuHashTable& other) noexcept
+  {
+    std::swap(data1_, other.data1_);
+    std::swap(data2_, other.data2_);
+    std::swap(size_, other.size_);
+    std::swap(capacity_, other.capacity_);
+    std::swap(hash1_, other.hash1_);
+    std::swap(hash2_, other.hash2_);
+    std::swap(equal_, other.equal_);
+    std::swap(load_, other.load_);
   }
 }
 
