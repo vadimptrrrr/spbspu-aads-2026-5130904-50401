@@ -6,6 +6,8 @@
 #include <cmath>
 #include "../common/vector/top-it-vector.hpp"
 #include "hash_node.hpp"
+#include "kkht_iterator.hpp"
+#include "kkht_const_iterator.hpp"
 
 namespace petrov
 {
@@ -352,6 +354,46 @@ namespace petrov
     }
     size_ = 0;
     load_ = 0.0;
+  }
+
+  template< class V, class K, class H, class E >
+  KKHTIterator< V, K, H, E > KukuHashTable< V, K, H, E >::begin() noexcept
+  {
+    iter_t it(this, 1, 0);
+    it.skipEmpty();
+    return it;
+  }
+
+  template< class V, class K, class H, class E >
+  CKKHTIterator< V, K, H, E > KukuHashTable< V, K, H, E >::begin() const noexcept
+  {
+    return cbegin();
+  }
+
+  template< class V, class K, class H, class E >
+  CKKHTIterator< V, K, H, E > KukuHashTable< V, K, H, E >::cbegin() const noexcept
+  {
+    citer_t it(this, 1, 0);
+    it.skipEmpty();
+    return it;
+  }
+
+  template< class V, class K, class H, class E >
+  KKHTIterator< V, K, H, E > KukuHashTable< V, K, H, E >::end() noexcept
+  {
+    return iter_t(this, 2, data2_.getCapacity());
+  }
+
+  template< class V, class K, class H, class E >
+  CKKHTIterator< V, K, H, E > KukuHashTable< V, K, H, E >::end() const noexcept
+  {
+    return cend();
+  }
+
+  template< class V, class K, class H, class E >
+  CKKHTIterator< V, K, H, E > KukuHashTable< V, K, H, E >::cend() const noexcept
+  {
+    return citer_t(this, 2, data2_.getCapacity());
   }
 }
 
