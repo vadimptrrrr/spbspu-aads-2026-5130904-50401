@@ -50,14 +50,14 @@ namespace petrov
     size_t capacity() const noexcept;
     bool empty() const noexcept;
 
-    iter_t< Key, Value > begin() noexcept;
-    iter_t< Key, Value > end() noexcept;
+    iter_t begin() noexcept;
+    iter_t end() noexcept;
 
-    citer_t< Key, Value > begin() const noexcept;
-    citer_t< Key, Value > end() const noexcept;
+    citer_t begin() const noexcept;
+    citer_t end() const noexcept;
 
-    citer_t< Key, Value > cbegin() const noexcept;
-    citer_t< Key, Value > cend() const noexcept;
+    citer_t cbegin() const noexcept;
+    citer_t cend() const noexcept;
 
     private:
       topit::Vector< detail::HashNode< Key, Value > > data1_;
