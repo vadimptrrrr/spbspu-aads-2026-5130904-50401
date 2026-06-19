@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <exception>
+#include <cmath>
 #include "../common/vector/top-it-vector.hpp"
 #include "hash_node.hpp"
 
@@ -15,8 +16,18 @@ namespace petrov
   };
 
   template< class Value, class Key, class Hash, class Equal > 
+  struct KKHTIterator;
+
+  template< class Value, class Key, class Hash, class Equal > 
+  struct CKKHTIterator;
+
+  template< class Value, class Key, class Hash, class Equal > 
   struct KukuHashTable
   {
+    using kkhTable_t = KukuHashTable< Value, Key, Hash, Equal >;
+    using iter_t = KKHTIterator< Value, Key, Hash, Equal >;
+    using citer_t = CKKHTIterator< Value, Key, Hash, Equal >;
+
     KukuHashTable();
     KukuHashTable(size_t cap);
     ~KukuHashTable();
@@ -32,17 +43,21 @@ namespace petrov
     const Value& get(const Key& k) const;
     void swap(KukuHashTable& other) noexcept;
 
-    void rehash(size_t slots);
+    void rehash(const size_t cap);
     void clear();
 
     size_t size() const noexcept;
     size_t capacity() const noexcept;
     bool empty() const noexcept;
 
-    // HIter< Key, Value > begin();
-    // HIter< Key, Value > end();
-    // CHIter< Key, Value > begin() const;
-    // CHIter< Key, Value > end() const;
+    iter_t< Key, Value > begin() noexcept;
+    iter_t< Key, Value > end() noexcept;
+
+    citer_t< Key, Value > begin() const noexcept;
+    citer_t< Key, Value > end() const noexcept;
+
+    citer_t< Key, Value > cbegin() const noexcept;
+    citer_t< Key, Value > cend() const noexcept;
 
     private:
       topit::Vector< detail::HashNode< Key, Value > > data1_;
@@ -53,8 +68,7 @@ namespace petrov
       Hash hash2_;
       Equal equal_;
       double load_;
-      
-      const size_t maxKicks_ = 150;
+      size_t maxKicks_;
   };
 
   template< class T >
@@ -72,7 +86,8 @@ namespace petrov
     hash1_(0),
     hash2_(1234),
     equal_(),
-    load_()
+    load_(),
+    maxKicks_(std::log2(capacity_) * 2)
   {}
 
   template< class V, class K, class H, class E >
@@ -84,7 +99,8 @@ namespace petrov
     hash1_(0),
     hash2_(1234),
     equal_(),
-    load_()
+    load_(),
+    maxKicks_(std::log2(cap) * 2)
   {}
 
   template< class V, class K, class H, class E >
@@ -102,7 +118,8 @@ namespace petrov
     hash1_(other.hash1_),
     hash2_(other.hash2_),
     equal_(other.equal_),
-    load_(other.load_)
+    load_(other.load_),
+    maxKicks_(std::log2(capacity_) * 2)
   {}
 
   template< class V, class K, class H, class E >
@@ -114,7 +131,8 @@ namespace petrov
     hash1_(std::move(other.hash1_)),
     hash2_(std::move(other.hash2_)),
     equal_(std::move(other.equal_)),
-    load_(other.load_)
+    load_(other.load_),
+    maxKicks_(std::log2(capacity_) * 2)
   {
     other.size_ = 0;
     other.capacity_ = 0;
@@ -127,7 +145,7 @@ namespace petrov
     {
       return *this;
     }
-    KukuHashTable< V, K, H, E > cpy = other;
+    kkhTable_t cpy = other;
     swap(cpy);
     return *this;
   }
@@ -271,6 +289,69 @@ namespace petrov
     std::swap(hash2_, other.hash2_);
     std::swap(equal_, other.equal_);
     std::swap(load_, other.load_);
+    std::swap(maxKicks_, other.maxKicks_);
+  }
+
+  template< class V, class K, class H, class E >
+  size_t KukuHashTable< V, K, H, E >::size() const noexcept
+  {
+    return size_;
+  }
+
+  template< class V, class K, class H, class E >
+  size_t KukuHashTable< V, K, H, E >::capacity() const noexcept
+  {
+    return capacity_;
+  }
+
+  template< class V, class K, class H, class E >
+  bool KukuHashTable< V, K, H, E >::empty() const noexcept
+  {
+    return size() == 0;
+  }
+
+  template< class V, class K, class H, class E >
+  void KukuHashTable< V, K, H, E >::rehash(const size_t cap)
+  {
+    kkhTable_t newTable(cap);
+    newTable.maxKicks_ = std::log2(cap) * 2;
+    static size_t seed_counter = 1000;
+    ++seed_counter;
+    newTable.hash1_ = H(seed_counter);
+    newTable.hash2_ = H(seed_counter * 7 + 1234);
+
+    for (size_t i = 0; i < data1_.getCapacity(); ++i)
+    {
+      if (data1_[i].state_ == detail::OCCUPIED)
+      {
+        newTable.add(data1_[i].key_, data1_[i].value_);
+      }
+    }
+
+    for (size_t i = 0; i < data2_.getCapacity(); ++i)
+    {
+      if (data2_[i].state_ == detail::OCCUPIED)
+      {
+        newTable.add(data2_[i].key_, data2_[i].value_);
+      }
+    }
+
+    swap(newTable);
+  }
+
+  template< class V, class K, class H, class E >
+  void KukuHashTable< V, K, H, E >::clear()
+  {
+    for (size_t i = 0; i < data1_.getCapacity(); ++i)
+    {
+      data1_[i].state_ = detail::EMPTY;
+    }
+    for (size_t i = 0; i < data2_.getCapacity(); ++i)
+    {
+      data2_[i].state_ = detail::EMPTY;
+    }
+    size_ = 0;
+    load_ = 0.0;
   }
 }
 
