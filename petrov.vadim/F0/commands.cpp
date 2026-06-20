@@ -3,7 +3,7 @@
 #include "commands.hpp"
 #include "help_functions.hpp"
 
-void petrov::FuncManage::mk_user(std::ostream& out, std::istream& in, const std::string& str)
+void petrov::FuncManage::mk_user(std::ostream&, std::istream& in, const std::string& str)
 {
   size_t h, w, o;
   in >> h >> w >> o;
@@ -17,12 +17,13 @@ void petrov::FuncManage::mk_user(std::ostream& out, std::istream& in, const std:
     throw std::runtime_error("User invalid");
   }
 
-  User u = User{h, w, o};
+  using plans_t = KukuHashTable< User::train_ex_t, std::string, KKHash< std::string >, Equal< std::string > >;
+  User u = User{h, w, o, 0, plans_t{}};
   u.stamina_ = petrov::detail::countStamina(u);
   users_.add(str, u);
 }
 
-void petrov::FuncManage::rm_user(std::ostream& out, std::istream& in, const std::string& str)
+void petrov::FuncManage::rm_user(std::ostream&, std::istream&, const std::string& str)
 {
   if (!users_.has(str))
   {
@@ -32,7 +33,7 @@ void petrov::FuncManage::rm_user(std::ostream& out, std::istream& in, const std:
   users_.drop(str);
 }
 
-void petrov::FuncManage::update_user(std::ostream& out, std::istream& in, const std::string& str)
+void petrov::FuncManage::update_user(std::ostream&, std::istream& in, const std::string& str)
 {
   size_t h, w, o;
   in >> h >> w >> o;
@@ -53,7 +54,7 @@ void petrov::FuncManage::update_user(std::ostream& out, std::istream& in, const 
   u.stamina_ = petrov::detail::countStamina(u);
 }
 
-void petrov::FuncManage::show_users(std::ostream& out, std::istream& in, const std::string& str)
+void petrov::FuncManage::show_users(std::ostream& out, std::istream&, const std::string&)
 {
   out << "<USERS>\n";
   if (users_.empty())
@@ -71,16 +72,9 @@ void petrov::FuncManage::show_users(std::ostream& out, std::istream& in, const s
   }
 }
 
-void petrov::FuncManage::save(std::ostream& out, std::istream& in, const std::string& str)
+void petrov::FuncManage::save(std::ostream&, std::istream&, const std::string& str)
 {
-  std::string file_name;
-  in >> file_name;
-  if (!in)
-  {
-    throw std::runtime_error("Read invalid");
-  }
-
-  std::ofstream file(file_name);
+  std::ofstream file(str);
   if (!file.is_open())
   {
     throw std::runtime_error("File invalid");

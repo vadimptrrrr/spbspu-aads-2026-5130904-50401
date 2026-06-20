@@ -17,6 +17,7 @@ namespace topit
   {
     Vector();
     ~Vector();
+    explicit Vector(size_t size);
     Vector(const Vector &);
     Vector(Vector &&) noexcept;
     Vector(size_t size, const T & init);
@@ -68,7 +69,6 @@ namespace topit
       T * data_;
       size_t size_;
       size_t capacity_;
-      explicit Vector(size_t size);
       void unsafePushBack(const T & val);
   };
   template< class T >

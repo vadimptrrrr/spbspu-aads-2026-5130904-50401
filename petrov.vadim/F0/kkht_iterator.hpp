@@ -14,6 +14,7 @@ namespace petrov
     using iter_t = KKHTIterator< Value,Key, Hash, Equal >;
     using kkht_t = KukuHashTable< Value, Key, Hash, Equal >;
     using node_t = detail::HashNode< Key, Value >;
+    friend struct KukuHashTable< Value, Key, Hash, Equal >;
     
     iter_t& operator++();
     iter_t operator++(int);
@@ -25,8 +26,6 @@ namespace petrov
     node_t* operator->() const;
 
     private:
-      friend struct KukuHashTable< Value, Key, Hash, Equal >;
-
       kkht_t* table_;
       size_t tableNum_;
       size_t idx_;

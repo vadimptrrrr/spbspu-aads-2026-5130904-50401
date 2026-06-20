@@ -30,6 +30,9 @@ namespace petrov
     using iter_t = KKHTIterator< Value, Key, Hash, Equal >;
     using citer_t = CKKHTIterator< Value, Key, Hash, Equal >;
 
+    friend struct KKHTIterator< Value, Key, Hash, Equal >;
+    friend struct CKKHTIterator< Value, Key, Hash, Equal >;
+
     KukuHashTable();
     KukuHashTable(size_t cap);
     ~KukuHashTable();

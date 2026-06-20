@@ -14,7 +14,8 @@ namespace petrov
     using Citer_t = CKKHTIterator< Value,Key, Hash, Equal >;
     using kkht_t = KukuHashTable< Value, Key, Hash, Equal >;
     using node_t = detail::HashNode< Key, Value >;
-    
+    friend struct KukuHashTable< Value, Key, Hash, Equal >;
+
     Citer_t& operator++();
     Citer_t operator++(int);
 
@@ -25,8 +26,6 @@ namespace petrov
     const node_t* operator->() const;
 
     private:
-      friend struct KukuHashTable< Value, Key, Hash, Equal >;
-
       const kkht_t* table_;
       size_t tableNum_;
       size_t idx_;
