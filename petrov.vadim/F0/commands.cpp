@@ -18,7 +18,7 @@ void petrov::FuncManage::mk_user(std::ostream&, std::istream& in, const std::str
   }
 
   using plans_t = KukuHashTable< User::train_ex_t, std::string, KKHash< std::string >, Equal< std::string > >;
-  User u = User{h, w, o, detail::userStamina(h, w, o), plans_t{}};
+  User u = User{h, w, o, detail::userStamina(h, w, o), plans_t()};
   users_.add(str, u);
 }
 
@@ -61,8 +61,7 @@ void petrov::FuncManage::show_users(std::ostream& out, std::istream&, const std:
     return;
   }
 
-  using citer_t = CKKHTIterator<User, std::string, KKHash< std::string >, Equal< std::string > >;
-  for (citer_t it = users_.cbegin(); it != users_.cend(); ++it)
+  for (auto it = users_.cbegin(); it != users_.cend(); ++it)
   {
     out << it->key_ << '\n'
     << "Height: " << it->value_.height_ << '\n'
@@ -225,3 +224,5 @@ void petrov::FuncManage::load(std::ostream&, std::istream&, const std::string& s
     pools_.add(pool_name, pool);
   }
 }
+
+
