@@ -5,7 +5,8 @@
 
 namespace petrov::detail
 {
-  int countStamina(User& u);
+  int userStamina(size_t h, size_t w, size_t o);
+  int exStamina(int st, size_t s, size_t r);
 }
 
 #endif

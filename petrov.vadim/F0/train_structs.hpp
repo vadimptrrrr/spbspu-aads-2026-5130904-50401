@@ -18,6 +18,16 @@ namespace petrov
   {
     size_t sets_;
     size_t reps_;
+
+    UExercise() = default;
+    
+    UExercise(const std::string& mg, int st, size_t s, size_t r)
+    {
+      muscleGroup_ = mg;
+      stamina_ = st;
+      sets_ = s;
+      reps_ = r;
+    }
   };
 
   struct User

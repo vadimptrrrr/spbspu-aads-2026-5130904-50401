@@ -18,8 +18,7 @@ void petrov::FuncManage::mk_user(std::ostream&, std::istream& in, const std::str
   }
 
   using plans_t = KukuHashTable< User::train_ex_t, std::string, KKHash< std::string >, Equal< std::string > >;
-  User u = User{h, w, o, 0, plans_t{}};
-  u.stamina_ = petrov::detail::countStamina(u);
+  User u = User{h, w, o, detail::userStamina(h, w, o), plans_t{}};
   users_.add(str, u);
 }
 
@@ -51,7 +50,7 @@ void petrov::FuncManage::update_user(std::ostream&, std::istream& in, const std:
   u.height_ = h;
   u.weight_ = w;
   u.old_ = o;
-  u.stamina_ = petrov::detail::countStamina(u);
+  u.stamina_ = petrov::detail::userStamina(h, w, o);
 }
 
 void petrov::FuncManage::show_users(std::ostream& out, std::istream&, const std::string&)
@@ -135,5 +134,94 @@ void petrov::FuncManage::save(std::ostream&, std::istream&, const std::string& s
       << ' ' << ex_it->value_.stamina_;
     }
     file << '\n';
+  }
+}
+
+void petrov::FuncManage::load(std::ostream&, std::istream&, const std::string& str)
+{
+  std::ifstream file(str);
+  if (!file.is_open())
+  {
+    throw std::runtime_error("Load invalid: not open");
+  }
+
+  size_t users_count;
+  if (!(file >> users_count))
+  {
+    throw std::runtime_error("Load invalid: file read");
+  }
+  
+  for (size_t user_i = 0; user_i < users_count; ++user_i)
+  {
+    std::string name;
+    size_t h, w, o, plan_count;
+    if (!(file >> name >> h >> w >> o >> plan_count))
+    {
+      throw std::runtime_error("Load invalid: file read");
+    }
+
+    using train_ex_t = KukuHashTable< UExercise, std::string, KKHash< std::string >, Equal< std::string > >;
+    KukuHashTable< train_ex_t, std::string, KKHash< std::string >, Equal< std::string > > pl(plan_count);
+    for (size_t plan_i = 0; plan_i < plan_count; ++plan_i)
+    {
+      std::string plan_name;
+      size_t ex_count;
+      if (!(file >> plan_name >> ex_count))
+      {
+        throw std::runtime_error("Load invalid: file read");
+      }
+
+      train_ex_t ex(ex_count);
+      for (size_t ex_i = 0; ex_i < ex_count; ++ex_i)
+      {
+        std::string ex_name, mg;
+        size_t sets, reps;
+        int st;
+        if (!(file >> ex_name >> sets >> reps >> mg >> st))
+        {
+          throw std::runtime_error("Load invalid: file read");
+        }
+
+        ex.add(ex_name, UExercise(mg, detail::exStamina(st, sets, reps), sets, reps));
+      }
+
+      pl.add(plan_name, ex);
+    }
+
+    users_.add(name, {h, w, o, detail::userStamina(h, w, o), pl});
+  }
+
+  size_t pools_count;
+  if (!(file >> pools_count))
+  {
+    throw std::runtime_error("Load invalid: file read");
+  }
+
+  for (size_t pool_i = 0; pool_i < pools_count; ++pool_i)
+  {
+    size_t ex_count;
+    std::string pool_name;
+    if (!(file >> pool_name >> ex_count))
+    {
+      throw std::runtime_error("Load invalid: file read");
+    }
+
+    trainPool_t pool(ex_count);
+    for (size_t ex_i = 0; ex_i < ex_count; ++ex_i)
+    {
+      std::string ex_name, mg;
+      int st;
+      if (!(file >> ex_name >> mg >> st))
+      {
+        throw std::runtime_error("Load invalid: file read");
+      }
+
+      pool.add(ex_name, {mg, st});
+      if (!exercisesPool_.has(ex_name))
+      {
+        exercisesPool_.add(ex_name, {mg, st});
+      }
+    }
+    pools_.add(pool_name, pool);
   }
 }

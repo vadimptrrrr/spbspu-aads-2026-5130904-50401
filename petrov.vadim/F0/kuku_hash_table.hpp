@@ -97,15 +97,15 @@ namespace petrov
 
   template< class V, class K, class H, class E >
   KukuHashTable< V, K, H, E >::KukuHashTable(size_t cap):
-    data1_(topit::Vector< detail::HashNode< K, V > >(cap / 2)),
-    data2_(topit::Vector< detail::HashNode< K, V > >(cap - cap / 2)),
+    data1_(topit::Vector< detail::HashNode< K, V > >(cap + 8)),
+    data2_(topit::Vector< detail::HashNode< K, V > >(cap + 8)),
     size_(0),
-    capacity_(cap),
+    capacity_(cap * 2 + 16),
     hash1_(0),
     hash2_(1234),
     equal_(),
     load_(),
-    maxKicks_(std::log2(cap) * 2)
+    maxKicks_(std::log2(capacity_) * 2)
   {}
 
   template< class V, class K, class H, class E >
@@ -319,7 +319,6 @@ namespace petrov
   void KukuHashTable< V, K, H, E >::rehash(const size_t cap)
   {
     kkhTable_t newTable(cap);
-    newTable.maxKicks_ = std::log2(cap) * 2;
     static size_t seed_counter = 1000;
     ++seed_counter;
     newTable.hash1_ = H(seed_counter);
