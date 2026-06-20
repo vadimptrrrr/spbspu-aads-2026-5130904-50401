@@ -224,17 +224,3 @@ void petrov::FuncManage::load(std::ostream&, std::istream&, const std::string& s
     pools_.add(pool_name, pool);
   }
 }
-
-  // 1          кол-во юзеров
-  // Vadim      имя
-  // 184 76 19  параметры
-  // 2          кол-во планов
-  // plan1 2    имя плана и кол-во упражнений
-  // ex1 sets1 reps1 mg1 st1 ex2 sets2 reps2 mg2 st2     упражнения с их повторениями и подходами и стаминой
-  // plan2 1
-  // ex1 sets1 reps2
-  // 2          кол-во пулов упражнений
-  // pool1 3    имя пула и кол-во упражнений в нём
-  // ex1 mg1 st1 ex2 mg2 st2 ex3 mg3 st3      название упражнения и сколько stamina тратится на его выполнение
-  // pool2 4
-  // ex1 mg1 st1 ex3 mg3 st3 ex4 mg4 st4 ex5 mg5 st5
