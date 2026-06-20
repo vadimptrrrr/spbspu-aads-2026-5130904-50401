@@ -16,8 +16,8 @@ namespace petrov
 
   struct UExercise: Exercise
   {
-    size_t sets;
-    size_t reps;
+    size_t sets_;
+    size_t reps_;
   };
 
   struct User
@@ -27,7 +27,7 @@ namespace petrov
     size_t old_;
     int stamina_;
 
-    using train_ex_t = topit::Vector< std::string >;
+    using train_ex_t = KukuHashTable< UExercise, std::string, KKHash< std::string >, Equal< std::string > >;
     KukuHashTable< train_ex_t, std::string, KKHash< std::string >, Equal< std::string > > plans_; 
   };
 }

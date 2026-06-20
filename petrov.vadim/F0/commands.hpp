@@ -28,9 +28,9 @@ namespace petrov
     void show_pools(std::ostream& out, std::istream& in, const std::string& str);
 
     private:
-      using trainPool_t = KukuHashTable< UExercise, std::string, KKHash< std::string >, Equal< std::string > >;
+      using trainPool_t = KukuHashTable< Exercise, std::string, KKHash< std::string >, Equal< std::string > >;
 
-      KukuHashTable< Exercise, std::string, KKHash< std::string >, Equal< std::string > > exercisesPool_;
+      trainPool_t exercisesPool_;
       KukuHashTable< User, std::string, KKHash< std::string >, Equal< std::string > > users_;
       KukuHashTable< trainPool_t, std::string, KKHash< std::string >, Equal< std::string > > pools_;
   };
