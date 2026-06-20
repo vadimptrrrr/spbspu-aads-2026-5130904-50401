@@ -43,3 +43,9 @@ int petrov::detail::userStamina(size_t h, size_t w, size_t o)
   int stamina = 1000 - (deviation * k);
   return std::max(stamina, 100); 
 }
+
+int petrov::detail::exStamina(int st, size_t s, size_t r)
+{
+  double k = static_cast< double >(s * r) / 10;
+  return st * k;
+}
