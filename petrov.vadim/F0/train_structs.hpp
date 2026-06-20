@@ -26,6 +26,9 @@ namespace petrov
     size_t weight_;
     size_t old_;
     int stamina_;
+
+    using train_ex_t = topit::Vector< std::string >;
+    KukuHashTable< train_ex_t, std::string, KKHash< std::string >, Equal< std::string > > plans_; 
   };
 }
 
