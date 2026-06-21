@@ -3,10 +3,13 @@
 
 #include "train_structs.hpp"
 
-namespace petrov::detail
+namespace petrov
 {
-  int userStamina(size_t h, size_t w, size_t o);
-  int exStamina(int st, size_t s, size_t r);
+  namespace detail
+  {
+    int userStamina(size_t h, size_t w, size_t o);
+    int exStamina(int st, size_t s, size_t r);
+  }
 }
 
 #endif

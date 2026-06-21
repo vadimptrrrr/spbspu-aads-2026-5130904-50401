@@ -55,21 +55,21 @@ namespace petrov
   };
 
   Candidate::Candidate():
-    name(""),
-    mg(""),
-    cost(0),
-    sets(0),
-    reps(0),
-    value(0)
+    name_(""),
+    mg_(""),
+    cost_(0),
+    sets_(0),
+    reps_(0),
+    value_(0)
   {}
 
   Candidate::Candidate(std::string n, std::string m, int c, size_t s, size_t r, int v):
-    name(n),
-    mg(m),
-    cost(c),
-    sets(s),
-    reps(r),
-    value(v)
+    name_(n),
+    mg_(m),
+    cost_(c),
+    sets_(s),
+    reps_(r),
+    value_(v)
   {}
 }
 
