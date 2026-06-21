@@ -105,9 +105,16 @@ namespace petrov
     hash1_(0),
     hash2_(1234),
     equal_(),
-    load_(),
-    maxKicks_(std::log2(capacity_) * 2)
-  {}
+    load_(0.0),
+    maxKicks_(static_cast< size_t >(std::log2(cap * 2 + 16) * 2)) // Считаем от реального capacity
+  {
+    size_t actual_cap = cap + 8;
+    for (size_t i = 0; i < actual_cap; ++i)
+    {
+      data1_.pushBack(detail::HashNode< K, V >());
+      data2_.pushBack(detail::HashNode< K, V >());
+    }
+  }
 
   template< class V, class K, class H, class E >
   KukuHashTable< V, K, H, E >::~KukuHashTable()
@@ -127,13 +134,13 @@ namespace petrov
     load_(other.load_),
     maxKicks_(other.maxKicks_)
   {
-    for (size_t i = 0; i < data1_.getCapacity(); ++i)
+    for (size_t i = 0; i < other.data1_.getCapacity(); ++i)
     {
-      data1_[i] = other.data1_[i];
+      data1_.pushBack(other.data1_[i]);
     }
-    for (size_t i = 0; i < data2_.getCapacity(); ++i)
+    for (size_t i = 0; i < other.data2_.getCapacity(); ++i)
     {
-      data2_[i] = other.data2_[i];
+      data2_.pushBack(other.data2_[i]);
     }
   }
 
