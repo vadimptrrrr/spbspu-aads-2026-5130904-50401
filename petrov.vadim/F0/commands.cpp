@@ -67,6 +67,29 @@ void petrov::FuncManage::show_users(std::ostream& out, std::istream&, const std:
     << "Height: " << it->value_.height_ << '\n'
     << "Weight: " << it->value_.weight_ << '\n'
     << "Old: " << it->value_.old_ << '\n';
+
+    for (auto plan_it = it->value_.plans_.cbegin(); plan_it != it->value_.plans_.cend(); ++plan_it)
+    {
+      out << "<PLANS>\n";
+      out << plan_it->key_ << '\n';
+
+      auto ex_it = plan_it->value_.cbegin();
+      if (!plan_it->value_.empty())
+      {
+        out << ex_it->key_ << ' '
+            << ex_it->value_.muscleGroup_ << ' '
+            << ex_it->value_.reps_ << ' '
+            << ex_it->value_.sets_; 
+      }
+      for (; ex_it != plan_it->value_.cend(); ++ex_it)
+      {
+        out << '\n'
+            << ex_it->key_ << ' '
+            << ex_it->value_.muscleGroup_ << ' '
+            << ex_it->value_.reps_ << ' '
+            << ex_it->value_.sets_;
+      }
+    }
   }
 }
 
@@ -318,3 +341,6 @@ void petrov::FuncManage::train(std::ostream&, std::istream& in, const std::strin
 
   u.plans_.add(res_plan_name, new_plan);
 }
+
+void petrov::FuncManage::mk_ex(std::ostream&, std::istream&, const std::string& str)
+{}
