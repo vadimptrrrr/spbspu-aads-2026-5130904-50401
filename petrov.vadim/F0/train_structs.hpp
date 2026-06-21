@@ -17,8 +17,22 @@ namespace petrov
     size_t reps_;
     int value_;
 
-    Candidate();
-    Candidate(std::string n, std::string m, int c, size_t s, size_t r, int v);
+    Candidate():
+      name_(""),
+      mg_(""),
+      cost_(0),
+      sets_(0),
+      reps_(0),
+      value_(0)
+    {}
+    Candidate(std::string n, std::string m, int c, size_t s, size_t r, int v):
+      name_(n),
+      mg_(m),
+      cost_(c),
+      sets_(s),
+      reps_(r),
+      value_(v)
+    {}
   };
 
   struct Exercise
@@ -53,24 +67,6 @@ namespace petrov
     using train_ex_t = KukuHashTable< UExercise, std::string, KKHash< std::string >, Equal< std::string > >;
     KukuHashTable< train_ex_t, std::string, KKHash< std::string >, Equal< std::string > > plans_; 
   };
-
-  Candidate::Candidate():
-    name_(""),
-    mg_(""),
-    cost_(0),
-    sets_(0),
-    reps_(0),
-    value_(0)
-  {}
-
-  Candidate::Candidate(std::string n, std::string m, int c, size_t s, size_t r, int v):
-    name_(n),
-    mg_(m),
-    cost_(c),
-    sets_(s),
-    reps_(r),
-    value_(v)
-  {}
 }
 
 #endif

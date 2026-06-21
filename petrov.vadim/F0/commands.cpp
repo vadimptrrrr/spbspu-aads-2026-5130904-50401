@@ -68,9 +68,12 @@ void petrov::FuncManage::show_users(std::ostream& out, std::istream&, const std:
     << "Weight: " << it->value_.weight_ << '\n'
     << "Old: " << it->value_.old_ << '\n';
 
-    for (auto plan_it = it->value_.plans_.cbegin(); plan_it != it->value_.plans_.cend(); ++plan_it)
+    if (!it->value_.plans_.empty())
     {
       out << "<PLANS>\n";
+    }
+    for (auto plan_it = it->value_.plans_.cbegin(); plan_it != it->value_.plans_.cend(); ++plan_it)
+    {
       out << plan_it->key_ << '\n';
 
       auto ex_it = plan_it->value_.cbegin();
@@ -80,6 +83,7 @@ void petrov::FuncManage::show_users(std::ostream& out, std::istream&, const std:
             << ex_it->value_.muscleGroup_ << ' '
             << ex_it->value_.reps_ << ' '
             << ex_it->value_.sets_; 
+        ++ex_it;
       }
       for (; ex_it != plan_it->value_.cend(); ++ex_it)
       {
@@ -89,6 +93,7 @@ void petrov::FuncManage::show_users(std::ostream& out, std::istream&, const std:
             << ex_it->value_.reps_ << ' '
             << ex_it->value_.sets_;
       }
+      out << '\n';
     }
   }
 }
@@ -294,7 +299,6 @@ void petrov::FuncManage::train(std::ostream&, std::istream& in, const std::strin
   }
 
   std::vector< std::vector< int > > dp(items_count + 1, std::vector< int >(w + 1, 0));
-
   for (size_t i = 1; i <= items_count; ++i)
   {
     int weight = items[i - 1].cost_;
@@ -313,9 +317,7 @@ void petrov::FuncManage::train(std::ostream&, std::istream& in, const std::strin
     }
   }
 
-  using train_ex_t = KukuHashTable< UExercise, std::string, KKHash< std::string >, Equal< std::string > >;
-  train_ex_t new_plan(16);
-
+  User::train_ex_t new_plan(16);
   int res_value = dp[items_count][w];
   int total_stamina = 0;
 
@@ -324,13 +326,7 @@ void petrov::FuncManage::train(std::ostream&, std::istream& in, const std::strin
     if (res_value != dp[i - 1][w])
     {
       const Candidate& chosen = items[i - 1];
-      
-      UExercise u_ex;
-      u_ex.muscleGroup_ = chosen.mg_;
-      u_ex.stamina_ = chosen.cost_;
-      u_ex.sets_ = chosen.sets_;
-      u_ex.reps_ = chosen.reps_;
-
+      UExercise u_ex(chosen.mg_, chosen.cost_, chosen.sets_, chosen.reps_);
       new_plan.add(chosen.name_, u_ex);
 
       res_value -= chosen.value_;
@@ -338,9 +334,53 @@ void petrov::FuncManage::train(std::ostream&, std::istream& in, const std::strin
       total_stamina += chosen.cost_;
     }
   }
-
   u.plans_.add(res_plan_name, new_plan);
 }
 
-void petrov::FuncManage::mk_ex(std::ostream&, std::istream&, const std::string& str)
-{}
+void petrov::FuncManage::mk_ex(std::ostream&, std::istream& in, const std::string& str)
+{
+  std::string mg;
+  int st;
+  in >> mg >> st;
+  if (!in || st < 1 || exercisesPool_.has(str))
+  {
+    throw std::runtime_error("Make exercise invalid");
+  }
+
+  Exercise ex{mg, st};
+  exercisesPool_.add(str, ex);
+}
+
+void petrov::FuncManage::rm_ex(std::ostream&, std::istream&, const std::string& str)
+{
+  if (!exercisesPool_.has(str))
+  {
+    throw std::runtime_error("Remove exercise invalid");
+  }
+
+  exercisesPool_.drop(str);
+}
+
+void petrov::FuncManage::show_ex(std::ostream& out, std::istream&, const std::string& str)
+{
+  out << "<EXERCISES>\n";
+  if (exercisesPool_.empty())
+  {
+    return;
+  }
+
+  auto ex_it = exercisesPool_.cbegin();
+  out << ex_it->key_ << ' '
+      << ex_it->value_.muscleGroup_ << ' '
+      << ex_it->value_.stamina_;
+  ++ex_it;
+
+  for (; ex_it != exercisesPool_.cend(); ++ex_it)
+  {
+    out << '\n'
+        << ex_it->key_ << ' '
+        << ex_it->value_.muscleGroup_ << ' '
+        << ex_it->value_.stamina_;
+  }
+  out << '\n';
+}
