@@ -187,8 +187,7 @@ void petrov::FuncManage::load(std::ostream&, std::istream&, const std::string& s
       throw std::runtime_error("Load invalid: file read");
     }
 
-    using train_ex_t = KukuHashTable< UExercise, std::string, KKHash< std::string >, Equal< std::string > >;
-    KukuHashTable< train_ex_t, std::string, KKHash< std::string >, Equal< std::string > > pl(plan_count);
+    KukuHashTable< User::train_ex_t, std::string, KKHash< std::string >, Equal< std::string > > pl(plan_count);
     for (size_t plan_i = 0; plan_i < plan_count; ++plan_i)
     {
       std::string plan_name;
@@ -198,7 +197,7 @@ void petrov::FuncManage::load(std::ostream&, std::istream&, const std::string& s
         throw std::runtime_error("Load invalid: file read");
       }
 
-      train_ex_t ex(ex_count);
+      User::train_ex_t ex(ex_count);
       for (size_t ex_i = 0; ex_i < ex_count; ++ex_i)
       {
         std::string ex_name, mg;
@@ -363,7 +362,7 @@ void petrov::FuncManage::rm_ex(std::ostream&, std::istream&, const std::string& 
 
 void petrov::FuncManage::show_ex(std::ostream& out, std::istream&, const std::string& str)
 {
-  out << "<EXERCISES>\n";
+  out << "<EXERCISE LIST>\n";
   if (exercisesPool_.empty())
   {
     return;
@@ -383,4 +382,18 @@ void petrov::FuncManage::show_ex(std::ostream& out, std::istream&, const std::st
         << ex_it->value_.stamina_;
   }
   out << '\n';
+}
+
+void petrov::FuncManage::add_ex_pool(std::ostream&, std::istream& in, const std::string& str)
+{
+  std::string pool_name, ex_name;
+  in >> pool_name >> ex_name;
+  if (!in || !pools_.has(pool_name) || !exercisesPool_.has(ex_name))
+  {
+    throw std::runtime_error("Add exercise in pool invalid");
+  }
+
+  trainPool_t& p = pools_.get(pool_name);
+  Exercise ex = exercisesPool_.get(ex_name);
+  p.add(ex_name, ex);
 }
