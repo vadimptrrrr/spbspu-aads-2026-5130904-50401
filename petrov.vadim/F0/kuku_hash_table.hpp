@@ -117,16 +117,25 @@ namespace petrov
 
   template< class V, class K, class H, class E >
   KukuHashTable< V, K, H, E >::KukuHashTable(const KukuHashTable& other):
-    data1_(other.data1_),
-    data2_(other.data2_),
+    data1_(topit::Vector< detail::HashNode< K, V > >(other.data1_.getCapacity())),
+    data2_(topit::Vector< detail::HashNode< K, V > >(other.data2_.getCapacity())),
     size_(other.size_),
     capacity_(other.capacity_),
     hash1_(other.hash1_),
     hash2_(other.hash2_),
     equal_(other.equal_),
     load_(other.load_),
-    maxKicks_(std::log2(capacity_) * 2)
-  {}
+    maxKicks_(other.maxKicks_)
+  {
+    for (size_t i = 0; i < data1_.getCapacity(); ++i)
+    {
+      data1_[i] = other.data1_[i];
+    }
+    for (size_t i = 0; i < data2_.getCapacity(); ++i)
+    {
+      data2_[i] = other.data2_[i];
+    }
+  }
 
   template< class V, class K, class H, class E >
   KukuHashTable< V, K, H, E >::KukuHashTable(KukuHashTable&& other) noexcept:
@@ -349,6 +358,11 @@ namespace petrov
   template< class V, class K, class H, class E >
   void KukuHashTable< V, K, H, E >::clear()
   {
+    if (capacity_ == 0 || data1_.getCapacity() == 0) 
+    {
+      return;
+    }
+
     for (size_t i = 0; i < data1_.getCapacity(); ++i)
     {
       data1_[i].state_ = detail::EMPTY;

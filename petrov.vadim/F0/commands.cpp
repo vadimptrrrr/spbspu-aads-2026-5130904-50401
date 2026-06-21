@@ -410,9 +410,14 @@ void petrov::FuncManage::add_ex_pool(std::ostream&, std::istream& in, const std:
 {
   std::string pool_name = str, ex_name;
   in >> ex_name;
-  if (!in || !pools_.has(pool_name) || !exercisesPool_.has(ex_name))
+  if (!in || !exercisesPool_.has(ex_name))
   {
     throw std::runtime_error("Add exercise in pool invalid");
+  }
+
+  if (!pools_.has(pool_name))
+  {
+    pools_.add(pool_name, trainPool_t());
   }
 
   trainPool_t& p = pools_.get(pool_name);
