@@ -8,31 +8,19 @@
 
 namespace petrov
 {
-  struct Candidate 
+  struct Variant
   {
-    std::string name_;
-    std::string mg_;
     int cost_;
     size_t sets_;
     size_t reps_;
     int value_;
+  };
 
-    Candidate():
-      name_(""),
-      mg_(""),
-      cost_(0),
-      sets_(0),
-      reps_(0),
-      value_(0)
-    {}
-    Candidate(std::string n, std::string m, int c, size_t s, size_t r, int v):
-      name_(n),
-      mg_(m),
-      cost_(c),
-      sets_(s),
-      reps_(r),
-      value_(v)
-    {}
+  struct ExerciseGroup
+  {
+    std::string name_;
+    std::string mg_;
+    topit::Vector< Variant > variants_;
   };
 
   struct Exercise
@@ -48,13 +36,11 @@ namespace petrov
 
     UExercise() = default;
     
-    UExercise(const std::string& mg, int st, size_t s, size_t r)
-    {
-      muscleGroup_ = mg;
-      stamina_ = st;
-      sets_ = s;
-      reps_ = r;
-    }
+    UExercise(const std::string& mg, int st, size_t s, size_t r):
+      Exercise{mg, st},
+      sets_(s),
+      reps_(r)
+    {}
   };
 
   struct User

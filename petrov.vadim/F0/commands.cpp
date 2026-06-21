@@ -269,68 +269,84 @@ void petrov::FuncManage::train(std::ostream&, std::istream& in, const std::strin
   }
   User& u = users_.get(username);
   int w = static_cast< int >(u.stamina_ * stamina_k);
-
   trainPool_t& source_pool = pools_.get(basic_pool);
-  topit::Vector< Candidate > items(source_pool.size() + 1);
-  size_t items_count = 0;
+
+  topit::Vector< std::pair< size_t, size_t > > schemes{{3, 10}, {4, 12}, {5, 10}};
+  topit::Vector< ExerciseGroup > groups;
 
   for (auto it = source_pool.cbegin(); it != source_pool.cend(); ++it)
   {
-    size_t s = 4;
-    size_t r = 12;
+    ExerciseGroup group;
+    group.name_ = it->key_;
+    group.mg_ = it->value_.muscleGroup_;
     
-    int cost = detail::exStamina(it->value_.stamina_, s, r);
-    
-    if (cost <= w && cost > 0)
+    for (const auto& scheme : schemes)
     {
-      int value = cost;
-      if (it->value_.muscleGroup_ == mg)
+      size_t s = scheme.first;
+      size_t r = scheme.second;
+      int cost = detail::exStamina(it->value_.stamina_, s, r);
+      
+      if (cost <= w && cost > 0)
       {
-        value += 10000; 
+        int value = cost;
+        if (it->value_.muscleGroup_ == mg)
+        {
+          value += 10000;
+        }
+        group.variants_.pushBack({cost, s, r, value});
       }
-      items[items_count++] = Candidate(it->key_, it->value_.muscleGroup_, cost, s, r, value);
+    }
+    
+    if (!group.variants_.isEmpty())
+    {
+      groups.pushBack(group);
     }
   }
-
-  if (items_count == 0)
+  if (groups.isEmpty())
   {
     throw std::runtime_error("Train invalid");
   }
 
-  std::vector< std::vector< int > > dp(items_count + 1, std::vector< int >(w + 1, 0));
+  size_t items_count = groups.getSize();
+  topit::Vector< topit::Vector< int > > dp(items_count + 1, topit::Vector< int >(w + 1, 0));
+  topit::Vector< topit::Vector< int > > choice(items_count + 1, topit::Vector< int >(w + 1, -1));
   for (size_t i = 1; i <= items_count; ++i)
   {
-    int weight = items[i - 1].cost_;
-    int value = items[i - 1].value_;
-
+    const ExerciseGroup& group = groups[i - 1];
     for (int j = 0; j <= w; ++j)
     {
-      if (weight <= j) 
+      dp[i][j] = dp[i - 1][j];
+      choice[i][j] = -1;
+      for (size_t v = 0; v < group.variants_.getSize(); ++v)
       {
-        dp[i][j] = (dp[i - 1][j] > dp[i - 1][j - weight] + value) ? dp[i - 1][j] : dp[i - 1][j - weight] + value;
-      }
-      else 
-      {
-        dp[i][j] = dp[i - 1][j];
+        int weight = group.variants_[v].cost_;
+        int value = group.variants_[v].value_;
+
+        if (weight <= j)
+        {
+          int current_val = dp[i - 1][j - weight] + value;
+          if (current_val > dp[i][j])
+          {
+            dp[i][j] = current_val;
+            choice[i][j] = static_cast<int>(v);
+          }
+        }
       }
     }
   }
 
   User::train_ex_t new_plan(16);
-  int res_value = dp[items_count][w];
-  int total_stamina = 0;
-
-  for (size_t i = items_count; i > 0 && res_value > 0; --i)
+  int current_w = w;
+  for (size_t i = items_count; i > 0; --i)
   {
-    if (res_value != dp[i - 1][w])
+    int v = choice[i][current_w];
+    if (v != -1)
     {
-      const Candidate& chosen = items[i - 1];
-      UExercise u_ex(chosen.mg_, chosen.cost_, chosen.sets_, chosen.reps_);
-      new_plan.add(chosen.name_, u_ex);
-
-      res_value -= chosen.value_;
-      w -= chosen.cost_;
-      total_stamina += chosen.cost_;
+      const ExerciseGroup& group = groups[i - 1];
+      const Variant& chosen = group.variants_[v];
+      UExercise u_ex(group.mg_, chosen.cost_, chosen.sets_, chosen.reps_);
+      new_plan.add(group.name_, u_ex);
+      current_w -= chosen.cost_;
     }
   }
   u.plans_.add(res_plan_name, new_plan);
@@ -360,7 +376,7 @@ void petrov::FuncManage::rm_ex(std::ostream&, std::istream&, const std::string& 
   exercisesPool_.drop(str);
 }
 
-void petrov::FuncManage::show_ex(std::ostream& out, std::istream&, const std::string& str)
+void petrov::FuncManage::show_ex(std::ostream& out, std::istream&, const std::string&)
 {
   out << "<EXERCISE LIST>\n";
   if (exercisesPool_.empty())
@@ -386,8 +402,8 @@ void petrov::FuncManage::show_ex(std::ostream& out, std::istream&, const std::st
 
 void petrov::FuncManage::add_ex_pool(std::ostream&, std::istream& in, const std::string& str)
 {
-  std::string pool_name, ex_name;
-  in >> pool_name >> ex_name;
+  std::string pool_name = str, ex_name;
+  in >> ex_name;
   if (!in || !pools_.has(pool_name) || !exercisesPool_.has(ex_name))
   {
     throw std::runtime_error("Add exercise in pool invalid");
@@ -396,4 +412,14 @@ void petrov::FuncManage::add_ex_pool(std::ostream&, std::istream& in, const std:
   trainPool_t& p = pools_.get(pool_name);
   Exercise ex = exercisesPool_.get(ex_name);
   p.add(ex_name, ex);
+}
+
+void petrov::FuncManage::rm_pool(std::ostream&, std::istream& in, const std::string& str)
+{
+  if (!pools_.has(str))
+  {
+    throw std::runtime_error("Remove pool invalid");
+  }
+
+  pools_.drop(str);
 }
