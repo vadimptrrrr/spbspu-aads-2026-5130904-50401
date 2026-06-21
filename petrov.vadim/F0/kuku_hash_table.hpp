@@ -85,30 +85,37 @@ namespace petrov
 
   template< class V, class K, class H, class E >
   KukuHashTable< V, K, H, E >::KukuHashTable():
-    data1_(topit::Vector< detail::HashNode< K, V > >(16)),
-    data2_(topit::Vector< detail::HashNode< K, V > >(16)),
+    data1_(),
+    data2_(),
     size_(0),
     capacity_(32),
     hash1_(0),
     hash2_(1234),
     equal_(),
-    load_(),
-    maxKicks_(std::log2(capacity_) * 2)
-  {}
+    load_(0.0),
+    maxKicks_(static_cast<size_t>(std::log2(32) * 2))
+  {
+    size_t actual_cap = capacity_ / 2;
+    for (size_t i = 0; i < actual_cap; ++i)
+    {
+      data1_.pushBack(detail::HashNode< K, V >());
+      data2_.pushBack(detail::HashNode< K, V >());
+    }
+  }
 
-  template< class V, class K, class H, class E >
+template< class V, class K, class H, class E >
   KukuHashTable< V, K, H, E >::KukuHashTable(size_t cap):
-    data1_(topit::Vector< detail::HashNode< K, V > >(cap + 8)),
-    data2_(topit::Vector< detail::HashNode< K, V > >(cap + 8)),
+    data1_(),
+    data2_(),
     size_(0),
     capacity_(cap * 2 + 16),
     hash1_(0),
     hash2_(1234),
     equal_(),
     load_(0.0),
-    maxKicks_(static_cast< size_t >(std::log2(cap * 2 + 16) * 2)) // Считаем от реального capacity
+    maxKicks_(static_cast< size_t >(std::log2(cap * 2 + 16) * 2))
   {
-    size_t actual_cap = cap + 8;
+    size_t actual_cap = capacity_ / 2;
     for (size_t i = 0; i < actual_cap; ++i)
     {
       data1_.pushBack(detail::HashNode< K, V >());
@@ -124,8 +131,8 @@ namespace petrov
 
   template< class V, class K, class H, class E >
   KukuHashTable< V, K, H, E >::KukuHashTable(const KukuHashTable& other):
-    data1_(topit::Vector< detail::HashNode< K, V > >(other.data1_.getCapacity())),
-    data2_(topit::Vector< detail::HashNode< K, V > >(other.data2_.getCapacity())),
+    data1_(),
+    data2_(),
     size_(other.size_),
     capacity_(other.capacity_),
     hash1_(other.hash1_),
@@ -134,12 +141,10 @@ namespace petrov
     load_(other.load_),
     maxKicks_(other.maxKicks_)
   {
-    for (size_t i = 0; i < other.data1_.getCapacity(); ++i)
+    size_t actual_cap = capacity_ / 2;
+    for (size_t i = 0; i < actual_cap; ++i)
     {
       data1_.pushBack(other.data1_[i]);
-    }
-    for (size_t i = 0; i < other.data2_.getCapacity(); ++i)
-    {
       data2_.pushBack(other.data2_[i]);
     }
   }
@@ -205,7 +210,7 @@ namespace petrov
     V curr_v = v;
     for (size_t i = 0; i < maxKicks_; ++i)
     {
-      size_t idx1 = hash1_(curr_k) % data1_.getCapacity();
+      size_t idx1 = hash1_(curr_k) % data1_.getSize();
       if (data1_[idx1].state_ == detail::EMPTY)
       {
         data1_[idx1].value_ = curr_v;
@@ -218,7 +223,7 @@ namespace petrov
       std::swap(curr_k, data1_[idx1].key_);
       std::swap(curr_v, data1_[idx1].value_);
 
-      size_t idx2 = hash2_(curr_k) % data2_.getCapacity();
+      size_t idx2 = hash2_(curr_k) % data2_.getSize();
       if (data2_[idx2].state_ == detail::EMPTY)
       {
         data2_[idx2].value_ = curr_v;
@@ -239,7 +244,7 @@ namespace petrov
   template< class V, class K, class H, class E >
   V KukuHashTable< V, K, H, E >::drop(const K& k)
   {
-    size_t posx = hash1_(k) % data1_.getCapacity();
+    size_t posx = hash1_(k) % data1_.getSize();
     if (data1_[posx].state_ == detail::OCCUPIED && equal_(data1_[posx].key_, k))
     {
       V res = data1_[posx].value_;
@@ -249,7 +254,7 @@ namespace petrov
       return res;
     }
 
-    posx = hash2_(k) % data2_.getCapacity();
+    posx = hash2_(k) % data2_.getSize();
     if (data2_[posx].state_ == detail::OCCUPIED && equal_(data2_[posx].key_, k))
     {
       V res = data2_[posx].value_;
@@ -265,8 +270,8 @@ namespace petrov
   template< class V, class K, class H, class E >
   bool KukuHashTable< V, K, H, E >::has(const K& k) const
   {
-    size_t id1 = hash1_(k) % data1_.getCapacity();
-    size_t id2 = hash2_(k) % data2_.getCapacity();
+    size_t id1 = hash1_(k) % data1_.getSize();
+    size_t id2 = hash2_(k) % data2_.getSize();
     if ((data1_[id1].state_ == detail::OCCUPIED && equal_(data1_[id1].key_, k))
       || (data2_[id2].state_ == detail::OCCUPIED && equal_(data2_[id2].key_, k)))
     {
@@ -284,8 +289,8 @@ namespace petrov
   template< class V, class K, class H, class E >
   const V& KukuHashTable< V, K, H, E >::get(const K& k) const
   {
-    size_t id1 = hash1_(k) % data1_.getCapacity();
-    size_t id2 = hash2_(k) % data2_.getCapacity();
+    size_t id1 = hash1_(k) % data1_.getSize();
+    size_t id2 = hash2_(k) % data2_.getSize();
     if (data1_[id1].state_ == detail::OCCUPIED && equal_(data1_[id1].key_, k))
     {
       return data1_[id1].value_;
@@ -341,7 +346,7 @@ namespace petrov
     newTable.hash1_ = H(seed_counter);
     newTable.hash2_ = H(seed_counter * 7 + 1234);
 
-    for (size_t i = 0; i < data1_.getCapacity(); ++i)
+    for (size_t i = 0; i < data1_.getSize(); ++i)
     {
       if (data1_[i].state_ == detail::OCCUPIED)
       {
@@ -349,7 +354,7 @@ namespace petrov
       }
     }
 
-    for (size_t i = 0; i < data2_.getCapacity(); ++i)
+    for (size_t i = 0; i < data2_.getSize(); ++i)
     {
       if (data2_[i].state_ == detail::OCCUPIED)
       {
@@ -363,16 +368,11 @@ namespace petrov
   template< class V, class K, class H, class E >
   void KukuHashTable< V, K, H, E >::clear()
   {
-    if (capacity_ == 0 || data1_.getCapacity() == 0)
-    {
-      return;
-    }
-
-    for (size_t i = 0; i < data1_.getCapacity(); ++i)
+    for (size_t i = 0; i < data1_.getSize(); ++i)
     {
       data1_[i].state_ = detail::EMPTY;
     }
-    for (size_t i = 0; i < data2_.getCapacity(); ++i)
+    for (size_t i = 0; i < data2_.getSize(); ++i)
     {
       data2_[i].state_ = detail::EMPTY;
     }
@@ -405,7 +405,7 @@ namespace petrov
   template< class V, class K, class H, class E >
   KKHTIterator< V, K, H, E > KukuHashTable< V, K, H, E >::end() noexcept
   {
-    return iter_t(this, 2, data2_.getCapacity());
+    return iter_t(this, 2, data2_.getSize());
   }
 
   template< class V, class K, class H, class E >
@@ -417,7 +417,7 @@ namespace petrov
   template< class V, class K, class H, class E >
   CKKHTIterator< V, K, H, E > KukuHashTable< V, K, H, E >::cend() const noexcept
   {
-    return citer_t(this, 2, data2_.getCapacity());
+    return citer_t(this, 2, data2_.getSize());
   }
 }
 

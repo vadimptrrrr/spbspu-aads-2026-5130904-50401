@@ -67,7 +67,7 @@ namespace petrov
   {
     if (tableNum_ == 1)
     {
-      for (; idx_ < table_->data1_.getCapacity(); ++idx_)
+      for (; idx_ < table_->data1_.getSize(); ++idx_)
       {
         if (table_->data1_[idx_].state_ == detail::OCCUPIED)
         {
@@ -80,7 +80,7 @@ namespace petrov
 
     if (tableNum_ == 2)
     {
-      for (; idx_ < table_->data2_.getCapacity(); ++idx_)
+      for (; idx_ < table_->data2_.getSize(); ++idx_)
       {
         if (table_->data2_[idx_].state_ == detail::OCCUPIED)
         {
