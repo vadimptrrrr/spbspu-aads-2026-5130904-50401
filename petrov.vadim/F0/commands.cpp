@@ -224,3 +224,97 @@ void petrov::FuncManage::load(std::ostream&, std::istream&, const std::string& s
     pools_.add(pool_name, pool);
   }
 }
+
+void petrov::FuncManage::train(std::ostream&, std::istream& in, const std::string& str)
+{
+  std::string res_plan_name = str;
+  std::string basic_pool, mg, username;
+  double stamina_k;
+  in >> basic_pool >> stamina_k >> mg >> username;
+  if (!in)
+  {
+    throw std::runtime_error("Read invalid");
+  }
+
+  if (!users_.has(username) || !pools_.has(basic_pool) || stamina_k < 0 || stamina_k > 1)
+  {
+    throw std::runtime_error("Train invalid");
+  }
+  User& u = users_.get(username);
+  int w = static_cast< int >(u.stamina_ * stamina_k);
+
+  trainPool_t& source_pool = pools_.get(basic_pool);
+  topit::Vector< Candidate > items(source_pool.size() + 1);
+  size_t items_count = 0;
+
+  for (auto it = source_pool.cbegin(); it != source_pool.cend(); ++it)
+  {
+    size_t s = 4;
+    size_t r = 12;
+    
+    int cost = detail::exStamina(it->value_.stamina_, s, r);
+    
+    if (cost <= w && cost > 0)
+    {
+      int value = cost;
+      if (it->value_.muscleGroup_ == mg)
+      {
+        value += 10000; 
+      }
+      items[items_count++] = Candidate(it->key_, it->value_.muscleGroup_, cost, s, r, value);
+    }
+  }
+
+  if (items_count == 0)
+  {
+    throw std::runtime_error("Train invalid");
+  }
+
+  std::vector< std::vector< int > > dp(items_count + 1, std::vector< int >(w + 1, 0));
+
+  for (size_t i = 1; i <= items_count; ++i)
+  {
+    int weight = items[i - 1].cost_;
+    int value = items[i - 1].value_;
+
+    for (int j = 0; j <= w; ++j)
+    {
+      if (weight <= j) 
+      {
+        dp[i][j] = (dp[i - 1][j] > dp[i - 1][j - weight] + value) ? dp[i - 1][j] : dp[i - 1][j - weight] + value;
+      }
+      else 
+      {
+        dp[i][j] = dp[i - 1][j];
+      }
+    }
+  }
+
+  using train_ex_t = KukuHashTable< UExercise, std::string, KKHash< std::string >, Equal< std::string > >;
+  train_ex_t new_plan(16);
+
+  int res_value = dp[items_count][w];
+  int total_stamina = 0;
+
+  for (size_t i = items_count; i > 0 && res_value > 0; --i)
+  {
+    if (res_value != dp[i - 1][w])
+    {
+      const Candidate& chosen = items[i - 1];
+      
+      UExercise u_ex;
+      u_ex.muscleGroup_ = chosen.mg_;
+      u_ex.stamina_ = chosen.cost_;
+      u_ex.sets_ = chosen.sets_;
+      u_ex.reps_ = chosen.reps_;
+
+      new_plan.add(chosen.name_, u_ex);
+
+      res_value -= chosen.value_;
+      w -= chosen.cost_;
+      total_stamina += chosen.cost_;
+    }
+  }
+
+  u.plans_.add(res_plan_name, new_plan);
+}
