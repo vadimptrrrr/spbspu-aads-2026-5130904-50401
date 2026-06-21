@@ -414,7 +414,7 @@ void petrov::FuncManage::add_ex_pool(std::ostream&, std::istream& in, const std:
   p.add(ex_name, ex);
 }
 
-void petrov::FuncManage::rm_pool(std::ostream&, std::istream& in, const std::string& str)
+void petrov::FuncManage::rm_pool(std::ostream&, std::istream&, const std::string& str)
 {
   if (!pools_.has(str))
   {
@@ -422,4 +422,24 @@ void petrov::FuncManage::rm_pool(std::ostream&, std::istream& in, const std::str
   }
 
   pools_.drop(str);
+}
+
+void petrov::FuncManage::show_pools(std::ostream& out, std::istream&, const std::string&)
+{
+  out << "<POOLS LIST>\n";
+  if (pools_.empty())
+  {
+    return;
+  }
+
+  for (auto pool_it = pools_.cbegin(); pool_it != pools_.cend(); ++pool_it)
+  {
+    out << pool_it->key_ << '\n';
+    for (auto ex_it = pool_it->value_.cbegin(); ex_it != pool_it->value_.cend(); ++ex_it)
+    {
+      out << ex_it->key_ << ' '
+      << ex_it->value_.muscleGroup_ << ' '
+      << ex_it->value_.stamina_ << '\n';
+    }
+  }
 }
