@@ -18,13 +18,13 @@ namespace petrov
     bool operator()(const T& lhs, const T& rhs) const;
   };
 
-  template< class Value, class Key, class Hash, class Equal > 
+  template< class Value, class Key, class Hash, class Equal >
   struct KKHTIterator;
 
-  template< class Value, class Key, class Hash, class Equal > 
+  template< class Value, class Key, class Hash, class Equal >
   struct CKKHTIterator;
 
-  template< class Value, class Key, class Hash, class Equal > 
+  template< class Value, class Key, class Hash, class Equal >
   struct KukuHashTable
   {
     using kkhTable_t = KukuHashTable< Value, Key, Hash, Equal >;
@@ -211,9 +211,7 @@ namespace petrov
       std::swap(curr_k, data1_[idx1].key_);
       std::swap(curr_v, data1_[idx1].value_);
 
-
       size_t idx2 = hash2_(curr_k) % data2_.getCapacity();
-      
       if (data2_[idx2].state_ == detail::EMPTY)
       {
         data2_[idx2].value_ = curr_v;
@@ -358,7 +356,7 @@ namespace petrov
   template< class V, class K, class H, class E >
   void KukuHashTable< V, K, H, E >::clear()
   {
-    if (capacity_ == 0 || data1_.getCapacity() == 0) 
+    if (capacity_ == 0 || data1_.getCapacity() == 0)
     {
       return;
     }

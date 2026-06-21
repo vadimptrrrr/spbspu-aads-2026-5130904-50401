@@ -35,7 +35,6 @@ namespace petrov
     size_t reps_;
 
     UExercise() = default;
-    
     UExercise(const std::string& mg, int st, size_t s, size_t r):
       Exercise{mg, st},
       sets_(s),
@@ -51,7 +50,7 @@ namespace petrov
     int stamina_;
 
     using train_ex_t = KukuHashTable< UExercise, std::string, KKHash< std::string >, Equal< std::string > >;
-    KukuHashTable< train_ex_t, std::string, KKHash< std::string >, Equal< std::string > > plans_; 
+    KukuHashTable< train_ex_t, std::string, KKHash< std::string >, Equal< std::string > > plans_;
   };
 }
 

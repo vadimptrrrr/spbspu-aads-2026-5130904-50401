@@ -22,7 +22,7 @@ namespace petrov
     void mk_ex(std::ostream& out, std::istream& in, const std::string& str);
     void rm_ex(std::ostream& out, std::istream& in, const std::string& str);
     void show_ex(std::ostream& out, std::istream& in, const std::string& str);
-    
+
     void add_ex_pool(std::ostream& out, std::istream& in, const std::string& str);
     void rm_pool(std::ostream& out, std::istream& in, const std::string& str);
     void show_pools(std::ostream& out, std::istream& in, const std::string& str);

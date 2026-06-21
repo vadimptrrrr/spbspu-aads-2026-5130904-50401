@@ -11,7 +11,7 @@ int main()
 
   using cmd_t = void (FuncManage::*)(std::ostream&, std::istream&, const std::string&);
   KukuHashTable< cmd_t, std::string, KKHash< std::string >, Equal< std::string > > commands;
-  
+
   commands.add("mk-user", &FuncManage::mk_user);
   commands.add("rm-user", &FuncManage::rm_user);
   commands.add("update-user", &FuncManage::update_user);
@@ -51,7 +51,6 @@ int main()
     catch (const std::exception& e)
     {
       std::cout << "<INVALID COMMAND>\n";
-      
       std::cin.clear();
       std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
     }

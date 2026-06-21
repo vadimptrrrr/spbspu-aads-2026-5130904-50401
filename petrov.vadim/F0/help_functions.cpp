@@ -40,11 +40,11 @@ int petrov::detail::userStamina(size_t h, size_t w, size_t o)
   {
     deviation -= 10;
   }
-  int age_penalty = (k - 4) * 50; 
+  int age_penalty = (k - 4) * 50;
   int weight_penalty = deviation * k;
   int stamina = 1000 - age_penalty - weight_penalty;
 
-  return (stamina > 100) ? stamina : 100; 
+  return (stamina > 100) ? stamina : 100;
 }
 
 int petrov::detail::exStamina(int st, size_t s, size_t r)

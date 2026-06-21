@@ -74,7 +74,6 @@ namespace petrov
           return;
         }
       }
-      
       tableNum_ = 2;
       idx_ = 0;
     }
@@ -104,10 +103,10 @@ namespace petrov
   }
 
   template< class Value, class Key, class Hash, class Equal >
-  const detail::HashNode< Key, Value >& 
+  const detail::HashNode< Key, Value >&
   CKKHTIterator< Value, Key, Hash, Equal >::operator*() const
   {
-    if (tableNum_ == 1) 
+    if (tableNum_ == 1)
     {
       return table_->data1_[idx_];
     }

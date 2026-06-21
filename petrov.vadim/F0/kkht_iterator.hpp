@@ -15,7 +15,7 @@ namespace petrov
     using kkht_t = KukuHashTable< Value, Key, Hash, Equal >;
     using node_t = detail::HashNode< Key, Value >;
     friend struct KukuHashTable< Value, Key, Hash, Equal >;
-    
+
     iter_t& operator++();
     iter_t operator++(int);
 
@@ -74,7 +74,6 @@ namespace petrov
           return;
         }
       }
-      
       tableNum_ = 2;
       idx_ = 0;
     }
@@ -104,10 +103,10 @@ namespace petrov
   }
 
   template< class Value, class Key, class Hash, class Equal >
-  detail::HashNode< Key, Value >& 
+  detail::HashNode< Key, Value >&
   KKHTIterator< Value, Key, Hash, Equal >::operator*() const
   {
-    if (tableNum_ == 1) 
+    if (tableNum_ == 1)
     {
       return table_->data1_[idx_];
     }

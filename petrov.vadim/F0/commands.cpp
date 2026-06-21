@@ -85,7 +85,7 @@ void petrov::FuncManage::show_users(std::ostream& out, std::istream&, const std:
         out << ex_it->key_ << ' '
             << ex_it->value_.muscleGroup_ << ' '
             << ex_it->value_.reps_ << ' '
-            << ex_it->value_.sets_; 
+            << ex_it->value_.sets_;
         ++ex_it;
       }
       for (; ex_it != plan_it->value_.cend(); ++ex_it)
@@ -180,7 +180,7 @@ void petrov::FuncManage::load(std::ostream&, std::istream&, const std::string& s
   {
     throw std::runtime_error("Load invalid: file read");
   }
-  
+
   for (size_t user_i = 0; user_i < users_count; ++user_i)
   {
     std::string name;
@@ -285,13 +285,13 @@ void petrov::FuncManage::train(std::ostream&, std::istream& in, const std::strin
     ExerciseGroup group;
     group.name_ = it->key_;
     group.mg_ = it->value_.muscleGroup_;
-    
+
     for (const auto& scheme : schemes)
     {
       size_t s = scheme.first;
       size_t r = scheme.second;
       int cost = detail::exStamina(it->value_.stamina_, s, r);
-      
+
       if (cost <= w && cost > 0)
       {
         int value = cost;
@@ -302,7 +302,7 @@ void petrov::FuncManage::train(std::ostream&, std::istream& in, const std::strin
         group.variants_.pushBack({cost, s, r, value});
       }
     }
-    
+
     if (!group.variants_.isEmpty())
     {
       groups.pushBack(group);
