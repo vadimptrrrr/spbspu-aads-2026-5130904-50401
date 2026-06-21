@@ -2,7 +2,8 @@
 #define KUKU_HASH_TABLE
 
 #include <cstddef>
-#include <exception>
+#include <stdexcept>
+#include <utility>
 #include <cmath>
 #include "../common/vector/top-it-vector.hpp"
 #include "hash_node.hpp"
@@ -141,6 +142,8 @@ namespace petrov
   {
     other.size_ = 0;
     other.capacity_ = 0;
+    other.load_ = 0.0;
+    other.maxKicks_ = 0;
   }
 
   template< class V, class K, class H, class E >

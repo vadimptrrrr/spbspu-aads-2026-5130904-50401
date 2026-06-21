@@ -1,6 +1,9 @@
+#include "commands.hpp"
 #include <fstream>
 #include <iostream>
-#include "commands.hpp"
+#include <stdexcept>
+#include <utility>
+
 #include "help_functions.hpp"
 
 void petrov::FuncManage::mk_user(std::ostream&, std::istream& in, const std::string& str)
@@ -271,7 +274,10 @@ void petrov::FuncManage::train(std::ostream&, std::istream& in, const std::strin
   int w = static_cast< int >(u.stamina_ * stamina_k);
   trainPool_t& source_pool = pools_.get(basic_pool);
 
-  topit::Vector< std::pair< size_t, size_t > > schemes{{3, 10}, {4, 12}, {5, 10}};
+  topit::Vector< std::pair< size_t, size_t > > schemes;
+  schemes.pushBack({3, 10});
+  schemes.pushBack({4, 12});
+  schemes.pushBack({5, 10});
   topit::Vector< ExerciseGroup > groups;
 
   for (auto it = source_pool.cbegin(); it != source_pool.cend(); ++it)
