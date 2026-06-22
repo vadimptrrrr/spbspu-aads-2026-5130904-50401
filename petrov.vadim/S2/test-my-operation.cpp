@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <sstream>
 #include <string>
-#include "foo.hpp"
+#include "functions.hpp"
 #include "stack.hpp"
 #include "math.hpp"
 
@@ -13,16 +13,16 @@ BOOST_AUTO_TEST_CASE(ReverseNumber_basic_test)
   std::istringstream iss(inputData);
 
   petrov::Stack< petrov::Queue< std::string > > infix;
-  petrov::Stack< petrov::Queue< std::string > > postfix;
   petrov::Stack< long long > results;
 
-  petrov::getInfix(iss, infix);
-  petrov::infixToPostfix(infix, postfix);
+  infix = petrov::getInfix(iss);
 
-  while (!postfix.empty())
+  while (!infix.empty())
   {
-    petrov::Queue< std::string > expr = postfix.drop();
-    long long value = petrov::calculatePostfix(expr);
+    petrov::Queue< std::string > expr = infix.top();
+    infix.pop();
+    petrov::Queue< std::string > post = petrov::infixToPostfix(expr);
+    long long value = petrov::calculatePostfix(post);
     results.push(value);
   }
 
@@ -32,10 +32,11 @@ BOOST_AUTO_TEST_CASE(ReverseNumber_basic_test)
   {
     if (!first)
     {
-      resStr = " " + resStr;
+      resStr += " ";
     }
     first = false;
-    resStr = std::to_string(results.drop()) + resStr;
+    resStr += std::to_string(results.top());
+    results.pop();
   }
 
   BOOST_CHECK_EQUAL(resStr, "321 55 1 -654 0");

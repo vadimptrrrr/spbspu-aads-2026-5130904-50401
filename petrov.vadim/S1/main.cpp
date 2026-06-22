@@ -1,6 +1,5 @@
 #include <iostream>
-#include "STRUCTS.hpp"
-#include "FOO.hpp"
+#include "functions.hpp"
 
 int main()
 {
@@ -15,12 +14,9 @@ int main()
     try
     {
       petrov::printAllList(data, std::cout);
+      std::cout << '\n';
     }
-    catch (const std::overflow_error& e)
-    {
-      std::cerr << e.what() << '\n';
-    }
-    catch(const std::exception& e)
+    catch (const std::exception& e)
     {
       std::cerr << e.what() << '\n';
     }
@@ -30,11 +26,7 @@ int main()
   try
   {
     petrov::printAllList(data, std::cout);
-  }
-  catch (const std::overflow_error& e)
-  {
-    std::cerr << e.what() << '\n';
-    return 1;
+    std::cout << '\n';
   }
   catch(const std::exception& e)
   {

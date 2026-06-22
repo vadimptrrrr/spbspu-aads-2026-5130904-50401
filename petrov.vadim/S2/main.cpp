@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "stack.hpp"
-#include "foo.hpp"
+#include "functions.hpp"
 #include "math.hpp"
 
 int main(int argc, char* argv[])
@@ -9,40 +9,44 @@ int main(int argc, char* argv[])
   using namespace petrov;
 
   Stack< Queue<std::string> > infix;
-  Stack< Queue<std::string> > postfix;
-  Stack<ll> results;
+  Queue< ll > results;
+
+  std::ifstream file;
+  std::istream* in = &std::cin;
+
+  if (argc > 1)
+  {
+    file.open(argv[1]);
+    if (!file)
+    {
+      std::cerr << "Error: cannot open file\n";
+      return 1;
+    }
+    in = &file;
+  }
 
   try
   {
-    // Чтение входа
-    if (argc > 1)
+    infix = getInfix(*in);
+    while (!infix.empty())
     {
-      std::ifstream file(argv[1]);
-      if (!file)
-      {
-        std::cerr << "Error: cannot open file\n";
-        return 1;
-      }
-      getInfix(file, infix);
-    }
-    else
-    {
-      getInfix(std::cin, infix);
-    }
-
-    // Перевод в постфикс
-    infixToPostfix(infix, postfix);
-
-    // Вычисление
-    while (!postfix.empty())
-    {
-      Queue<std::string> expr = postfix.drop();
-      ll value = calculatePostfix(expr);
+      Queue<std::string> expr = infix.top();
+      infix.pop();
+      Queue<std::string> post = infixToPostfix(expr);
+      ll value = calculatePostfix(post);
       results.push(value);
     }
 
-    // Вывод
-    printResults(std::cout, results);
+    while (!results.empty())
+    {
+      std::cout << results.front();
+      results.pop();
+      if (!results.empty())
+      {
+        std::cout << " ";
+      }
+    }
+    std::cout << "\n";
   }
   catch (const std::overflow_error& e)
   {

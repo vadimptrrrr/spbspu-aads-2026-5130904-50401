@@ -1,7 +1,8 @@
-#ifndef FOO_HPP
-#define FOO_HPP
-#include "STRUCTS.hpp"
+#ifndef FUNCTIONS_HPP
+#define FUNCTIONS_HPP
+
 #include <string>
+#include "../common/List/list_struct.hpp"
 namespace petrov
 {
   void mkData(std::istream& input, List< std::pair< std::string, List< size_t > > >& data);

@@ -1,91 +1,49 @@
 #ifndef QUEUE_HPP
 #define QUEUE_HPP
 
-#include "common/STRUCTS.hpp"
+#include "../common/List/list_struct.hpp"
 #include <stdexcept>
 #include <cstddef>
+#include <utility>
 
 namespace petrov
 {
-  template<typename T>
+  template< typename T >
   class Queue {
   public:
-    Queue();
-    Queue(const Queue<T>& q);
-    Queue(Queue<T>&& q);
+    Queue() = default;
+    Queue(const Queue< T >& q) = default;
+    Queue(Queue< T >&& q) noexcept = default;
 
-    Queue<T>& operator=(const Queue<T>& q);
-    Queue<T>& operator=(Queue<T>&& q);
+    Queue< T >& operator=(const Queue< T >& q) = default;
+    Queue< T >& operator=(Queue< T >&& q) noexcept = default;
+    ~Queue() = default;
 
-    void push(const T& rhs);
-    T drop();
+    template< typename U >
+    void push(U&& rhs);
 
     const T& front() const;
-    void pop();
-    bool empty() const;
-    size_t size() const;
-    void clear();
+    T& front();
 
-    ~Queue();
+    void pop();
+
+    bool empty() const noexcept;
+    size_t size() const noexcept;
+    void clear() noexcept;
+
   private:
-    List<T> list_;
+    List< T > list_;
   };
 
-  template<typename T>
-  Queue<T>::Queue():
-    list_()
-  {}
-
-  template<typename T>
-  Queue<T>::Queue(const Queue<T>& q):
-    list_(q.list_)
-  {}
-
-  template<typename T>
-  Queue<T>::Queue(Queue<T>&& q):
-    list_(std::move(q.list_))
-  {}
-
-  template<typename T>
-  Queue<T>& Queue<T>::operator=(const Queue<T>& q)
+  template< typename T >
+  template< typename U >
+  void Queue< T >::push(U&& rhs)
   {
-    if (this != &q)
-    {
-      list_ = q.list_;
-    }
-    return *this;
+    list_.insert_after(list_.back(), std::forward< U >(rhs));
   }
 
-  template<typename T>
-  Queue<T>& Queue<T>::operator=(Queue<T>&& q)
-  {
-    if (this != &q)
-    {
-      list_ = std::move(q.list_);
-    }
-    return *this;
-  }
-
-  template<typename T>
-  void Queue<T>::push(const T& rhs)
-  {
-    list_.insert(list_.getLast(), rhs);
-  }
-
-  template<typename T>
-  T Queue<T>::drop()
-  {
-    if (empty())
-    {
-      throw std::runtime_error("Queue is empty");
-    }
-    T res = front();
-    pop();
-    return res;
-  }
-
-  template<typename T>
-  const T& Queue<T>::front() const
+  template< typename T >
+  const T& Queue< T >::front() const
   {
     if (empty())
     {
@@ -94,38 +52,42 @@ namespace petrov
     return *list_.begin();
   }
 
-  template<typename T>
-  void Queue<T>::pop()
+  template< typename T >
+  T& Queue< T >::front()
   {
     if (empty())
     {
       throw std::runtime_error("Queue is empty");
     }
-    list_.popStart();
+    return *list_.begin();
   }
 
-  template<typename T>
-  bool Queue<T>::empty() const
+  template< typename T >
+  void Queue< T >::pop()
+  {
+    if (empty())
+    {
+      throw std::runtime_error("Queue is empty");
+    }
+    list_.pop_front();
+  }
+
+  template< typename T >
+  bool Queue< T >::empty() const noexcept
   {
     return list_.size() == 0;
   }
 
-  template<typename T>
-  size_t Queue<T>::size() const
+  template< typename T >
+  size_t Queue< T >::size() const noexcept
   {
     return list_.size();
   }
 
-  template<typename T>
-  void Queue<T>::clear()
+  template< typename T >
+  void Queue< T >::clear() noexcept
   {
     list_.clear();
-  }
-
-  template<typename T>
-  Queue<T>::~Queue()
-  {
-    clear();
   }
 }
 #endif
