@@ -1,5 +1,8 @@
 #include <iostream>
+<<<<<<< HEAD
 #include "list_struct.hpp"
+=======
+>>>>>>> petrov.vadim/S1
 #include "functions.hpp"
 
 int main()
@@ -15,6 +18,7 @@ int main()
     try
     {
       petrov::printAllList(data, std::cout);
+      std::cout << '\n';
     }
     catch (const std::exception& e)
     {
@@ -26,6 +30,7 @@ int main()
   try
   {
     petrov::printAllList(data, std::cout);
+    std::cout << '\n';
   }
   catch(const std::exception& e)
   {

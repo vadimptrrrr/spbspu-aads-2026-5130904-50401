@@ -1,14 +1,14 @@
 #include <boost/test/unit_test.hpp>
-#include "list_struct.hpp"
+#include "../common/List/list_struct.hpp"
 
 BOOST_AUTO_TEST_SUITE(List_suite)
 
 BOOST_AUTO_TEST_CASE(default_constructor_test)
 {
   petrov::List< int > a;
-  BOOST_CHECK(a.begin() == petrov::LIter< int >(nullptr));
-  BOOST_CHECK(a.end() == petrov::LIter< int >(nullptr));
-  BOOST_CHECK(a.back() == petrov::LIter< int >(nullptr));
+  BOOST_CHECK(a.begin() == petrov::LIter< int >());
+  BOOST_CHECK(a.end() == petrov::LIter< int >());
+  BOOST_CHECK(a.back() == petrov::LIter< int >());
   BOOST_CHECK(a.size() == 0);
 }
 
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(move_constructor_test)
   BOOST_CHECK(temp == b.begin());
   BOOST_CHECK(b.size() == 2);
   BOOST_CHECK(a.size() == 0);
-  BOOST_CHECK(a.begin() == petrov::LIter< int >(nullptr));
+  BOOST_CHECK(a.begin() == petrov::LIter< int >());
 }
 
 BOOST_AUTO_TEST_CASE(copy_assignment_test)
@@ -62,7 +62,8 @@ BOOST_AUTO_TEST_CASE(copy_assignment_test)
   BOOST_CHECK(b.size() == 2);
   BOOST_CHECK(*b.begin() == 2);
 
-  a = a;
+  petrov::List< int >* pa = &a;
+  a = *pa;
   BOOST_CHECK(a.size() == 2);
 }
 
@@ -81,50 +82,54 @@ BOOST_AUTO_TEST_CASE(move_assignment_test)
   BOOST_CHECK(temp == b.begin());
   BOOST_CHECK(b.size() == 2);
   BOOST_CHECK(a.size() == 0);
+
+  petrov::List< int >* pb = &b;
+  b = std::move(*pb);
+  BOOST_CHECK(b.size() == 2);
 }
 
 BOOST_AUTO_TEST_CASE(begin_test)
 {
   petrov::List< int > a;
-  BOOST_CHECK(a.begin() == petrov::LIter< int >(nullptr));
+  BOOST_CHECK(a.begin() == petrov::LIter< int >());
   BOOST_REQUIRE_THROW(*a.begin(), std::runtime_error);
 
   a.push_front(1);
-  BOOST_CHECK(a.begin() != petrov::LIter< int >(nullptr));
+  BOOST_CHECK(a.begin() != petrov::LIter< int >());
   BOOST_CHECK_NO_THROW(*a.begin());
   BOOST_CHECK(*a.begin() == 1);
 
   const petrov::List< int > b;
-  BOOST_CHECK(b.begin() == petrov::LCIter< int >(nullptr));
+  BOOST_CHECK(b.begin() == petrov::LCIter< int >());
   BOOST_REQUIRE_THROW(*b.begin(), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(end_test)
 {
   petrov::List< int > a;
-  BOOST_CHECK(a.end() == petrov::LIter< int >(nullptr));
+  BOOST_CHECK(a.end() == petrov::LIter< int >());
 
   a.push_front(1);
-  BOOST_CHECK(a.end() == petrov::LIter< int >(nullptr));
+  BOOST_CHECK(a.end() == petrov::LIter< int >());
 
   const petrov::List< int > b;
-  BOOST_CHECK(b.end() == petrov::LCIter< int >(nullptr));
+  BOOST_CHECK(b.end() == petrov::LCIter< int >());
 }
 
 BOOST_AUTO_TEST_CASE(back_test)
 {
   petrov::List< int > a;
-  BOOST_CHECK(a.back() == petrov::LIter< int >(nullptr));
+  BOOST_CHECK(a.back() == petrov::LIter< int >());
 
   const petrov::List< int > b;
-  BOOST_CHECK(b.back() == petrov::LCIter< int >(nullptr));
+  BOOST_CHECK(b.back() == petrov::LCIter< int >());
 
   a.push_front(1);
-  BOOST_CHECK(a.back() != petrov::LIter< int >(nullptr));
+  BOOST_CHECK(a.back() != petrov::LIter< int >());
   BOOST_CHECK(*a.back() == 1);
 
   const petrov::List< int > b1 = a;
-  BOOST_CHECK(b1.back() != petrov::LCIter< int >(nullptr));
+  BOOST_CHECK(b1.back() != petrov::LCIter< int >());
   BOOST_CHECK(*b1.back() == 1);
 
   petrov::LIter< int > last = a.back();
@@ -140,7 +145,7 @@ BOOST_AUTO_TEST_CASE(push_front_test)
   petrov::List< int > a;
   petrov::LIter< int > it = a.push_front(1);
 
-  BOOST_CHECK(it != petrov::LIter< int >(nullptr));
+  BOOST_CHECK(it != petrov::LIter< int >());
   BOOST_CHECK(*it == 1);
   BOOST_CHECK(*a.begin() == 1);
   BOOST_CHECK(a.size() == 1);
@@ -166,8 +171,8 @@ BOOST_AUTO_TEST_CASE(pop_front_test)
 
   a.pop_front();
   BOOST_CHECK(a.size() == 0);
-  BOOST_CHECK(a.begin() == petrov::LIter< int >(nullptr));
-  BOOST_CHECK(a.back() == petrov::LIter< int >(nullptr));
+  BOOST_CHECK(a.begin() == petrov::LIter< int >());
+  BOOST_CHECK(a.back() == petrov::LIter< int >());
 
   BOOST_CHECK_NO_THROW(a.pop_front());
 }
@@ -178,7 +183,7 @@ BOOST_AUTO_TEST_CASE(insert_after_lvalue_test)
   int val = 1;
   petrov::LIter< int > it = a.insert_after(a.begin(), val);
 
-  BOOST_CHECK(it != petrov::LIter< int >(nullptr));
+  BOOST_CHECK(it != petrov::LIter< int >());
   BOOST_CHECK(*it == 1);
   BOOST_CHECK(a.size() == 1);
 
@@ -193,7 +198,7 @@ BOOST_AUTO_TEST_CASE(insert_after_rvalue_test)
   petrov::List< int > a;
   petrov::LIter< int > it = a.insert_after(a.begin(), 1);
 
-  BOOST_CHECK(it != petrov::LIter< int >(nullptr));
+  BOOST_CHECK(it != petrov::LIter< int >());
   BOOST_CHECK(*it == 1);
   BOOST_CHECK(a.size() == 1);
 }
@@ -222,14 +227,14 @@ BOOST_AUTO_TEST_CASE(clear_test)
 {
   petrov::List< int > a;
   a.clear();
-  BOOST_CHECK(a.begin() == petrov::LIter< int >(nullptr));
+  BOOST_CHECK(a.begin() == petrov::LIter< int >());
   BOOST_CHECK(a.size() == 0);
 
   a.push_front(1);
   a.push_front(2);
   a.clear();
-  BOOST_CHECK(a.begin() == petrov::LIter< int >(nullptr));
-  BOOST_CHECK(a.back() == petrov::LIter< int >(nullptr));
+  BOOST_CHECK(a.begin() == petrov::LIter< int >());
+  BOOST_CHECK(a.back() == petrov::LIter< int >());
   BOOST_CHECK(a.size() == 0);
 
   BOOST_CHECK_NO_THROW(a.clear());

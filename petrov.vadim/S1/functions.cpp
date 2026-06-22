@@ -50,7 +50,7 @@ void petrov::printAllList(List< std::pair< std::string, List< size_t > > >& data
 {
   if(data.size() < 1)
   {
-    out << "0\n";
+    out << "0";
     return;
   }
 
@@ -73,7 +73,7 @@ void petrov::printAllList(List< std::pair< std::string, List< size_t > > >& data
 
   if (maxListLen == 0)
   {
-    out << "0\n";
+    out << "0";
     return;
   }
 
@@ -147,7 +147,7 @@ void petrov::printAllList(List< std::pair< std::string, List< size_t > > >& data
         }
       }
     }
-    out << "\n";
+    out << '\n';
   }
 
   sumIt = sums.begin();
@@ -158,7 +158,6 @@ void petrov::printAllList(List< std::pair< std::string, List< size_t > > >& data
   {
     out << " " << *sumIt;
   }
-  out << "\n";
 }
 
 void petrov::showSums(List< size_t >& sums, std::ostream& out)
