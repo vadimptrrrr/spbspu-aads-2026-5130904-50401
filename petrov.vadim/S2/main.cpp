@@ -28,14 +28,13 @@ int main(int argc, char* argv[])
 
   try
   {
-    infix = details::getInfix(*in);
-    postfix = details::infixToPostfix(infix);
-
-    while (!postfix.empty())
+    infix = getInfix(*in);
+    while (!infix.empty())
     {
-      Queue<std::string> expr = postfix.top();
-      postfix.pop();
-      ll value = calculatePostfix(expr);
+      Queue<std::string> expr = infix.top();
+      infix.pop();
+      Queue<std::string> post = infixToPostfix(expr);
+      ll value = calculatePostfix(post);
       results.push(value);
     }
 

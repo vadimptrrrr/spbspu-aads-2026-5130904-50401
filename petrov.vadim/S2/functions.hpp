@@ -17,10 +17,9 @@ namespace petrov
 
     bool isOperator(const std::string& token);
     size_t getPriority(const std::string& op);
-    Stack< Queue < std::string > > getInfix(std::istream& in);
-    Stack< Queue < std::string > > infixToPostfix(Stack< Queue < std::string > >& data);
   }
-
+  Stack< Queue < std::string > > getInfix(std::istream& in);
+  Queue< std::string > infixToPostfix(Queue< std::string > current);
   ll pickOperation(ll a, ll b, const std::string& op);
   ll calculatePostfix(Queue< std::string > postfix);
 }

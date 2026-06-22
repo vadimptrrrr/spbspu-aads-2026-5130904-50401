@@ -44,7 +44,7 @@ namespace petrov
   template< typename T >
   void Queue< T >::push(T&& rhs)
   {
-    list_.insert_after(list_.end(), std::move(rhs));
+    list_.insert_after(list_.end(), std::forward(rhs));
   }
 
   template< typename T >
