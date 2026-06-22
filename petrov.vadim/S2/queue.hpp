@@ -1,7 +1,7 @@
 #ifndef QUEUE_HPP
 #define QUEUE_HPP
 
-#include "../common/STRUCTS.hpp"
+#include "../common/List/list_struct.hpp"
 #include <stdexcept>
 #include <cstddef>
 #include <utility>
@@ -38,13 +38,13 @@ namespace petrov
   template<typename T>
   void Queue<T>::push(const T& rhs)
   {
-    list_.insert(list_.getLast(), rhs);
+    list_.insert_after(list_.end(), rhs);
   }
 
   template<typename T>
   void Queue<T>::push(T&& rhs)
   {
-    list_.insert(list_.getLast(), std::move(rhs));
+    list_.insert_after(list_.end(), std::move(rhs));
   }
 
   template<typename T>
@@ -74,7 +74,7 @@ namespace petrov
     {
       throw std::runtime_error("Queue is empty");
     }
-    list_.popStart();
+    list_.pop_front();
   }
 
   template<typename T>

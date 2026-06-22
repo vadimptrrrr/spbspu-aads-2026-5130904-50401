@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <cstddef>
 #include <utility>
-#include "../common/STRUCTS.hpp"
+#include "../common/List/list_struct.hpp"
 
 namespace petrov
 {
@@ -38,13 +38,13 @@ namespace petrov
   template< typename T >
   void Stack< T >::push(const T& rhs)
   {
-    list_.addStart(rhs);
+    list_.push_front(rhs);
   }
 
   template< typename T >
   void Stack< T >::push(T&& rhs)
   {
-    list_.addStart(rhs);
+    list_.push_front(rhs);
   }
 
   template< typename T >
@@ -74,7 +74,7 @@ namespace petrov
     {
       throw std::runtime_error("Stack is empty");
     }
-    list_.popStart();
+    list_.pop_front();
   }
 
   template< typename T >
