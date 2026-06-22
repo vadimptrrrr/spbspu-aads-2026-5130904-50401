@@ -9,8 +9,7 @@ int main(int argc, char* argv[])
   using namespace petrov;
 
   Stack< Queue<std::string> > infix;
-  Stack< Queue<std::string> > postfix;
-  Stack< ll > results;
+  Queue< ll > results;
 
   std::ifstream file;
   std::istream* in = &std::cin;
@@ -40,7 +39,7 @@ int main(int argc, char* argv[])
 
     while (!results.empty())
     {
-      std::cout << results.top();
+      std::cout << results.front();
       results.pop();
       if (!results.empty())
       {
