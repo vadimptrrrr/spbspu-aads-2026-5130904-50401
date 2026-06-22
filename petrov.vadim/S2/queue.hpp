@@ -8,15 +8,15 @@
 
 namespace petrov
 {
-  template<typename T>
+  template< typename T >
   class Queue {
   public:
     Queue() = default;
-    Queue(const Queue<T>& q) = default;
-    Queue(Queue<T>&& q) noexcept = default;
+    Queue(const Queue< T >& q) = default;
+    Queue(Queue< T >&& q) noexcept = default;
 
-    Queue<T>& operator=(const Queue<T>& q) = default;
-    Queue<T>& operator=(Queue<T>&& q) noexcept = default;
+    Queue< T >& operator=(const Queue< T >& q) = default;
+    Queue< T >& operator=(Queue< T >&& q) noexcept = default;
     ~Queue() = default;
 
     void push(const T& rhs);
@@ -32,23 +32,23 @@ namespace petrov
     void clear() noexcept;
 
   private:
-    List<T> list_;
+    List< T > list_;
   };
 
-  template<typename T>
-  void Queue<T>::push(const T& rhs)
+  template< typename T >
+  void Queue< T >::push(const T& rhs)
   {
     list_.insert_after(list_.end(), rhs);
   }
 
-  template<typename T>
-  void Queue<T>::push(T&& rhs)
+  template< typename T >
+  void Queue< T >::push(T&& rhs)
   {
     list_.insert_after(list_.end(), std::move(rhs));
   }
 
-  template<typename T>
-  const T& Queue<T>::front() const
+  template< typename T >
+  const T& Queue< T >::front() const
   {
     if (empty())
     {
@@ -57,8 +57,8 @@ namespace petrov
     return *list_.begin();
   }
 
-  template<typename T>
-  T& Queue<T>::front()
+  template< typename T >
+  T& Queue< T >::front()
   {
     if (empty())
     {
@@ -67,8 +67,8 @@ namespace petrov
     return *list_.begin();
   }
 
-  template<typename T>
-  void Queue<T>::pop()
+  template< typename T >
+  void Queue< T >::pop()
   {
     if (empty())
     {
@@ -77,20 +77,20 @@ namespace petrov
     list_.pop_front();
   }
 
-  template<typename T>
-  bool Queue<T>::empty() const noexcept
+  template< typename T >
+  bool Queue< T >::empty() const noexcept
   {
     return list_.size() == 0;
   }
 
-  template<typename T>
-  size_t Queue<T>::size() const noexcept
+  template< typename T >
+  size_t Queue< T >::size() const noexcept
   {
     return list_.size();
   }
 
-  template<typename T>
-  void Queue<T>::clear() noexcept
+  template< typename T >
+  void Queue< T >::clear() noexcept
   {
     list_.clear();
   }

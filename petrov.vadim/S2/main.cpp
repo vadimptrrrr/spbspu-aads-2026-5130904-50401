@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 
   Stack< Queue<std::string> > infix;
   Stack< Queue<std::string> > postfix;
-  Stack<ll> results;
+  Stack< ll > results;
 
   std::ifstream file;
   std::istream* in = &std::cin;

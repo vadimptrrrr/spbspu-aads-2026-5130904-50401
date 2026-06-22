@@ -16,8 +16,8 @@ BOOST_AUTO_TEST_CASE(ReverseNumber_basic_test)
   petrov::Stack< petrov::Queue< std::string > > postfix;
   petrov::Stack< long long > results;
 
-  infix = details::getInfix(iss);
-  postfix = details::infixToPostfix(infix);
+  infix = petrov::details::getInfix(iss);
+  postfix = petrov::details::infixToPostfix(infix);
 
   while (!postfix.empty())
   {

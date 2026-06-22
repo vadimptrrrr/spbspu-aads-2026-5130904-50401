@@ -1,11 +1,11 @@
 #include "functions.hpp"
 
-bool details::isOperator(const std::string& token)
+bool petrov::details::isOperator(const std::string& token)
 {
   return token == "+" || token == "-" || token == "*" || token == "/" || token == "%" || token == "#";
 }
 
-size_t details::getPriority(const std::string& op)
+size_t petrov::details::getPriority(const std::string& op)
 {
   if (op == "#")
   {
@@ -22,11 +22,11 @@ size_t details::getPriority(const std::string& op)
   return 0;
 }
 
-petrov::Stack< petrov::Queue < std::string > > details::getInfix(std::istream& in)
+petrov::Stack< petrov::Queue < std::string > > petrov::details::getInfix(std::istream& in)
 {
   char c;
   std::string token;
-  petrov::Queue<std::string> current;
+  petrov::Queue< std::string > current;
   petrov::Stack< petrov::Queue < std::string > > data;
   while (in.get(c))
   {
@@ -67,15 +67,15 @@ petrov::Stack< petrov::Queue < std::string > > details::getInfix(std::istream& i
   return data;
 }
 
-petrov::Stack< petrov::Queue < std::string > > details::infixToPostfix(petrov::Stack< petrov::Queue < std::string > >& data)
+petrov::Stack< petrov::Queue < std::string > > petrov::details::infixToPostfix(petrov::Stack< petrov::Queue < std::string > >& data)
 {
   petrov::Stack< petrov::Queue < std::string > > res;
   while (!data.empty())
   {
-    petrov::Stack<std::string> operators;
-    petrov::Queue<std::string> current = data.top();
+    petrov::Stack< std::string > operators;
+    petrov::Queue< std::string > current = data.top();
     data.pop();
-    petrov::Queue<std::string> output;
+    petrov::Queue< std::string > output;
 
     while (!current.empty())
     {
@@ -98,12 +98,12 @@ petrov::Stack< petrov::Queue < std::string > > details::infixToPostfix(petrov::S
           operators.pop();
         }
       }
-      else if (details::isOperator(token))
+      else if (petrov::details::isOperator(token))
       {
         while (!operators.empty() && operators.top() != "(")
         {
-          size_t topPriority = details::getPriority(operators.top());
-          size_t currPriority = details::getPriority(token);
+          size_t topPriority = petrov::details::getPriority(operators.top());
+          size_t currPriority = petrov::details::getPriority(token);
 
           if ((token != "#" && topPriority >= currPriority)
               || (token == "#" && topPriority > currPriority))
@@ -161,7 +161,7 @@ petrov::ll petrov::pickOperation(ll a, ll b, const std::string& op)
 
 petrov::ll petrov::calculatePostfix(Queue<std::string> postfix)
 {
-  Stack<ll> st;
+  Stack< ll > st;
   while (!postfix.empty())
   {
     std::string token = postfix.front();
@@ -175,9 +175,9 @@ petrov::ll petrov::calculatePostfix(Queue<std::string> postfix)
       }
       ll a = st.top();
       st.pop();
-      st.push(details::reverseNumber(a));
+      st.push(petrov::details::reverseNumber(a));
     }
-    else if (details::isOperator(token))
+    else if (petrov::details::isOperator(token))
     {
       if (st.size() < 2)
       {
