@@ -1,5 +1,4 @@
 #include <iostream>
-#include "list_struct.hpp"
 #include "functions.hpp"
 
 int main()

@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "list_struct.hpp"
+#include "../common/List/list_struct.hpp"
 
 BOOST_AUTO_TEST_SUITE(List_suite)
 
