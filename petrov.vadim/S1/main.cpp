@@ -1,8 +1,4 @@
 #include <iostream>
-<<<<<<< HEAD
-#include "list_struct.hpp"
-=======
->>>>>>> petrov.vadim/S1
 #include "functions.hpp"
 
 int main()
