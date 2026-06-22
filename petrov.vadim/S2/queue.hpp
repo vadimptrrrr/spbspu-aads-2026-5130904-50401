@@ -19,8 +19,8 @@ namespace petrov
     Queue< T >& operator=(Queue< T >&& q) noexcept = default;
     ~Queue() = default;
 
-    void push(const T& rhs);
-    void push(T&& rhs);
+    template< typename U >
+    void push(U&& rhs);
 
     const T& front() const;
     T& front();
@@ -36,15 +36,10 @@ namespace petrov
   };
 
   template< typename T >
-  void Queue< T >::push(const T& rhs)
+  template< typename U >
+  void Queue< T >::push(U&& rhs)
   {
-    list_.insert_after(list_.end(), rhs);
-  }
-
-  template< typename T >
-  void Queue< T >::push(T&& rhs)
-  {
-    list_.insert_after(list_.end(), std::forward(rhs));
+    list_.insert_after(list_.back(), std::forward< U >(rhs));
   }
 
   template< typename T >

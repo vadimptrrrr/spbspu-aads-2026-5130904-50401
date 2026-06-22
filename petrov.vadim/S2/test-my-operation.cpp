@@ -13,17 +13,16 @@ BOOST_AUTO_TEST_CASE(ReverseNumber_basic_test)
   std::istringstream iss(inputData);
 
   petrov::Stack< petrov::Queue< std::string > > infix;
-  petrov::Stack< petrov::Queue< std::string > > postfix;
   petrov::Stack< long long > results;
 
-  infix = petrov::details::getInfix(iss);
-  postfix = petrov::details::infixToPostfix(infix);
+  infix = petrov::getInfix(iss);
 
-  while (!postfix.empty())
+  while (!infix.empty())
   {
-    petrov::Queue< std::string > expr = postfix.top();
-    postfix.pop();
-    long long value = petrov::calculatePostfix(expr);
+    petrov::Queue< std::string > expr = infix.top();
+    infix.pop();
+    petrov::Queue< std::string > post = petrov::infixToPostfix(expr);
+    long long value = petrov::calculatePostfix(post);
     results.push(value);
   }
 
@@ -33,10 +32,10 @@ BOOST_AUTO_TEST_CASE(ReverseNumber_basic_test)
   {
     if (!first)
     {
-      resStr = " " + resStr;
+      resStr += " ";
     }
     first = false;
-    resStr = std::to_string(results.top()) + resStr;
+    resStr += std::to_string(results.top());
     results.pop();
   }
 

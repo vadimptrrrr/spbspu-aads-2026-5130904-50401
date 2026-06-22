@@ -19,8 +19,8 @@ namespace petrov
     Stack< T >& operator=(Stack< T >&& s) noexcept = default;
     ~Stack() = default;
 
-    void push(const T& rhs);
-    void push(T&& rhs);
+    template< typename U >
+    void push(U&& rhs);
 
     const T& top() const;
     T& top();
@@ -36,15 +36,10 @@ namespace petrov
   };
 
   template< typename T >
-  void Stack< T >::push(const T& rhs)
+  template< typename U >
+  void Stack< T >::push(U&& rhs)
   {
-    list_.push_front(rhs);
-  }
-
-  template< typename T >
-  void Stack< T >::push(T&& rhs)
-  {
-    list_.push_front(rhs);
+    list_.push_front(std::forward< U >(rhs));
   }
 
   template< typename T >
