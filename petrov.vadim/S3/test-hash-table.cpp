@@ -2,6 +2,8 @@
 #include <string>
 #include <utility>
 #include <algorithm>
+#include <functional>
+#include <stdexcept>
 #include "HashTable.hpp"
 #include "Grath.hpp"
 #include "HashFunc.hpp"
@@ -9,9 +11,9 @@
 
 namespace petrov
 {
-  using TestHT = HashTable< std::string, int, sha1, Equal< std::string > >;
+  using TestHT = HashTable< std::string, int, sha1, std::equal_to< std::string > >;
   using EdgeKey = std::pair< std::string, std::string >;
-  using Weight = topit::Vector< size_t >;
+  using Weight = Vector< size_t >;
   using EdgeVec = std::pair< std::string, Weight >;
 }
 
@@ -33,7 +35,7 @@ BOOST_AUTO_TEST_CASE(ConstructorWithCapacity)
   BOOST_CHECK(table.capacity() == 16);
 }
 
-BOOST_AUTO_TEST_CASE(AddHasGet)
+BOOST_AUTO_TEST_CASE(AddHasAt)
 {
   petrov::TestHT table(8);
   table.add("a", 1);
@@ -46,9 +48,9 @@ BOOST_AUTO_TEST_CASE(AddHasGet)
   BOOST_CHECK(table.has("c"));
   BOOST_CHECK(!table.has("d"));
 
-  BOOST_CHECK(table.get("a") == 1);
-  BOOST_CHECK(table.get("b") == 2);
-  BOOST_CHECK(table.get("c") == 3);
+  BOOST_CHECK(table.at("a") == 1);
+  BOOST_CHECK(table.at("b") == 2);
+  BOOST_CHECK(table.at("c") == 3);
 }
 
 BOOST_AUTO_TEST_CASE(AddUpdatesExistingKey)
@@ -58,34 +60,45 @@ BOOST_AUTO_TEST_CASE(AddUpdatesExistingKey)
   table.add("key", 99);
 
   BOOST_CHECK(table.size() == 1);
-  BOOST_CHECK(table.get("key") == 99);
+  BOOST_CHECK(table.at("key") == 99);
 }
 
-BOOST_AUTO_TEST_CASE(GetThrowsIfKeyNotFound)
+BOOST_AUTO_TEST_CASE(AtThrowsIfKeyNotFound)
 {
   petrov::TestHT table(8);
   table.add("a", 1);
-  BOOST_CHECK_THROW(table.get("b"), std::runtime_error);
+  BOOST_CHECK_THROW(table.at("b"), std::out_of_range);
 }
 
-BOOST_AUTO_TEST_CASE(DropRemovesAndReturnsValue)
+BOOST_AUTO_TEST_CASE(OperatorBracketCreatesDefault)
+{
+  petrov::TestHT table(8);
+  table["new_key"] = 42; 
+  BOOST_CHECK(table.size() == 1);
+  BOOST_CHECK(table.at("new_key") == 42);
+
+  BOOST_CHECK(table["new_key"] == 42); 
+}
+
+BOOST_AUTO_TEST_CASE(DropRemovesKeyAndReturnsTrue)
 {
   petrov::TestHT table(8);
   table.add("a", 1);
   table.add("b", 2);
 
-  int val = table.drop("a");
-  BOOST_CHECK(val == 1);
+  bool success = table.drop("a");
+  BOOST_CHECK(success);
   BOOST_CHECK(table.size() == 1);
   BOOST_CHECK(!table.has("a"));
   BOOST_CHECK(table.has("b"));
 }
 
-BOOST_AUTO_TEST_CASE(DropThrowsIfKeyNotFound)
+BOOST_AUTO_TEST_CASE(DropReturnsFalseIfKeyNotFound)
 {
   petrov::TestHT table(8);
   table.add("a", 1);
-  BOOST_CHECK_THROW(table.drop("b"), std::runtime_error);
+  bool success = table.drop("b");
+  BOOST_CHECK(!success);
 }
 
 BOOST_AUTO_TEST_CASE(Clear)
@@ -110,11 +123,11 @@ BOOST_AUTO_TEST_CASE(CopyConstructor)
 
   petrov::TestHT copy(table);
   BOOST_CHECK(copy.size() == 2);
-  BOOST_CHECK(copy.get("a") == 1);
+  BOOST_CHECK(copy.at("a") == 1);
 
   copy.add("a", 100);
-  BOOST_CHECK(table.get("a") == 1);
-  BOOST_CHECK(copy.get("a") == 100);
+  BOOST_CHECK(table.at("a") == 1);
+  BOOST_CHECK(copy.at("a") == 100);
 }
 
 BOOST_AUTO_TEST_CASE(MoveConstructor)
@@ -125,7 +138,7 @@ BOOST_AUTO_TEST_CASE(MoveConstructor)
 
   petrov::TestHT moved(std::move(table));
   BOOST_CHECK(moved.size() == 2);
-  BOOST_CHECK(moved.get("a") == 1);
+  BOOST_CHECK(moved.at("a") == 1);
   BOOST_CHECK(table.empty());
 }
 
@@ -140,8 +153,8 @@ BOOST_AUTO_TEST_CASE(Rehash)
   table.rehash(32);
   BOOST_CHECK(table.capacity() == 32);
   BOOST_CHECK(table.size() == 2);
-  BOOST_CHECK(table.get("a") == 1);
-  BOOST_CHECK(table.get("c") == 3);
+  BOOST_CHECK(table.at("a") == 1);
+  BOOST_CHECK(table.at("c") == 3);
 }
 
 BOOST_AUTO_TEST_CASE(IteratorSkipsTombstones)
@@ -157,7 +170,7 @@ BOOST_AUTO_TEST_CASE(IteratorSkipsTombstones)
   for (auto it = table.begin(); it != table.end(); ++it)
   {
     ++count;
-    sum += it->value_;
+    sum += it->second; 
   }
 
   BOOST_CHECK(count == 2);

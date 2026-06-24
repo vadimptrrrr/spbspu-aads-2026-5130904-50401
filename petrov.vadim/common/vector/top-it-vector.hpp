@@ -10,7 +10,7 @@
 #include <initializer_list>
 #include <memory>
 
-namespace topit
+namespace petrov
 {
   template< class T >
   struct Vector
@@ -76,7 +76,7 @@ namespace topit
 }
 
 template< class T >
-topit::Vector< T >::Vector(std::initializer_list< T > il):
+petrov::Vector< T >::Vector(std::initializer_list< T > il):
   Vector(il.size())
 {
   size_t constructed = 0;
@@ -97,21 +97,21 @@ topit::Vector< T >::Vector(std::initializer_list< T > il):
 }
 
 template< class T >
-topit::Vector< T >::Vector():
+petrov::Vector< T >::Vector():
   data_(nullptr),
   size_(0),
   capacity_(0)
 {}
 
 template< class T >
-topit::Vector< T >::~Vector()
+petrov::Vector< T >::~Vector()
 {
   destroyRange(data_, 0, size_);
   deallocateRow(data_);
 }
 
 template< class T >
-topit::Vector< T >::Vector(const Vector< T > & rhs):
+petrov::Vector< T >::Vector(const Vector< T > & rhs):
   Vector(rhs.getSize())
 {
   size_t constructed = 0;
@@ -132,7 +132,7 @@ topit::Vector< T >::Vector(const Vector< T > & rhs):
 }
 
 template< class T >
-topit::Vector< T >::Vector(Vector< T > && rhs) noexcept:
+petrov::Vector< T >::Vector(Vector< T > && rhs) noexcept:
   data_(rhs.data_),
   size_(rhs.size_),
   capacity_(rhs.capacity_)
@@ -143,7 +143,7 @@ topit::Vector< T >::Vector(Vector< T > && rhs) noexcept:
 }
 
 template< class T >
-topit::Vector< T >::Vector(size_t size, const T & init):
+petrov::Vector< T >::Vector(size_t size, const T & init):
   Vector(size)
 {
   size_t constructed = 0;
@@ -164,7 +164,7 @@ topit::Vector< T >::Vector(size_t size, const T & init):
 }
 
 template< class T >
-topit::Vector< T > & topit::Vector< T >::operator=(const Vector< T > & rhs)
+petrov::Vector< T > & petrov::Vector< T >::operator=(const Vector< T > & rhs)
 {
   if (this == std::addressof(rhs))
   {
@@ -176,7 +176,7 @@ topit::Vector< T > & topit::Vector< T >::operator=(const Vector< T > & rhs)
 }
 
 template< class T >
-topit::Vector< T > & topit::Vector< T >::operator=(Vector< T > && rhs)
+petrov::Vector< T > & petrov::Vector< T >::operator=(Vector< T > && rhs)
 {
   if (this == std::addressof(rhs))
   {
@@ -188,62 +188,62 @@ topit::Vector< T > & topit::Vector< T >::operator=(Vector< T > && rhs)
 }
 
 template< class T >
-bool topit::Vector< T >::isEmpty() const noexcept
+bool petrov::Vector< T >::isEmpty() const noexcept
 {
   return !size_;
 }
 
 template< class T >
-size_t topit::Vector< T >::getSize() const noexcept
+size_t petrov::Vector< T >::getSize() const noexcept
 {
   return size_;
 }
 
 template< class T >
-size_t topit::Vector< T >::getCapacity() const noexcept
+size_t petrov::Vector< T >::getCapacity() const noexcept
 {
   return capacity_;
 }
 
 template< class T >
-topit::VIter< T > topit::Vector< T >::begin() noexcept
+petrov::VIter< T > petrov::Vector< T >::begin() noexcept
 {
   return VIter< T >(data_);
 }
 
 template< class T >
-topit::VIter< T > topit::Vector< T >::end() noexcept
+petrov::VIter< T > petrov::Vector< T >::end() noexcept
 {
   return VIter< T >(data_ + size_);
 }
 
 template< class T >
-topit::VCIter< T > topit::Vector< T >::begin() const noexcept
+petrov::VCIter< T > petrov::Vector< T >::begin() const noexcept
 {
   return VCIter< T >(data_);
 }
 
 template< class T >
-topit::VCIter< T > topit::Vector< T >::end() const noexcept
+petrov::VCIter< T > petrov::Vector< T >::end() const noexcept
 {
   return VCIter< T >(data_ + size_);
 }
 
 template< class T >
-T & topit::Vector< T >::operator[](size_t id) noexcept
+T & petrov::Vector< T >::operator[](size_t id) noexcept
 {
   const Vector< T > * cthis = this;
   return const_cast< T & >((*cthis)[id]);
 }
 
 template< class T >
-const T & topit::Vector< T >::operator[](size_t id) const noexcept
+const T & petrov::Vector< T >::operator[](size_t id) const noexcept
 {
   return data_[id];
 }
 
 template< class T >
-T & topit::Vector< T >::at(size_t id)
+T & petrov::Vector< T >::at(size_t id)
 {
   const Vector< T > * cthis = this;
   const T & ret = cthis->at(id);
@@ -251,7 +251,7 @@ T & topit::Vector< T >::at(size_t id)
 }
 
 template< class T >
-const T & topit::Vector< T >::at(size_t id) const
+const T & petrov::Vector< T >::at(size_t id) const
 {
   if (id < getSize())
   {
@@ -261,7 +261,7 @@ const T & topit::Vector< T >::at(size_t id) const
 }
 
 template< class T >
-void topit::Vector< T >::reserve(size_t required)
+void petrov::Vector< T >::reserve(size_t required)
 {
   if (required <= capacity_)
   {
@@ -291,7 +291,7 @@ void topit::Vector< T >::reserve(size_t required)
 }
 
 template< class T >
-void topit::Vector< T >::shrinkToFit()
+void petrov::Vector< T >::shrinkToFit()
 {
   if (size_ == capacity_)
   {
@@ -321,7 +321,7 @@ void topit::Vector< T >::shrinkToFit()
 }
 
 template< class T >
-void topit::Vector< T >::pushBackCount(size_t k, const T & val)
+void petrov::Vector< T >::pushBackCount(size_t k, const T & val)
 {
   if (k == 0)
   {
@@ -361,7 +361,7 @@ void topit::Vector< T >::pushBackCount(size_t k, const T & val)
 
 template< class T >
 template< class IT >
-void topit::Vector< T >::pushBackRange(IT b, size_t c)
+void petrov::Vector< T >::pushBackRange(IT b, size_t c)
 {
   if (c == 0)
   {
@@ -401,7 +401,7 @@ void topit::Vector< T >::pushBackRange(IT b, size_t c)
 }
 
 template< class T >
-void topit::Vector< T >::pushBack(const T & v)
+void petrov::Vector< T >::pushBack(const T & v)
 {
   if (size_ < capacity_)
   {
@@ -436,7 +436,7 @@ void topit::Vector< T >::pushBack(const T & v)
 }
 
 template< class T >
-void topit::Vector< T >::popBack()
+void petrov::Vector< T >::popBack()
 {
   if (size_ > 0)
   {
@@ -445,7 +445,7 @@ void topit::Vector< T >::popBack()
 }
 
 template< class T >
-void topit::Vector< T >::insert(size_t i, const T & v)
+void petrov::Vector< T >::insert(size_t i, const T & v)
 {
   if (i > size_)
   {
@@ -485,7 +485,7 @@ void topit::Vector< T >::insert(size_t i, const T & v)
 }
 
 template< class T >
-void topit::Vector< T >::insert(size_t i, const Vector< T > & rhs, size_t start, size_t end)
+void petrov::Vector< T >::insert(size_t i, const Vector< T > & rhs, size_t start, size_t end)
 {
   if (i > size_ || start > end || end > rhs.getSize())
   {
@@ -534,7 +534,7 @@ void topit::Vector< T >::insert(size_t i, const Vector< T > & rhs, size_t start,
 }
 
 template< class T >
-void topit::Vector< T >::erase(size_t i)
+void petrov::Vector< T >::erase(size_t i)
 {
   if (i >= size_)
   {
@@ -568,7 +568,7 @@ void topit::Vector< T >::erase(size_t i)
 }
 
 template< class T >
-void topit::Vector< T >::erase(size_t start, size_t end)
+void petrov::Vector< T >::erase(size_t start, size_t end)
 {
   if (end > size_ || start > end)
   {
@@ -604,7 +604,7 @@ void topit::Vector< T >::erase(size_t start, size_t end)
 }
 
 template< class T >
-void topit::Vector< T >::swap(Vector< T > & rhs) noexcept
+void petrov::Vector< T >::swap(Vector< T > & rhs) noexcept
 {
   std::swap(data_, rhs.data_);
   std::swap(size_, rhs.size_);
@@ -612,7 +612,7 @@ void topit::Vector< T >::swap(Vector< T > & rhs) noexcept
 }
 
 template< class T >
-topit::VIter< T > topit::Vector< T >::insert(VIter< T > pos, const T & val)
+petrov::VIter< T > petrov::Vector< T >::insert(VIter< T > pos, const T & val)
 {
   if (pos < begin() || pos > end())
   {
@@ -655,7 +655,7 @@ topit::VIter< T > topit::Vector< T >::insert(VIter< T > pos, const T & val)
 }
 
 template< class T >
-topit::VIter< T > topit::Vector< T >::insert(VIter< T > pos, size_t count, const T & val)
+petrov::VIter< T > petrov::Vector< T >::insert(VIter< T > pos, size_t count, const T & val)
 {
   if (pos < begin() || pos > end())
   {
@@ -706,7 +706,7 @@ topit::VIter< T > topit::Vector< T >::insert(VIter< T > pos, size_t count, const
 }
 
 template< class T >
-topit::VIter< T > topit::Vector< T >::insert(VIter< T > pos, VCIter< T > first, VCIter< T > last)
+petrov::VIter< T > petrov::Vector< T >::insert(VIter< T > pos, VCIter< T > first, VCIter< T > last)
 {
   if (pos < begin() || pos > end() || last < first)
   {
@@ -761,7 +761,7 @@ topit::VIter< T > topit::Vector< T >::insert(VIter< T > pos, VCIter< T > first, 
 }
 
 template< class T >
-topit::VIter< T > topit::Vector< T >::erase(VIter< T > pos)
+petrov::VIter< T > petrov::Vector< T >::erase(VIter< T > pos)
 {
   if (pos < begin() || pos >= end())
   {
@@ -805,7 +805,7 @@ topit::VIter< T > topit::Vector< T >::erase(VIter< T > pos)
 }
 
 template< class T >
-topit::VIter< T > topit::Vector< T >::erase(VIter< T > first, VIter< T > last)
+petrov::VIter< T > petrov::Vector< T >::erase(VIter< T > first, VIter< T > last)
 {
   if (first < begin() || last > end() || last < first)
   {
@@ -856,7 +856,7 @@ topit::VIter< T > topit::Vector< T >::erase(VIter< T > first, VIter< T > last)
 }
 
 template< class T >
-topit::VIter< T > topit::Vector< T >::erase(VIter< T > pos, size_t count)
+petrov::VIter< T > petrov::Vector< T >::erase(VIter< T > pos, size_t count)
 {
   const size_t index = pos - begin();
 
@@ -900,7 +900,7 @@ topit::VIter< T > topit::Vector< T >::erase(VIter< T > pos, size_t count)
 }
 
 template< class T >
-void topit::Vector< T >::destroyRange(T * ptr, size_t from, size_t to) noexcept
+void petrov::Vector< T >::destroyRange(T * ptr, size_t from, size_t to) noexcept
 {
   for (size_t i = from; i < to; ++i)
   {
@@ -909,7 +909,7 @@ void topit::Vector< T >::destroyRange(T * ptr, size_t from, size_t to) noexcept
 }
 
 template< class T >
-T * topit::Vector< T >::allocateRow(size_t size)
+T * petrov::Vector< T >::allocateRow(size_t size)
 {
   if (size == 0)
   {
@@ -919,20 +919,20 @@ T * topit::Vector< T >::allocateRow(size_t size)
 }
 
 template< class T >
-void topit::Vector< T >::deallocateRow(T * ptr) noexcept
+void petrov::Vector< T >::deallocateRow(T * ptr) noexcept
 {
   ::operator delete(ptr);
 }
 
 template< class T >
-topit::Vector< T >::Vector(size_t size):
+petrov::Vector< T >::Vector(size_t size):
   data_(size ? allocateRow(size) : nullptr),
   size_(0),
   capacity_(size)
 {}
 
 template< class T >
-bool topit::operator==(const topit::Vector< T > & lhs, const topit::Vector< T > & rhs)
+bool petrov::operator==(const petrov::Vector< T > & lhs, const petrov::Vector< T > & rhs)
 {
   bool isEqual = lhs.getSize() == rhs.getSize();
   for (size_t i = 0; (i < lhs.getSize()) && (isEqual = isEqual && lhs[i] == rhs[i]); ++i);
@@ -940,7 +940,7 @@ bool topit::operator==(const topit::Vector< T > & lhs, const topit::Vector< T > 
 }
 
 template< class T >
-void topit::Vector< T >::unsafePushBack(const T & val)
+void petrov::Vector< T >::unsafePushBack(const T & val)
 {
   new (data_ + size_) T(val);
   ++size_;

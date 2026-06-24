@@ -22,7 +22,8 @@ namespace petrov
 
     void readFile(std::istream & in);
   private:
-    HashTable< std::string, Grath, sha1, Equal< std::string > > graphs_;
+    HashTable< std::string, Grath, sha1, std::equal_to< std::string > > graphs_;
+    bool findEdgeW(const Grath& g, const std::string& from, const std::string& to, size_t w);
   };
 }
 

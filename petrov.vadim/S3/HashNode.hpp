@@ -3,35 +3,38 @@
 
 namespace petrov
 {
-  enum NodeState
+  namespace detail
   {
-    EMPTY,
-    OCCUPIED,
-    TOMBSTONE
-  };
+    enum NodeState
+    {
+      EMPTY,
+      OCCUPIED,
+      TOMBSTONE
+    };
 
-  template < class Key, class Value >
-  struct HashNode
-  {
-    Key key_;
-    Value value_;
-    NodeState state_;
+    template< class Key, class Value >
+    struct HashNode
+    {
+      Key key;
+      Value value;
+      NodeState state;
 
-    HashNode();
-    HashNode(const Key& key, const Value& value, NodeState state);
-  };
+      HashNode();
+      HashNode(const Key& key, const Value& value, NodeState state);
+    };
 
-  template < class Key, class Value >
-  HashNode<Key, Value>::HashNode():
-    state_(NodeState::EMPTY)
-  {}
+    template< class Key, class Value >
+    HashNode< Key, Value >::HashNode():
+      state(NodeState::EMPTY)
+    {}
 
-  template < class Key, class Value >
-  HashNode<Key, Value>::HashNode(const Key& key, const Value& value, NodeState state):
-    key_(key),
-    value_(value),
-    state_(state)
-  {}
+    template< class Key, class Value >
+    HashNode< Key, Value >::HashNode(const Key& k, const Value& v, NodeState s):
+      key(k),
+      value(v),
+      state(s)
+    {}
+  }
 }
 
 #endif

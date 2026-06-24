@@ -2,20 +2,37 @@
 #define GRATH_HPP
 
 #include <cstddef>
+#include <functional>
 #include "HashTable.hpp"
-#include "../common/vector/top-it-vector.hpp"
+#include "vector/top-it-vector.hpp"
 #include "HashFunc.hpp"
 
 namespace petrov
 {
-  using Weight = topit::Vector< size_t >;
+  using Weight = Vector< size_t >;
   using EdgeVec = std::pair< std::string, Weight >;
+  namespace detail
+  {
+    template< class T, class Comp >
+    void sort(petrov::Vector< T >& vec, Comp comp);
+
+    struct CompareEdgeVec
+    {
+      bool operator()(const EdgeVec& a, const EdgeVec& b) const
+      {
+        return a.first < b.first;
+      }
+    };
+  }
+
 
   struct Grath
   {
-    Grath();
-    Grath(const Grath& other);
-    Grath(Grath&& other) noexcept;
+    Grath() = default;
+    Grath(const Grath& other) = default;
+    Grath(Grath&& other) noexcept = default;
+
+    Grath& operator=(const Grath&) = default;
 
     void addVertex(const std::string& name);
     void addEdge(const std::string& from, const std::string& to, size_t weight);
@@ -25,25 +42,15 @@ namespace petrov
     bool hasVertex(const std::string& name) const;
     bool hasEdge(const std::string& from, const std::string& to) const;
 
-    topit::Vector< std::string > getVertices() const;
-    topit::Vector< EdgeVec > getInputEdges(const std::string& name) const;
-    topit::Vector< EdgeVec > getOutputEdges(const std::string& name) const;
+    Vector< std::string > getVertices() const;
+    Vector< EdgeVec > getInputEdges(const std::string& name) const;
+    Vector< EdgeVec > getOutputEdges(const std::string& name) const;
 
     void swap(Grath& other) noexcept;
-    Grath& operator=(const Grath&) = default;
 
     private:
-      HashTable< EdgeKey, Weight, edgeSha1, Equal< EdgeKey > > edges_;
-      HashTable< std::string, bool, sha1, Equal< std::string > > vertices_;
-
-      template< class T >
-      struct Less
-      {
-        bool operator()(const T& lhs, const T& rhs) const noexcept
-        {
-          return lhs < rhs;
-        }
-      };
+      HashTable< EdgeKey, Weight, edgeSha1, std::equal_to< EdgeKey > > edges_;
+      HashTable< std::string, bool, sha1, std::equal_to< std::string > > vertices_;
   };
 }
 

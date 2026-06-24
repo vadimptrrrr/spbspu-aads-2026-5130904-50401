@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <string>
 #include <utility>
+#include <memory>
 
 #include <boost/hash2/sha1.hpp>
 #include <boost/hash2/get_integral_result.hpp>
@@ -33,7 +34,7 @@ namespace petrov
       hash.update(edge.first.data(), edge.first.size());
 
       const char sep = '\0';
-      hash.update(&sep, 1);
+      hash.update(std::addressof(sep), 1);
 
       hash.update(edge.second.data(), edge.second.size());
 

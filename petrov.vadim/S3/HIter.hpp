@@ -1,12 +1,14 @@
 #ifndef HITER_HPP
 #define HITER_HPP
 
-#include "HashNode.hpp"
 #include <memory>
 #include <cassert>
+#include <utility>
+#include "HashNode.hpp"
 
 namespace petrov
 {
+  using namespace detail;
   template< class K, class V, class Hash, class Equal >
   struct HashTable;
 
@@ -23,14 +25,14 @@ namespace petrov
     bool operator==(const HIter< Key, Value >& rhs) const;
     bool operator!=(const HIter< Key, Value >& rhs) const;
 
-    Value& operator*() const;
-    HashNode< Key, Value >* operator->() const;
+    std::pair< Key, Value >& operator*() const;
+    std::pair< Key, Value >* operator->() const;
 
     private:
       HashNode< Key, Value >* node_;
       HashNode< Key, Value >* end_;
 
-      HIter(HashNode< Key, Value >* node, HashNode< Key, Value > * end);
+      HIter(detail::HashNode< Key, Value >* node, detail::HashNode< Key, Value > * end);
       void skipInvalid();
   };
 
@@ -74,23 +76,23 @@ namespace petrov
   }
 
   template< class Key, class Value >
-  Value& HIter< Key, Value >::operator*() const
+  std::pair< Key, Value >& HIter< Key, Value >::operator*() const
   {
     assert(node_ != nullptr);
     assert(node_ != end_);
-    return node_->value_;
+    return *reinterpret_cast< std::pair< Key, Value >* >(node_);
   }
 
   template< class Key, class Value >
-  HashNode< Key, Value >* HIter< Key, Value >::operator->() const
+  std::pair< Key, Value >* HIter< Key, Value >::operator->() const
   {
     assert(node_ != nullptr);
     assert(node_ != end_);
-    return addressof(*node_);
+    return reinterpret_cast< std::pair< Key, Value >* >(node_);
   }
 
   template< class Key, class Value >
-  HIter< Key, Value >::HIter(HashNode< Key, Value > * node, HashNode< Key, Value > * end):
+  HIter< Key, Value >::HIter(detail::HashNode< Key, Value > * node, detail::HashNode< Key, Value > * end):
     node_(node),
     end_(end)
   {
@@ -100,7 +102,7 @@ namespace petrov
   template< class Key, class Value >
   void HIter< Key, Value >::skipInvalid()
   {
-    while (node_ != end_ && node_->state_ != OCCUPIED)
+    while (node_ != end_ && node_->state != OCCUPIED)
     {
       ++node_;
     }

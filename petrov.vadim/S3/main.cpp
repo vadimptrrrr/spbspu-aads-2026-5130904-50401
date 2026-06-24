@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <limits>
 #include "FuncManage.hpp"
 
 int main(int argc, char const *argv[])
@@ -24,14 +25,14 @@ int main(int argc, char const *argv[])
   {
     table.readFile(file);
   }
-  catch(const std::exception& e)
+  catch (const std::exception& e)
   {
     std::cerr << e.what() << '\n';
     return 1;
   }
 
   using cmd_t = void (FuncManage::*)(std::ostream &, std::istream &, std::string);
-  HashTable< std::string, cmd_t, sha1, Equal< std::string > > commands(16);
+  HashTable< std::string, cmd_t, sha1, std::equal_to< std::string > > commands(16);
 
   commands.add("graphs", &FuncManage::graphs);
   commands.add("vertexes", &FuncManage::vertexes);
@@ -58,19 +59,17 @@ int main(int argc, char const *argv[])
         continue;
       }
     }
-
-    std::string args;
-    std::getline(std::cin, args);
-    std::istringstream input(args);
-
     try
     {
-      cmd_t command = commands.get(cmd);
-      (table.*command)(std::cout, input, graphName);
+      cmd_t command = commands.at(cmd);
+      (table.*command)(std::cout, std::cin, graphName);
+      std::cout << "\n";
     }
     catch (...)
     {
       std::cout << "<INVALID COMMAND>\n";
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
     }
   }
 }

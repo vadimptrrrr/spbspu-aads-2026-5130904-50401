@@ -3,7 +3,7 @@
 
 #include <cstddef>
 
-namespace topit
+namespace petrov
 {
   template< class T >
   struct Vector;
@@ -43,25 +43,25 @@ namespace topit
 }
 
 template< class T >
-topit::VIter< T >::VIter():
+petrov::VIter< T >::VIter():
   val_(nullptr)
 {}
 
 template< class T >
-topit::VIter< T > & topit::VIter< T >::operator++()
+petrov::VIter< T > & petrov::VIter< T >::operator++()
 {
   ++val_;
   return *this;
 }
 
 template< class T >
-topit::VIter< T > topit::VIter< T >::operator+(size_t n) const
+petrov::VIter< T > petrov::VIter< T >::operator+(size_t n) const
 {
   return VIter< T >(val_ + n);
 }
 
 template< class T >
-topit::VIter< T > topit::VIter< T >::operator++(int)
+petrov::VIter< T > petrov::VIter< T >::operator++(int)
 {
   VIter< T > temp(*this);
   ++(*this);
@@ -69,14 +69,14 @@ topit::VIter< T > topit::VIter< T >::operator++(int)
 }
 
 template< class T >
-topit::VIter< T > & topit::VIter< T >::operator--()
+petrov::VIter< T > & petrov::VIter< T >::operator--()
 {
   --val_;
   return *this;
 }
 
 template< class T >
-topit::VIter< T > topit::VIter< T >::operator--(int)
+petrov::VIter< T > petrov::VIter< T >::operator--(int)
 {
   VIter< T > temp(*this);
   --(*this);
@@ -84,61 +84,61 @@ topit::VIter< T > topit::VIter< T >::operator--(int)
 }
 
 template< class T >
-topit::VIter< T > topit::VIter< T >::operator-(size_t n) const
+petrov::VIter< T > petrov::VIter< T >::operator-(size_t n) const
 {
   return VIter< T >(val_ - n);
 }
 
 template< class T >
-std::ptrdiff_t topit::VIter< T >::operator-(const VIter< T > & rhs) const
+std::ptrdiff_t petrov::VIter< T >::operator-(const VIter< T > & rhs) const
 {
   return val_ - rhs.val_;
 }
 
 template< class T >
-bool topit::VIter< T >::operator==(const VIter< T > & rhs) const
+bool petrov::VIter< T >::operator==(const VIter< T > & rhs) const
 {
   return val_ == rhs.val_;
 }
 
 template< class T >
-bool topit::VIter< T >::operator!=(const VIter< T > & rhs) const
+bool petrov::VIter< T >::operator!=(const VIter< T > & rhs) const
 {
   return val_ != rhs.val_;
 }
 
 template< class T >
-bool topit::VIter< T >::operator>(const VIter< T > & rhs) const
+bool petrov::VIter< T >::operator>(const VIter< T > & rhs) const
 {
   return val_ > rhs.val_;
 }
 
 template< class T >
-bool topit::VIter< T >::operator<(const VIter< T > & rhs) const
+bool petrov::VIter< T >::operator<(const VIter< T > & rhs) const
 {
   return val_ < rhs.val_;
 }
 
 template< class T >
-bool topit::VIter< T >::operator>=(const VIter< T > & rhs) const
+bool petrov::VIter< T >::operator>=(const VIter< T > & rhs) const
 {
   return val_ >= rhs.val_;
 }
 
 template< class T >
-bool topit::VIter< T >::operator<=(const VIter< T > & rhs) const
+bool petrov::VIter< T >::operator<=(const VIter< T > & rhs) const
 {
   return val_ <= rhs.val_;
 }
 
 template< class T >
-T & topit::VIter< T >::operator*() const
+T & petrov::VIter< T >::operator*() const
 {
   return *val_;
 }
 
 template< class T >
-T * topit::VIter< T >::operator->() const
+T * petrov::VIter< T >::operator->() const
 {
   return val_;
 }

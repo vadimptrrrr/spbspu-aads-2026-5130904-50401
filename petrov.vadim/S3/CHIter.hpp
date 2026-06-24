@@ -23,14 +23,14 @@ namespace petrov
     bool operator==(const CHIter< Key, Value >& rhs) const;
     bool operator!=(const CHIter< Key, Value >& rhs) const;
 
-    Value& operator*() const;
-    const HashNode< Key, Value >* operator->() const;
+    const std::pair< Key, Value >& operator*() const;
+    const std::pair< Key, Value >* operator->() const;
 
     private:
-      const HashNode< Key, Value >* node_;
-      const HashNode< Key, Value >* end_;
+      const detail::HashNode< Key, Value >* node_;
+      const detail::HashNode< Key, Value >* end_;
 
-      CHIter(const HashNode< Key, Value > * node, const HashNode< Key, Value > * end);
+      CHIter(const detail::HashNode< Key, Value > * node, const detail::HashNode< Key, Value > * end);
       void skipInvalid();
   };
 
@@ -74,23 +74,23 @@ namespace petrov
   }
 
   template< class Key, class Value >
-  Value& CHIter< Key, Value >::operator*() const
+  const std::pair< Key, Value >& CHIter< Key, Value >::operator*() const
   {
     assert(node_ != nullptr);
     assert(node_ != end_);
-    return node_->value_;
+    return *reinterpret_cast< const std::pair< Key, Value >* >(node_);
   }
 
   template< class Key, class Value >
-  const HashNode< Key, Value >* CHIter< Key, Value >::operator->() const
+  const std::pair< Key, Value >* CHIter< Key, Value >::operator->() const
   {
     assert(node_ != nullptr);
     assert(node_ != end_);
-    return std::addressof(*node_);
+    return reinterpret_cast< const std::pair< Key, Value >* >(node_);
   }
 
   template< class Key, class Value >
-  CHIter< Key, Value >::CHIter(const HashNode< Key, Value > * node, const HashNode< Key, Value > * end):
+  CHIter< Key, Value >::CHIter(const detail::HashNode< Key, Value > * node, const detail::HashNode< Key, Value > * end):
     node_(node),
     end_(end)
   {
@@ -100,7 +100,7 @@ namespace petrov
   template< class Key, class Value >
   void CHIter< Key, Value >::skipInvalid()
   {
-    while (node_ != end_ && node_->state_ != OCCUPIED)
+    while (node_ != end_ && node_->state != detail::OCCUPIED)
     {
       ++node_;
     }

@@ -6,40 +6,31 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdint>
+#include <utility>
 #include "HashNode.hpp"
 #include "HIter.hpp"
 #include "CHIter.hpp"
 
 namespace petrov
 {
-  struct Finder
-  {
-    size_t idx;
-    bool found;
-  };
-
-  template< class T >
-  struct Equal
-  {
-    bool operator()(const T& lhs, const T& rhs) const;
-  };
-
   template< class Key, class Value, class Hash, class Equal >
   struct HashTable
   {
     HashTable();
-    HashTable(size_t cap);
-    ~HashTable();
     HashTable(const HashTable& other);
     HashTable(HashTable&& other) noexcept;
+    HashTable(size_t cap);
+    ~HashTable();
     HashTable& operator=(const HashTable& other);
     HashTable& operator=(HashTable&& other) noexcept;
 
     void add(const Key& k, const Value& v);
-    Value drop(const Key& k);
+    void add(const Key& k, Value&& v);
+    bool drop(const Key& k);
     bool has(const Key& k) const;
-    Value& get(const Key& k);
-    const Value& get(const Key& k) const;
+    Value& at(const Key& k);
+    const Value& at(const Key& k) const;
+    Value& operator[](const Key& k);
     void swap(HashTable& other) noexcept;
 
     void rehash(size_t slots);
@@ -55,6 +46,11 @@ namespace petrov
     CHIter< Key, Value > end() const;
 
     private:
+      struct Finder
+      {
+        size_t idx;
+        bool found;
+      };
       HashNode< Key, Value >* data_;
       size_t size_;
       size_t capacity_;
@@ -65,12 +61,6 @@ namespace petrov
       size_t probe(size_t home, size_t i) const;
       Finder find(const Key& k) const;
   };
-
-  template< class T >
-  bool Equal< T >::operator()(const T& lhs, const T& rhs) const
-  {
-    return lhs == rhs;
-  }
 
   template< class Key, class Value, class Hash, class Equal >
   HashTable< Key, Value, Hash, Equal >::HashTable():
@@ -98,30 +88,34 @@ namespace petrov
 
   template< class Key, class Value, class Hash, class Equal >
   HashTable< Key, Value, Hash, Equal >::HashTable(const HashTable& other):
-    data_(new HashNode< Key, Value > [other.capacity_]),
+    data_(new HashNode< Key, Value >[other.capacity_]),
     size_(other.size_),
     capacity_(other.capacity_),
     hash_(other.hash_),
     equal_(other.equal_)
   {
-    for (size_t i = 0; i < capacity_; ++i)
+    try
     {
-      data_[i] = other.data_[i];
+      for (size_t i = 0; i < capacity_; ++i)
+      {
+        data_[i] = other.data_[i];
+      }
+    }
+    catch (...)
+    {
+      delete[] data_;
+      throw;
     }
   }
 
   template< class Key, class Value, class Hash, class Equal >
   HashTable< Key, Value, Hash, Equal >::HashTable(HashTable&& other) noexcept:
-    data_(other.data_),
-    size_(other.size_),
-    capacity_(other.capacity_),
-    hash_(other.hash_),
-    equal_(other.equal_)
-  {
-    other.data_ = nullptr;
-    other.size_ = 0;
-    other.capacity_ = 0;
-  }
+    data_(std::exchange(other.data_, nullptr)),
+    size_(std::exchange(other.size_, 0)),
+    capacity_(std::exchange(other.capacity_, 0)),
+    hash_(std::move(other.hash_)),
+    equal_(std::move(other.equal_))
+  {}
 
   template< class Key, class Value, class Hash, class Equal >
   HashTable< Key, Value, Hash, Equal >& HashTable< Key, Value, Hash, Equal >::operator=(const HashTable& other)
@@ -157,28 +151,45 @@ namespace petrov
     Finder f = find(k);
     if (f.found)
     {
-      data_[f.idx].value_ = v;
+      data_[f.idx].value = v;
       return;
     }
-    data_[f.idx].key_ = k;
-    data_[f.idx].value_ = v;
-    data_[f.idx].state_ = OCCUPIED;
+    data_[f.idx].key = k;
+    data_[f.idx].value = v;
+    data_[f.idx].state = OCCUPIED;
     ++size_;
   }
 
   template< class Key, class Value, class Hash, class Equal >
-  Value HashTable< Key, Value, Hash, Equal >::drop(const Key& k)
+  void HashTable< Key, Value, Hash, Equal >::add(const Key& k, Value&& v)
+  {
+    if (size_ == capacity_)
+    {
+      throw std::runtime_error("No slot for add");
+    }
+    Finder f = find(k);
+    if (f.found)
+    {
+      data_[f.idx].value = std::move(v);
+      return;
+    }
+    data_[f.idx].key = k;
+    data_[f.idx].value = std::move(v);
+    data_[f.idx].state = OCCUPIED;
+    ++size_;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  bool HashTable< Key, Value, Hash, Equal >::drop(const Key& k)
   {
     Finder f = find(k);
     if (!f.found)
     {
-      throw std::runtime_error("Key not found\n");
+      return false;
     }
-
-    Value res = std::move(data_[f.idx].value_);
-    data_[f.idx].state_ = TOMBSTONE;
+    data_[f.idx].state = TOMBSTONE;
     --size_;
-    return res;
+    return true;
   }
 
   template< class Key, class Value, class Hash, class Equal >
@@ -188,20 +199,42 @@ namespace petrov
   }
 
   template< class Key, class Value, class Hash, class Equal >
-  Value& HashTable< Key, Value, Hash, Equal >::get(const Key& k)
-  {
-    return const_cast<Value&>(static_cast<const HashTable*>(this)->get(k));
-  }
-
-  template< class Key, class Value, class Hash, class Equal >
-  const Value& HashTable< Key, Value, Hash, Equal >::get(const Key& k) const
+  const Value& HashTable< Key, Value, Hash, Equal >::at(const Key& k) const
   {
     Finder f = find(k);
     if (!f.found)
     {
-      throw std::runtime_error("Key not found\n");
+      throw std::out_of_range("Key not found");
     }
-    return data_[f.idx].value_;
+    return data_[f.idx].value;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  Value& HashTable< Key, Value, Hash, Equal >::at(const Key& k)
+  {
+    return const_cast< Value& >(static_cast< const HashTable* >(this)->at(k));
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  Value& HashTable< Key, Value, Hash, Equal >::operator[](const Key& k)
+  {
+    Finder f = find(k);
+    if (f.found)
+    {
+      return data_[f.idx].value;
+    }
+    
+    if (size_ == capacity_)
+    {
+      throw std::runtime_error("No slot for add"); 
+    }
+    
+    data_[f.idx].key = k;
+    data_[f.idx].value = Value{};
+    data_[f.idx].state = OCCUPIED;
+    ++size_;
+    
+    return data_[f.idx].value;
   }
 
   template< class Key, class Value, class Hash, class Equal >
@@ -225,9 +258,9 @@ namespace petrov
     HashTable newTable(slots);
     for (size_t i = 0; i < capacity_; ++i)
     {
-      if (data_[i].state_ == OCCUPIED)
+      if (data_[i].state == OCCUPIED)
       {
-        newTable.add(data_[i].key_, data_[i].value_);
+        newTable.add(data_[i].key, data_[i].value);
       }
     }
     swap(newTable);
@@ -238,7 +271,7 @@ namespace petrov
   {
     for (size_t i = 0; i < capacity_; ++i)
     {
-      data_[i].state_ = EMPTY;
+      data_[i].state = EMPTY;
     }
     size_ = 0;
   }
@@ -302,22 +335,22 @@ namespace petrov
   }
 
   template< class Key, class Value, class Hash, class Equal >
-  Finder HashTable< Key, Value, Hash, Equal >::find(const Key& k) const
+  typename HashTable< Key, Value, Hash, Equal >::Finder HashTable< Key, Value, Hash, Equal >::find(const Key& k) const
   {
     size_t h = home(k);
     size_t first_tmbs = capacity_;
     for (size_t i = 0; i < capacity_; ++i)
     {
       size_t idx = probe(h, i);
-      if (data_[idx].state_ == OCCUPIED && (equal_(data_[idx].key_, k)))
+      if (data_[idx].state == OCCUPIED && (equal_(data_[idx].key, k)))
       {
         return {idx, true};
       }
-      else if (data_[idx].state_ == TOMBSTONE && (first_tmbs == capacity_))
+      else if (data_[idx].state == TOMBSTONE && (first_tmbs == capacity_))
       {
         first_tmbs = idx;
       }
-      else if (data_[idx].state_ == EMPTY)
+      else if (data_[idx].state == EMPTY)
       {
         return {first_tmbs == capacity_ ? idx : first_tmbs, false};
       }

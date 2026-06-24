@@ -2,48 +2,36 @@
 #include "HIter.hpp"
 #include "CHIter.hpp"
 
-namespace petrov
+template< class T, class Comp >
+void petrov::detail::sort(petrov::Vector< T >& vec, Comp comp)
 {
-  template< class T, class Comp >
-  void sort(topit::Vector<T>& vec, Comp comp)
+  for (size_t i = 1; i < vec.getSize(); ++i)
   {
-    for (size_t i = 1; i < vec.getSize(); ++i)
+    T key = vec[i];
+    size_t j = i;
+    while (j > 0 && comp(key, vec[j-1]))
     {
-      T key = vec[i];
-      size_t j = i;
-      while (j > 0 && comp(key, vec[j-1]))
-      {
-        vec[j] = vec[j-1];
-        --j;
-      }
-      vec[j] = key;
+      vec[j] = vec[j-1];
+      --j;
     }
+    vec[j] = key;
   }
+}
 
-  Grath::Grath():
-    edges_(),
-    vertices_()
-  {}
-
-  Grath::Grath(const Grath& other):
-    edges_(other.edges_),
-    vertices_(other.vertices_)
-  {}
-
-  Grath::Grath(Grath&& other) noexcept:
-    edges_(std::move(other.edges_)),
-    vertices_(std::move(other.vertices_))
-  {}
-
-  void Grath::addVertex(const std::string& name)
+void petrov::Grath::addVertex(const std::string& name)
+{
+  if (!vertices_.has(name))
   {
-    if (!vertices_.has(name))
-    {
-      vertices_.add(name, true);
-    }
+    vertices_.add(name, true);
   }
+}
 
-  void Grath::addEdge(const std::string& from, const std::string& to, size_t w)
+void petrov::Grath::addEdge(const std::string& from, const std::string& to, size_t w)
+{
+  bool fromAdded = !hasVertex(from);
+  bool toAdded = !hasVertex(to);
+
+  try
   {
     addVertex(from);
     addVertex(to);
@@ -51,104 +39,120 @@ namespace petrov
     EdgeKey key{from, to};
     if (edges_.has(key))
     {
-      edges_.get(key).pushBack(w);
+      edges_.at(key).pushBack(w);
     }
     else
     {
       Weight weights;
       weights.pushBack(w);
-      edges_.add(key, weights);
+      edges_.add(key, std::move(weights));
     }
   }
-
-  void Grath::removeVertex(const std::string& name)
+  catch (...)
   {
-    if (!hasVertex(name))
+    if (toAdded && hasVertex(to))
     {
-      throw std::runtime_error("Vertex not found\n");
+      vertices_.drop(to);
     }
-    vertices_.drop(name);
-  }
-
-  void Grath::removeEdge(const std::string& from, const std::string& to, size_t w)
-  {
-    if (hasEdge(from, to))
+    if (fromAdded && hasVertex(from))
     {
-      Weight& wght = edges_.get({from, to});
-      for (size_t i = 0; i < wght.getSize(); ++i)
+      vertices_.drop(from);
+    }
+    throw;
+  }
+}
+
+void petrov::Grath::removeVertex(const std::string& name)
+{
+  if (!hasVertex(name))
+  {
+    throw std::runtime_error("Vertex not found\n");
+  }
+  vertices_.drop(name);
+}
+
+void petrov::Grath::removeEdge(const std::string& from, const std::string& to, size_t w)
+{
+  if (hasEdge(from, to))
+  {
+    Weight& wght = edges_.at({from, to});
+    for (size_t i = 0; i < wght.getSize(); ++i)
+    {
+      if (wght[i] == w)
       {
-        if (wght[i] == w)
-        {
-          wght.erase(i);
-          if (wght.getSize() == 0) {
-            edges_.drop({from, to});
-          }
-          return;
+        wght.erase(i);
+        if (wght.getSize() == 0) {
+          edges_.drop({from, to});
         }
+        return;
       }
-      throw std::runtime_error("Edge with such weight not found\n");
     }
-    else
+    throw std::runtime_error("Edge with such weight not found\n");
+  }
+  else
+  {
+    throw std::runtime_error("Edge not found\n");
+  }
+}
+
+bool petrov::Grath::hasVertex(const std::string& name) const
+{
+  return vertices_.has(name);
+}
+
+bool petrov::Grath::hasEdge(const std::string& from, const std::string& to) const
+{
+  return edges_.has({from, to});
+}
+
+petrov::Vector< std::string > petrov::Grath::getVertices() const
+{
+  CHIter< std::string, bool > it = vertices_.begin();
+  petrov::Vector< std::string > res;
+  for (; it != vertices_.end(); ++it)
+  {
+    res.pushBack(it->first);
+  }
+  sort(res, std::less< std::string >());
+  return res;
+}
+
+petrov::Vector< petrov::EdgeVec > petrov::Grath::getInputEdges(const std::string& name) const
+{
+  petrov::Vector< EdgeVec > res;
+  CHIter< EdgeKey, Weight > it = edges_.begin();
+  for (; it != edges_.end(); ++it)
+  {
+    if (it->first.second == name)
     {
-      throw std::runtime_error("Edge not found\n");
+      Weight sortedWeights = it->second;
+      sort(sortedWeights, std::less< size_t >());
+      res.pushBack({it->first.first, sortedWeights});
     }
   }
+  sort(res, detail::CompareEdgeVec());
+  return res;
+}
 
-  bool Grath::hasVertex(const std::string& name) const
+petrov::Vector< petrov::EdgeVec > petrov::Grath::getOutputEdges(const std::string& name) const
+{
+  petrov::Vector< EdgeVec > res;
+  CHIter< EdgeKey, Weight > it = edges_.begin();
+  for (; it != edges_.end(); ++it)
   {
-    return vertices_.has(name);
-  }
-
-  bool Grath::hasEdge(const std::string& from, const std::string& to) const
-  {
-    return edges_.has({from, to});
-  }
-
-  topit::Vector< std::string > Grath::getVertices() const
-  {
-    CHIter< std::string, bool > it = vertices_.begin();
-    topit::Vector< std::string > res;
-    for (; it != vertices_.end(); ++it)
+    if (it->first.first == name)
     {
-      res.pushBack(it->key_);
+      Weight sortedWeights = it->second;
+      sort(sortedWeights, std::less< size_t >());
+      res.pushBack({it->first.second, sortedWeights});
     }
-    sort(res, Less< std::string >());
-    return res;
   }
+  sort(res, detail::CompareEdgeVec());
+  return res;
+}
 
-  topit::Vector< EdgeVec > Grath::getInputEdges(const std::string& name) const
-  {
-    topit::Vector< EdgeVec > res;
-    CHIter< EdgeKey, Weight > it = edges_.begin();
-    for (; it != edges_.end(); ++it) {
-      if (it->key_.second == name) {
-        Weight sortedWeights = it->value_;
-        sort(sortedWeights, Less< size_t >());
-        res.pushBack({it->key_.first, sortedWeights});
-      }
-    }
-    sort(res, [](const EdgeVec& a, const EdgeVec& b) { return a.first < b.first; });
-    return res;
-  }
-
-  topit::Vector< EdgeVec > Grath::getOutputEdges(const std::string& name) const
-  {
-    topit::Vector< EdgeVec > res;
-    CHIter< EdgeKey, Weight > it = edges_.begin();
-    for (; it != edges_.end(); ++it) {
-      if (it->key_.first == name) {
-        Weight sortedWeights = it->value_;
-        sort(sortedWeights, Less< size_t >());
-        res.pushBack({it->key_.second, sortedWeights});
-      }
-    }
-    sort(res, [](const EdgeVec& a, const EdgeVec& b) { return a.first < b.first; });
-    return res;
-  }
-
-  void Grath::swap(Grath& other) noexcept
-  {
-    edges_.swap(other.edges_);
-    vertices_.swap(other.vertices_);
-  }
+void petrov::Grath::swap(Grath& other) noexcept
+{
+  edges_.swap(other.edges_);
+  vertices_.swap(other.vertices_);
 }
