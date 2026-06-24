@@ -63,7 +63,10 @@ int main(int argc, char const *argv[])
     {
       cmd_t command = commands.at(cmd);
       (table.*command)(std::cout, std::cin, graphName);
-      std::cout << "\n";
+      if (cmd == "graphs" || cmd == "vertexes" || cmd == "outbound" || cmd == "inbound")
+      {
+        std::cout << "\n";
+      }
     }
     catch (...)
     {
