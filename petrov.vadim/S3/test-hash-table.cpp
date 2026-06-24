@@ -73,11 +73,11 @@ BOOST_AUTO_TEST_CASE(AtThrowsIfKeyNotFound)
 BOOST_AUTO_TEST_CASE(OperatorBracketCreatesDefault)
 {
   petrov::TestHT table(8);
-  table["new_key"] = 42; 
+  table["new_key"] = 42;
   BOOST_CHECK(table.size() == 1);
   BOOST_CHECK(table.at("new_key") == 42);
 
-  BOOST_CHECK(table["new_key"] == 42); 
+  BOOST_CHECK(table["new_key"] == 42);
 }
 
 BOOST_AUTO_TEST_CASE(DropRemovesKeyAndReturnsTrue)
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(IteratorSkipsTombstones)
   for (auto it = table.begin(); it != table.end(); ++it)
   {
     ++count;
-    sum += it->second; 
+    sum += it->second;
   }
 
   BOOST_CHECK(count == 2);

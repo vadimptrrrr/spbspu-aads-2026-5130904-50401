@@ -223,17 +223,17 @@ namespace petrov
     {
       return data_[f.idx].value;
     }
-    
+
     if (size_ == capacity_)
     {
-      throw std::runtime_error("No slot for add"); 
+      throw std::runtime_error("No slot for add");
     }
-    
+
     data_[f.idx].key = k;
     data_[f.idx].value = Value{};
     data_[f.idx].state = OCCUPIED;
     ++size_;
-    
+
     return data_[f.idx].value;
   }
 
